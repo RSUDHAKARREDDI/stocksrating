@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 from flask import Flask, request, redirect, url_for, flash, render_template,jsonify
 from werkzeug.utils import secure_filename
-from bp_sreeja import bp_sreeja
+#from bp_sreeja import bp_sreeja
 import commonfunctions as cf
 import file_list_config as flc
 from file_list_config import file_list_config
@@ -24,7 +24,7 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 # Register Blueprint
-app.register_blueprint(bp_sreeja)
+#app.register_blueprint(bp_sreeja)
 
 # ------------------------
 # Home, Dashboard, Index
