@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>📦 Data Load</h2>
+<p>Click a button to load CSVs for the selected config into MySQL.</p>
+
+<div style="display:flex; gap:16px; flex-wrap:wrap; margin:12px 0;">
+  {% for c in configs %}
+    <button
+      class="btn"
+      data-config="{{ c.key }}"
+      style="padding:10px 14px; border:0; border-radius:10px; cursor:pointer; box-shadow:0 1px 4px rgba(0,0,0,0.12);">
+      ⬇️ Load: <strong>{{ c.key }}</strong>
+    </button>
+  {% endfor %}
+</div>
+
+<h3 style="margin-top:24px">Configs</h3>
+<table style="width:100%; border-collapse:collapse;">
+  <thead>
+    <tr>
+      <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Config</th>
+      <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Target Directory</th>
+      <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Table</th>
+      <th style="text-align:left; padding:8px; border-bottom:1px solid #ddd;">Files</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in configs %}
+      <tr>
+        <td style="padding:8px; border-bottom:1px solid #f0f0f0;"><code>{{ c.key }}</code></td>
+        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">{{ c.dir }}</td>
+        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">{{ c.table }}</td>
+        <td style="padding:8px; border-bottom:1px solid #f0f0f0;">{{ c.files }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div id="status" style="margin-top:16px; padding:12px; border-radius:10px; display:none;"></div>
+
+<script>
+  const statusBox = document.getElementById('status');
+
+  function showStatus(msg, ok=true) {
+    statusBox.style.display = 'block';
+    statusBox.textContent = msg;
+    statusBox.style.background = ok ? '#e7f7ee' : '#fdecea';
+    statusBox.style.color = ok ? '#0f5132' : '#842029';
+    statusBox.style.border = '1px solid ' + (ok ? '#badbcc' : '#f5c2c7');
+  }
+
+  async function runLoad(key, btn){
+    try {
+      btn.disabled = true;
+      const original = btn.innerHTML;
+      btn.innerHTML = '⏳ Loading…';
+
+      const res = await fetch('{{ url_for("data_load_run") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({config: key})
+      });
+
+      const data = await res.json();
+      if (res.ok && data.status === 'success') {
+        showStatus(`✅ Loaded successfully for "${data.config}" into table "${data.table}".`, true);
+      } else {
+        showStatus(`❌ Failed: ${data.message || 'Unknown error'}`, false);
+      }
+
+      btn.innerHTML = original;
+      btn.disabled = false;
+    } catch (e) {
+      showStatus('❌ Request error: ' + e, false);
+      btn.disabled = false;
+      btn.innerHTML = 'Try Again';
+    }
+  }
+
+  document.querySelectorAll('button[data-config]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.getAttribute('data-config');
+      runLoad(key, btn);
+    });
+  });
+</script>
+
+<style>
+  /* Optional: simple button hover */
+  .btn:hover { transform: translateY(-1px); }
+</style>
+{% endblock %}

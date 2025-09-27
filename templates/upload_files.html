@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>📂 Uploaded Files</h2>
+
+<!-- Upload form on top -->
+<form method="post" enctype="multipart/form-data" style="margin-bottom:20px">
+    <input type="file" name="file">
+    <button type="submit">Upload</button>
+</form>
+
+<!-- Files list below -->
+{% if files %}
+<table border="1" cellpadding="6" cellspacing="0">
+    <tr>
+        <th>Filename</th>
+        <th>Last Modified</th>
+    </tr>
+    {% for file in files %}
+    <tr>
+        <td>{{ file.name }}</td>
+        <td>{{ file.last_modified }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<p>No files found.</p>
+{% endif %}
+
+{% endblock %}
