@@ -45,7 +45,7 @@ def upload_file():
     if request.method == "POST":
         # Validate presence of file part
         if "file" not in request.files:
-            flash("No file part in the request")
+             
             return redirect(request.url)
 
         file = request.files["file"]

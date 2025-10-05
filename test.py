@@ -4,4 +4,4 @@ UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles")  # keep it consistent & absolut
 
 print(f'Base DIR:{BASE_DIR}')
 
-print(f'Base DIR:{UPLOAD_DIR}')
+print(f'UPLOAD_DIR:{UPLOAD_DIR}')
