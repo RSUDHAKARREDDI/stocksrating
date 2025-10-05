@@ -8,11 +8,17 @@ import file_list_config as flc
 from file_list_config import file_list_config
 import logging
 import json
+from pathlib import Path
 
 
+# -------- Paths (robust & absolute) --------
+PROJECT_ROOT = Path(__file__).resolve().parent      # /home/you/yourproject
+UPLOAD_DIR = PROJECT_ROOT / "datafiles"          # /home/you/yourproject/datafiles
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles")  # keep it consistent & absolute
+def abs_path(p: str | os.PathLike) -> str:
+    """Return absolute path; if 'p' is relative, treat it as relative to PROJECT_ROOT."""
+    p = Path(p)
+    return str(p if p.is_absolute() else (PROJECT_ROOT / p).resolve())
 
 app = Flask(__name__)
 app.secret_key = "dev"  # for flashing messages
