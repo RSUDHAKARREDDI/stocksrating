@@ -27,15 +27,34 @@ def move_files(file_list, target_dir=None, file_list_config=None):
     - If target_dir is None, look up each file's destination from file_list_config
       by matching its basename to the config's file_list.
     """
+    # 🔒 Always resolve relative paths against this script's directory
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+    def _abs(p):
+        if not p:
+            return p
+        return p if os.path.isabs(p) else os.path.abspath(os.path.join(BASE_DIR, p))
+
+    # Normalize target_dir (if provided)
+    if target_dir is not None:
+        target_dir = _abs(target_dir)
+
+    # Prepare destination map
     if target_dir is None:
         if not file_list_config:
             raise ValueError("target_dir is None and file_list_config not provided.")
-        dest_map = _build_dest_map(file_list_config)
+        dest_map = _build_dest_map(file_list_config)  # your existing helper
+        # Normalize all mapped destination directories to absolute under BASE_DIR
+        for k, v in list(dest_map.items()):
+            dest_map[k] = _abs(v)
 
     results = {"moved": [], "not_found": [], "skipped_no_target": [], "errors": []}
 
     for file_path in file_list:
-        if not os.path.exists(file_path):
+        # Normalize incoming file path (in case it is relative)
+        src_path = file_path if os.path.isabs(file_path) else _abs(file_path)
+
+        if not os.path.exists(src_path):
             print(f"File not found: {file_path}")
             results["not_found"].append(file_path)
             continue
@@ -43,7 +62,7 @@ def move_files(file_list, target_dir=None, file_list_config=None):
         # Determine destination directory
         dest_dir = target_dir
         if dest_dir is None:
-            key = os.path.basename(file_path)
+            key = os.path.basename(file_path)  # match on the original basename
             dest_dir = dest_map.get(key)
 
         if not dest_dir:
@@ -53,11 +72,11 @@ def move_files(file_list, target_dir=None, file_list_config=None):
 
         try:
             os.makedirs(dest_dir, exist_ok=True)
-            shutil.move(file_path, dest_dir)
-            print(f"Moved: {file_path} -> {dest_dir}")
+            shutil.move(src_path, dest_dir)
+            print(f"Moved: {src_path} -> {dest_dir}")
             results["moved"].append((file_path, dest_dir))
         except Exception as e:
-            print(f"Error moving {file_path}: {e}")
+            print(f"Error moving {src_path}: {e}")
             results["errors"].append((file_path, dest_dir, str(e)))
 
     return results

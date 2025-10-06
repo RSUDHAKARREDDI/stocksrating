@@ -4,7 +4,6 @@ from flask import Flask, request, redirect, url_for, flash, render_template,json
 from werkzeug.utils import secure_filename
 #from bp_sreeja import bp_sreeja
 import commonfunctions as cf
-import file_list_config as flc
 from file_list_config import file_list_config
 import logging
 import json
@@ -23,11 +22,7 @@ def abs_path(p: str | os.PathLike) -> str:
 app = Flask(__name__)
 app.secret_key = "dev"  # for flashing messages
 
-# Config
-app.config["UPLOAD_FOLDER"] = UPLOAD_DIR
 
-# Ensure folder exists
-os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 # Register Blueprint
 #app.register_blueprint(bp_sreeja)
@@ -62,7 +57,7 @@ def upload_file():
             return redirect(request.url)
 
         # Ensure temp upload folder exists
-        temp_dir = app.config.get("UPLOAD_FOLDER", "uploads")
+        temp_dir = 'UPLOAD_DIR/temp'
         os.makedirs(temp_dir, exist_ok=True)
 
         # Normalize filename and save temporarily
