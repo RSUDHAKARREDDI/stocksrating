@@ -95,11 +95,13 @@ def upload_file():
     try:
         for section, cfg in file_list_config.items():
             folder = cfg.get("target_directory")
+            flash(f"Folder: {folder}")
             if not folder or not os.path.exists(folder):
                 continue
 
             for fname in sorted(os.listdir(folder)):
                 fpath = os.path.join(folder, fname)
+                flash(f"fpath: {fpath}")
                 if os.path.isfile(fpath):
                     last_modified = os.path.getmtime(fpath)
                     files_info.append({

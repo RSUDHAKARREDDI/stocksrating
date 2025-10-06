@@ -12,11 +12,13 @@
 {% if files %}
 <table border="1" cellpadding="6" cellspacing="0">
     <tr>
+        <th>File Path</th>
         <th>Filename</th>
         <th>Last Modified</th>
     </tr>
     {% for file in files %}
     <tr>
+        <td>{{ file.folder }}</td>
         <td>{{ file.name }}</td>
         <td>{{ file.last_modified }}</td>
     </tr>
