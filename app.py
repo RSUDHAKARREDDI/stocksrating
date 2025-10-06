@@ -11,12 +11,11 @@ from pathlib import Path
 
 
 # -------- Paths (robust & absolute) --------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))      # /home/you/yourproject
-UPLOAD_DIR = f'{BASE_DIR}/datafiles'          # /home/you/yourproject/datafiles
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 DATAFILES_DIR = os.path.join(BASE_DIR, "datafiles")
+UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles")
+
 
 app = Flask(__name__)
 app.secret_key = "dev"  # for flashing messages
@@ -155,7 +154,7 @@ def data_load_run():
     cfg = file_list_config[key]
     try:
         res = cf.load_csvs_to_mysql(
-            directory=cfg["target_directory"],
+            directory=os.path.join(BASE_DIR, cfg["target_directory"]),
             table_name=cfg["table_name"],
 
         )
