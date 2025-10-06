@@ -14,6 +14,10 @@ from pathlib import Path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))      # /home/you/yourproject
 UPLOAD_DIR = f'{BASE_DIR}/datafiles'          # /home/you/yourproject/datafiles
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+DATAFILES_DIR = os.path.join(BASE_DIR, "datafiles")
+
 app = Flask(__name__)
 app.secret_key = "dev"  # for flashing messages
 
@@ -95,7 +99,7 @@ def upload_file():
     try:
         for section, cfg in file_list_config.items():
             folder = cfg.get("target_directory")
-            flash(f"Folder: {folder}")
+            abs_folder_path=os.path.join(BASE_DIR, folder)
             if not folder or not os.path.exists(folder):
                 continue
 

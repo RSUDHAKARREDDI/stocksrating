@@ -7,6 +7,7 @@ import pandas as pd
 from db_config import DB_CONFIG
 
 
+
 connection_url = (f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@"f"{DB_CONFIG['host']}:3306/{DB_CONFIG['database']}")
 
 
