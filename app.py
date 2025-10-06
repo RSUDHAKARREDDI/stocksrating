@@ -11,13 +11,8 @@ from pathlib import Path
 
 
 # -------- Paths (robust & absolute) --------
-PROJECT_ROOT = Path(__file__).resolve().parent      # /home/you/yourproject
-UPLOAD_DIR = PROJECT_ROOT / "datafiles"          # /home/you/yourproject/datafiles
-
-def abs_path(p: str | os.PathLike) -> str:
-    """Return absolute path; if 'p' is relative, treat it as relative to PROJECT_ROOT."""
-    p = Path(p)
-    return str(p if p.is_absolute() else (PROJECT_ROOT / p).resolve())
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))      # /home/you/yourproject
+UPLOAD_DIR = f'{BASE_DIR}/datafiles'          # /home/you/yourproject/datafiles
 
 app = Flask(__name__)
 app.secret_key = "dev"  # for flashing messages
@@ -57,7 +52,7 @@ def upload_file():
             return redirect(request.url)
 
         # Ensure temp upload folder exists
-        temp_dir = 'UPLOAD_DIR/temp'
+        temp_dir = f'{UPLOAD_DIR}/temp'
         os.makedirs(temp_dir, exist_ok=True)
 
         # Normalize filename and save temporarily
