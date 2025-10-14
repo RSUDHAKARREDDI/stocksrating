@@ -2,7 +2,8 @@ import os
 from datetime import datetime
 from flask import Flask, request, redirect, url_for, flash, render_template,jsonify
 from werkzeug.utils import secure_filename
-#from bp_sreeja import bp_sreeja
+from sreeja_bp import sreeja_bp
+from sravani_bp import sravani_bp
 import commonfunctions as cf
 from file_list_config import file_list_config
 import logging
@@ -23,7 +24,8 @@ app.secret_key = "dev"  # for flashing messages
 
 
 # Register Blueprint
-#app.register_blueprint(bp_sreeja)
+app.register_blueprint(sreeja_bp)
+app.register_blueprint(sravani_bp)
 
 # ------------------------
 # Home, Dashboard, Index

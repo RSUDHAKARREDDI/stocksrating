@@ -128,8 +128,34 @@ def load_csvs_to_mysql(
                     result["skipped_files"].append(filename)
                     continue
 
-                # Add source column, normalize NaNs→NULL
+                # Add source column
                 df["screener"] = os.path.splitext(filename)[0]
+
+                # ---- NEW: Market Cap bucket from "Market Capitalization" ----
+                if "Market Capitalization" in df.columns:
+                    # normalize number (remove commas/percent/space etc.)
+                    cap_raw = df["Market Capitalization"].astype(str).str.replace(",", "", regex=False).str.strip()
+                    cap_num = pd.to_numeric(cap_raw, errors="coerce")
+
+                    def _cap_bucket(x):
+                        if pd.isna(x):
+                            return None
+                        if x < 1000:
+                            return "MICRO CAP"
+                        elif x < 5000:
+                            return "SMALL CAP"
+                        elif x < 20000:
+                            return "MID CAP"
+                        else:
+                            return "LARGE CAP"
+
+                    df["Market Cap"] = [ _cap_bucket(v) for v in cap_num ]
+                else:
+                    # Column missing: still add "Market Cap" so schema stays consistent
+                    logging.warning(f'"Market Capitalization" missing in {filename}; setting "Market Cap" = NULL')
+                    df["Market Cap"] = None
+
+                # Normalize NaNs→NULL (after adding Market Cap)
                 df = df.where(pd.notnull(df), None)
 
                 try:

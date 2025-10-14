@@ -5,15 +5,17 @@
   <title>{% block title %}My App{% endblock %}</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+-   display: flex;
+-   flex-direction: column;
+-   align-items: center;
++   /* Let content span full width */
++   display: block;
+  }
 
     /* Header */
     .header {
@@ -69,15 +71,20 @@
     }
 
     /* Container */
-    .container {
-      background: #fff;
-      margin-top: 30px;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      width: 500px;
-      text-align: center;
-    }
+  .container {
+    background: #fff;
+    margin-top: 30px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+-   width: 500px;
+-   text-align: center;
++   /* Grow to page width, but keep a nice max */
++   width: min(1400px, 96vw);
++   margin-left: auto;
++   margin-right: auto;
++   text-align: center;
+  }
 
     h2, h3 {
       color: #333;
@@ -118,8 +125,8 @@
     <a href="/home">Home</a>
     <a href="/upload-files">Upload</a>
     <a href="/data-load">Data Load</a>
-    <a href="/stocks">Stocks Data</a>
-    <a href="/dashboard">Dashboard</a>
+    <a href="/latest-results">Latest Results</a>
+    <a href="/screeners">Screeners</a>
 
   </div>
   <div class="layout-wrapper">

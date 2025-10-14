@@ -1,0 +1,411 @@
+{% extends "layout.html" %}
+{% block title %}Latest Results{% endblock %}
+
+{% block content %}
+<style>
+  .page-wrap { display:flex; gap:18px; align-items:flex-start; }
+  .filters {
+    flex: 0 0 260px; width:260px;
+    background:#fff; border:1px solid #eee; border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,.06); padding:16px;
+    position:sticky; top:16px; max-height:84vh; overflow:auto;
+  }
+  .results { flex:1 1 auto; min-width:0; background:#fff; border-radius:12px;
+    box-shadow:0 4px 10px rgba(0,0,0,.06); padding:20px; }
+
+  .filters h3 { margin:0 0 10px; font-size:18px; color:#333; }
+  .filters label { display:block; font-size:12px; color:#666; margin-top:10px; }
+  .filters input, .filters select { width:100%; padding:8px; border:1px solid #ddd; border-radius:8px; }
+  .filters select[multiple] { height:120px; }
+  .filters .btn-row { display:flex; gap:8px; margin-top:14px; }
+  .filters button { padding:8px 10px; border-radius:8px; border:1px solid #ddd; background:#f7f7f7; cursor:pointer; }
+
+  .range-box { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+  .hint { color:#777; font-size:12px; }
+
+  .table-wrap { position:relative; overflow:auto; max-height:80vh; border:1px solid #eee; border-radius:12px; }
+  table { width:100%; border-collapse:collapse; min-width:1400px; font-size:13px; line-height:1.3; }
+  thead th {
+    position:sticky; top:0; z-index:1;
+    background:#f7f7f7; padding:8px 10px; text-align:left; border-bottom:1px solid #e9e9e9;
+    font-size:12.5px; letter-spacing:.02em; color:#444; cursor:pointer; user-select:none;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+  }
+  tbody td { padding:8px 10px; border-bottom:1px solid #f2f2f2; color:#2c2c2c; }
+
+  tbody tr:nth-child(even) { background:#fafafa; }
+  tbody tr:hover { background:#eef6ff; }
+
+  th.num, td.num { text-align:right; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+  th.sort-asc::after  { content:" ▲"; font-size:11px; color:#777; }
+  th.sort-desc::after { content:" ▼"; font-size:11px; color:#777; }
+</style>
+
+<div class="container">
+  <div class="page-wrap">
+
+    <!-- Left panel (filters) -->
+    <div class="filters" id="filters">
+      <h3>Filters</h3>
+
+      <label>Name (contains)</label>
+      <input type="text" id="f_name" placeholder="e.g., TCS">
+
+      <label>Industry (multi-select)</label>
+      <select id="f_industry_multi" multiple></select>
+
+      <div class="row" style="display:flex; gap:8px;">
+        <div style="flex:1">
+          <label>P/E ≥</label>
+          <input type="number" step="0.01" id="f_pe_min">
+        </div>
+        <div style="flex:1">
+          <label>P/E ≤</label>
+          <input type="number" step="0.01" id="f_pe_max">
+        </div>
+      </div>
+
+      <!-- Single sliders (≥ threshold) -->
+      <div class="range-box">
+        <label>ROE ≥</label>
+        <input type="range" id="f_roe_min_r">
+        <small id="f_roe_hint" class="hint"></small>
+      </div>
+
+      <div class="range-box">
+        <label>ROCE ≥</label>
+        <input type="range" id="f_roce_min_r">
+        <small id="f_roce_hint" class="hint"></small>
+      </div>
+
+      <label>Market Cap (multi-select)</label>
+      <select id="f_mcap_multi" multiple></select>
+
+      <div class="range-box">
+        <label>MC Essentials ≥</label>
+        <input type="range" id="f_ess_min_r">
+        <small id="f_ess_hint" class="hint"></small>
+      </div>
+
+      <label>MC Technicals (multi-select)</label>
+      <select id="f_mc_tech_multi" multiple></select>
+
+      <div class="btn-row">
+        <button type="button" id="btn_reset">Reset</button>
+      </div>
+    </div>
+
+    <!-- Right: Results -->
+    <div class="results">
+      <h2>Latest Results</h2>
+      <div class="table-wrap">
+        <table id="resultsTable">
+          <thead>
+            <tr>
+              <th data-type="text">Name</th>
+              <th data-type="text">BSE Code</th>
+              <th data-type="text">NSE Code</th>
+              <th data-type="text">Industry</th>
+              <th data-type="num"  class="num">Current Price</th>
+              <th data-type="num"  class="num">Market Capitalization</th>
+              <th data-type="text">Market Cap</th>
+              <th data-type="num"  class="num">Promoter holding</th>
+              <th data-type="num"  class="num">Price to Earning</th>
+              <th data-type="num"  class="num">Industry PE</th>
+              <th data-type="num"  class="num">Return over 1week</th>
+              <th data-type="num"  class="num">Return over 1month</th>
+              <th data-type="num"  class="num">Return over 3months</th>
+              <th data-type="num"  class="num">Return over 6months</th>
+              <th data-type="num"  class="num">EPS latest quarter</th>
+              <th data-type="num"  class="num">EPS preceding quarter</th>
+              <th data-type="num"  class="num">EPS preceding year quarter</th>
+              <th data-type="num"  class="num">Debt</th>
+              <th data-type="num"  class="num">OPM latest quarter</th>
+              <th data-type="num"  class="num">OPM preceding quarter</th>
+              <th data-type="num"  class="num">Return on equity</th>
+              <th data-type="num"  class="num">Return on capital employed</th>
+              <th data-type="num"  class="num">Price to book value</th>
+              <th data-type="num"  class="num">FII holding</th>
+              <th data-type="num"  class="num">DII holding</th>
+              <th data-type="num"  class="num">Public holding</th>
+              <th data-type="date">Last result date</th>
+              <th data-type="text">screener</th>
+              <th data-type="num"  class="num">mc essentials</th>
+              <th data-type="text">mc technicals</th>
+              <th data-type="num"  class="num">Margin</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for r in rows %}
+            <tr>
+              <td>{{ r['Name'] }}</td>
+              <td>{{ r['BSE Code'] }}</td>
+              <td>{{ r['NSE Code'] }}</td>
+              <td>{{ r['Industry'] }}</td>
+              <td class="num">{{ r['Current Price'] }}</td>
+              <td class="num">{{ r['Market Capitalization'] }}</td>
+              <td>{{ r['Market Cap'] }}</td>
+              <td class="num">{{ r['Promoter holding'] }}</td>
+              <td class="num">{{ r['Price to Earning'] }}</td>
+              <td class="num">{{ r['Industry PE'] }}</td>
+              <td class="num">{{ r['Return over 1week'] }}</td>
+              <td class="num">{{ r['Return over 1month'] }}</td>
+              <td class="num">{{ r['Return over 3months'] }}</td>
+              <td class="num">{{ r['Return over 6months'] }}</td>
+              <td class="num">{{ r['EPS latest quarter'] }}</td>
+              <td class="num">{{ r['EPS preceding quarter'] }}</td>
+              <td class="num">{{ r['EPS preceding year quarter'] }}</td>
+              <td class="num">{{ r['Debt'] }}</td>
+              <td class="num">{{ r['OPM latest quarter'] }}</td>
+              <td class="num">{{ r['OPM preceding quarter'] }}</td>
+              <td class="num">{{ r['Return on equity'] }}</td>
+              <td class="num">{{ r['Return on capital employed'] }}</td>
+              <td class="num">{{ r['Price to book value'] }}</td>
+              <td class="num">{{ r['FII holding'] }}</td>
+              <td class="num">{{ r['DII holding'] }}</td>
+              <td class="num">{{ r['Public holding'] }}</td>
+              <td>{{ r['Last result date'] }}</td>
+              <td>{{ r['screener'] }}</td>
+              <td class="num">{{ r['mc essentials'] }}</td>
+              <td>{{ r['mc technicals'] }}</td>
+              <td class="num">{{ r['Margin'] }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const $  = (s,p=document)=>p.querySelector(s);
+  const $$ = (s,p=document)=>Array.from(p.querySelectorAll(s));
+
+  const table = $("#resultsTable");
+  const tbody = table.tBodies[0];
+
+  // ----- Sorting -----
+  let sortState = { col: null, dir: 1 };
+  $$("#resultsTable thead th").forEach((th, idx) => {
+    th.addEventListener("click", () => {
+      const type = th.dataset.type || "text";
+      sortState.dir = (sortState.col === idx) ? -sortState.dir : 1;
+      sortState.col = idx;
+      $$("#resultsTable thead th").forEach(h=>h.classList.remove("sort-asc","sort-desc"));
+      th.classList.add(sortState.dir === 1 ? "sort-asc" : "sort-desc");
+      const rows = $$("#resultsTable tbody tr");
+      rows.sort((a,b)=> compare(get(a,idx), get(b,idx), type) * sortState.dir);
+      rows.forEach(r=>tbody.appendChild(r));
+    });
+  });
+
+  function get(tr, idx){ return tr.children[idx].textContent.trim(); }
+  function toNum(v){
+    if(!v) return NaN;
+    const s = v.replace(/[^\d.+\-eE]/g,'');
+    if(!s || s==='+'||s==='-'||s==='.') return NaN;
+    return parseFloat(s);
+  }
+  function compare(a,b,type){
+    if(type==="num"){
+      const x=toNum(a), y=toNum(b);
+      if(isNaN(x)&&isNaN(y)) return 0;
+      if(isNaN(x)) return 1;
+      if(isNaN(y)) return -1;
+      return x-y;
+    } else if(type==="date"){
+      return new Date(a) - new Date(b);
+    } else {
+      return a.localeCompare(b, undefined, {sensitivity:"base"});
+    }
+  }
+
+  // ----- Filters -----
+  const F = {
+    name: $("#f_name"),
+    industryMulti: $("#f_industry_multi"),
+    pe_min: $("#f_pe_min"),
+    pe_max: $("#f_pe_max"),
+
+    // Single sliders (≥) — start INACTIVE
+    roe_min_r:  $("#f_roe_min_r"),
+    roe_hint:   $("#f_roe_hint"),
+    roce_min_r: $("#f_roce_min_r"),
+    roce_hint:  $("#f_roce_hint"),
+    ess_min_r:  $("#f_ess_min_r"),
+    ess_hint:   $("#f_ess_hint"),
+
+    // Multi-selects
+    mcap_multi:     $("#f_mcap_multi"),
+    mc_tech_multi:  $("#f_mc_tech_multi"),
+
+    btn_reset: $("#btn_reset"),
+  };
+
+  // Column indices
+  const idx = {
+    name:0, bse:1, nse:2, industry:3,
+    price:4, mcap_capitalization:5, mcap:6,
+    promoter:7, pe:8, indpe:9,
+    r1w:10, r1m:11, r3m:12, r6m:13,
+    eps_lq:14, eps_pq:15, eps_pyq:16, debt:17,
+    opm_lq:18, opm_pq:19, roe:20, roce:21, pbv:22,
+    fii:23, dii:24, pub:25, date:26, scr:27, ess:28, tech:29, margin:30
+  };
+
+  // Multi-selects (Industry, Technicals, Market Cap)
+  function fillMultiSelect(selectEl, values){
+    selectEl.innerHTML = "";
+    values.sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:"base"}))
+          .forEach(v=>{
+            const opt = document.createElement("option");
+            opt.value = opt.textContent = v;
+            selectEl.appendChild(opt);
+          });
+  }
+  function uniqueColumnValues(colIndex){
+    const set = new Set();
+    $$("#resultsTable tbody tr").forEach(tr=>{
+      const val = tr.children[colIndex].textContent.trim();
+      if(val) set.add(val);
+    });
+    return Array.from(set);
+  }
+  fillMultiSelect(F.industryMulti, uniqueColumnValues(idx.industry));
+  fillMultiSelect(F.mc_tech_multi, uniqueColumnValues(idx.tech));
+  fillMultiSelect(F.mcap_multi,    uniqueColumnValues(idx.mcap));
+
+  // ---- Sliders: inactive until moved ----
+  function colMinMax(colIndex){
+    let min = +Infinity, max = -Infinity;
+    $$("#resultsTable tbody tr").forEach(tr=>{
+      const n = toNum(tr.children[colIndex].textContent);
+      if(isFinite(n)){
+        if(n < min) min = n;
+        if(n > max) max = n;
+      }
+    });
+    if(min === +Infinity) min = 0;
+    if(max === -Infinity) max = 0;
+    return {min, max};
+  }
+
+  function setupMinSlider(sliderEl, hintEl, colIndex){
+    const {min, max} = colMinMax(colIndex);
+    const span = Math.max(1, max - min);
+    let step = Math.pow(10, Math.floor(Math.log10(span)) - 2);
+    if(!isFinite(step) || step <= 0) step = 1;
+
+    sliderEl.min = String(Math.floor(min));
+    sliderEl.max = String(Math.ceil(max));
+    sliderEl.step = String(step);
+    sliderEl.value = String(Math.floor(min));
+
+    // mark inactive by default; becomes active on first input
+    sliderEl.dataset.minBound = sliderEl.value;
+    sliderEl.dataset.active   = "0";
+    if(hintEl) hintEl.textContent = "All";
+
+    sliderEl.addEventListener("input", ()=>{
+      sliderEl.dataset.active = "1";
+      if(hintEl) hintEl.textContent = `≥ ${sliderEl.value}`;
+      applyFilters();
+    });
+  }
+
+  // init single sliders (INACTIVE initially)
+  setupMinSlider(F.roe_min_r,  F.roe_hint,  idx.roe);
+  setupMinSlider(F.roce_min_r, F.roce_hint, idx.roce);
+  setupMinSlider(F.ess_min_r,  F.ess_hint,  idx.ess);
+
+  // helpers
+  function debounce(fn, ms){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), ms); }; }
+  function selectedValues(selectEl){ return Array.from(selectEl.selectedOptions || []).map(o=>o.value.toLowerCase()); }
+  function matchesText(value, needle){ if(!needle) return true; return value.toLowerCase().includes(needle.toLowerCase()); }
+
+  // ≥ check but only if slider is active
+  function gteIfActive(sliderEl, cellText){
+    if(!sliderEl || sliderEl.dataset.active !== "1") return true; // inactive => pass all
+    const v = toNum(cellText);
+    if(!isFinite(v)) return false; // active and cell not numeric => fail
+    return v >= parseFloat(sliderEl.value);
+  }
+
+  function betweenNum(val, min, max){
+    const v = toNum(val);
+    if(!isFinite(v)) return false;
+    if(min !== "" && isFinite(min) && v < parseFloat(min)) return false;
+    if(max !== "" && isFinite(max) && v > parseFloat(max)) return false;
+    return true;
+  }
+
+  const baseInputs = [
+    F.name, F.industryMulti, F.mc_tech_multi, F.mcap_multi, F.pe_min, F.pe_max
+  ].filter(Boolean);
+
+  baseInputs.forEach(el=>{
+    const evt = (el.tagName === "SELECT") ? "change" : "input";
+    el.addEventListener(evt, debounce(applyFilters, 120));
+  });
+
+  F.btn_reset.addEventListener("click", resetFilters);
+
+  function applyFilters(){
+    const indSel  = new Set(selectedValues(F.industryMulti));
+    const techSel = new Set(selectedValues(F.mc_tech_multi));
+    const mcapSel = new Set(selectedValues(F.mcap_multi));
+
+    $$("#resultsTable tbody tr").forEach(tr=>{
+      const c = tr.children;
+
+      const nameOk = matchesText(c[idx.name].textContent, F.name.value);
+
+      const indVal = c[idx.industry].textContent.trim().toLowerCase();
+      const industryOk = indSel.size === 0 || indSel.has(indVal);
+
+      const peOk   = (()=>{
+        const min = F.pe_min.value === "" ? -Infinity : parseFloat(F.pe_min.value);
+        const max = F.pe_max.value === "" ? +Infinity : parseFloat(F.pe_max.value);
+        return betweenNum(c[idx.pe].textContent, min, max);
+      })();
+
+      // single sliders (≥), only if user moved them
+      const roeOk  = gteIfActive(F.roe_min_r,  c[idx.roe].textContent);
+      const roceOk = gteIfActive(F.roce_min_r, c[idx.roce].textContent);
+      const essOk  = gteIfActive(F.ess_min_r,  c[idx.ess].textContent);
+
+      // Market Cap multi-select (text)
+      const mcapVal = c[idx.mcap].textContent.trim().toLowerCase();
+      const mcapOk  = mcapSel.size === 0 || mcapSel.has(mcapVal);
+
+      const techVal = c[idx.tech].textContent.trim().toLowerCase();
+      const techOk  = techSel.size === 0 || techSel.has(techVal);
+
+      const ok = nameOk && industryOk && peOk && roeOk && roceOk && essOk && mcapOk && techOk;
+      tr.style.display = ok ? "" : "none";
+    });
+  }
+
+  function resetFilters(){
+    [F.name, F.pe_min, F.pe_max].forEach(el => { if(el) el.value = ""; });
+    [F.industryMulti, F.mc_tech_multi, F.mcap_multi].forEach(sel=>{
+      if(!sel) return; Array.from(sel.options).forEach(o=>o.selected = false);
+    });
+
+    // re-init sliders to INACTIVE
+    setupMinSlider(F.roe_min_r,  F.roe_hint,  idx.roe);
+    setupMinSlider(F.roce_min_r, F.roce_hint, idx.roce);
+    setupMinSlider(F.ess_min_r,  F.ess_hint,  idx.ess);
+
+    applyFilters(); // now with all sliders inactive => show all rows
+  }
+
+  // Initial render (no filters active)
+  applyFilters();
+})();
+</script>
+
+{% endblock %}
