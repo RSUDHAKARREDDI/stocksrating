@@ -4,11 +4,11 @@ import os
 from sqlalchemy import create_engine, text
 import logging
 import pandas as pd
-from db_config import DB_CONFIG
+from config_db import HOST, PORT, USER, PASSWORD, DB
 
 
 
-connection_url = (f"mysql+mysqlconnector://{DB_CONFIG['user']}:{DB_CONFIG['password']}@"f"{DB_CONFIG['host']}:3306/{DB_CONFIG['database']}")
+connection_url = (f"mysql+mysqlconnector://{USER}:{PASSWORD}@"f"{HOST}:3306/{DB}")
 
 
 def _build_dest_map(file_list_config: dict) -> dict:
