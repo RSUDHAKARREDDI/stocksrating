@@ -8,7 +8,7 @@ from config_db import HOST, PORT, USER, PASSWORD, DB
 
 
 
-connection_url = (f"mysql+mysqlconnector://{USER}:{PASSWORD}@"f"{HOST}:3306/{DB}")
+connection_url = (f"mysql+mysqlconnector://{USER}:{PASSWORD}@"f"{HOST}:{PORT}/{DB}")
 
 
 def _build_dest_map(file_list_config: dict) -> dict:
