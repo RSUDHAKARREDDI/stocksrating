@@ -232,4 +232,3 @@ def load_csvs_to_mysql(
         except Exception:
             pass
 
-load_csvs_to_mysql('datafiles\mctechnicals','mc_technicals')
