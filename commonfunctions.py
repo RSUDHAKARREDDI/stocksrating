@@ -1,11 +1,9 @@
 import os
-import shutil
-import os
-from sqlalchemy import create_engine, text
+import os, shutil, time
+from sqlalchemy import create_engine, text,inspect
 import logging
 import pandas as pd
 from config_db import HOST, PORT, USER, PASSWORD, DB
-
 
 
 connection_url = (f"mysql+mysqlconnector://{USER}:{PASSWORD}@"f"{HOST}:{PORT}/{DB}")
@@ -27,6 +25,8 @@ def move_files(file_list, target_dir=None, file_list_config=None):
     - If target_dir is provided, move all files there.
     - If target_dir is None, look up each file's destination from file_list_config
       by matching its basename to the config's file_list.
+    Overwrite behavior: if a file with the same name exists at the destination,
+    it will be replaced (atomically where possible).
     """
     # 🔒 Always resolve relative paths against this script's directory
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -73,9 +73,34 @@ def move_files(file_list, target_dir=None, file_list_config=None):
 
         try:
             os.makedirs(dest_dir, exist_ok=True)
-            shutil.move(src_path, dest_dir)
-            print(f"Moved: {src_path} -> {dest_dir}")
+
+            fname = os.path.basename(src_path)
+            dest_path = os.path.join(dest_dir, fname)
+
+            # If src and dest are same path, skip
+            if os.path.abspath(src_path) == os.path.abspath(dest_path):
+                print(f"Already in place: {src_path}")
+                results["moved"].append((file_path, dest_dir))
+                continue
+
+            # --- Overwrite-safe move ---
+            # Fast path: same filesystem -> atomic replace
+            try:
+                os.replace(src_path, dest_path)  # overwrites if exists
+            except OSError:
+                # Cross-device move: copy to a temp, then atomic replace
+                tmp_path = f"{dest_path}.tmp__{int(time.time()*1000)}"
+                shutil.copy2(src_path, tmp_path)
+                os.replace(tmp_path, dest_path)
+                # remove source only after successful replace
+                try:
+                    os.unlink(src_path)
+                except FileNotFoundError:
+                    pass
+
+            print(f"Moved (overwrote if existed): {src_path} -> {dest_path}")
             results["moved"].append((file_path, dest_dir))
+
         except Exception as e:
             print(f"Error moving {src_path}: {e}")
             results["errors"].append((file_path, dest_dir, str(e)))
@@ -92,7 +117,10 @@ def load_csvs_to_mysql(
     """
     Load ALL CSV files from a directory into a MySQL table.
     Deletes existing rows, then appends rows from each CSV.
-    Returns a result dict with counts and errors; raises if nothing inserted.
+    - Derives "Market Cap" ONLY if the table already has a "Market Cap" column
+      AND the CSV has "Market Capitalization".
+    - Adds "screener" ONLY if the table already has a "screener" column.
+    - DataFrame is trimmed to existing table columns before insert.
     """
     result = {
         "directory": directory,
@@ -111,6 +139,15 @@ def load_csvs_to_mysql(
         raise RuntimeError(f"No CSV files found in: {directory}")
 
     engine = create_engine(connection_url, pool_pre_ping=True)
+    insp = inspect(engine)
+
+    if not insp.has_table(table_name):
+        raise RuntimeError(f'Table "{table_name}" does not exist. Create it first.')
+
+    # Reflect existing columns from the target table
+    existing_cols = {c["name"] for c in insp.get_columns(table_name)}
+    has_market_cap_col = "Market Cap" in existing_cols
+    has_screener_col   = "screener" in existing_cols
 
     try:
         with engine.begin() as conn:
@@ -128,13 +165,18 @@ def load_csvs_to_mysql(
                     result["skipped_files"].append(filename)
                     continue
 
-                # Add source column
-                df["screener"] = os.path.splitext(filename)[0]
+                # Conditionally add screener only if column exists in table
+                if has_screener_col:
+                    df["screener"] = os.path.splitext(filename)[0]
 
-                # ---- NEW: Market Cap bucket from "Market Capitalization" ----
-                if "Market Capitalization" in df.columns:
-                    # normalize number (remove commas/percent/space etc.)
-                    cap_raw = df["Market Capitalization"].astype(str).str.replace(",", "", regex=False).str.strip()
+                # Conditionally derive Market Cap ONLY if table has that column
+                if has_market_cap_col and ("Market Capitalization" in df.columns):
+                    cap_raw = (
+                        df["Market Capitalization"]
+                        .astype(str)
+                        .str.replace(",", "", regex=False)
+                        .str.strip()
+                    )
                     cap_num = pd.to_numeric(cap_raw, errors="coerce")
 
                     def _cap_bucket(x):
@@ -150,12 +192,14 @@ def load_csvs_to_mysql(
                             return "LARGE CAP"
 
                     df["Market Cap"] = [ _cap_bucket(v) for v in cap_num ]
-                else:
-                    # Column missing: still add "Market Cap" so schema stays consistent
-                    logging.warning(f'"Market Capitalization" missing in {filename}; setting "Market Cap" = NULL')
-                    df["Market Cap"] = None
+                # Else: do NOT create/append "Market Cap" column at all
 
-                # Normalize NaNs→NULL (after adding Market Cap)
+                # Keep only columns that already exist in the table
+                # (missing columns in df will default to NULL on insert)
+                cols_to_use = [c for c in df.columns if c in existing_cols]
+                df = df[cols_to_use]
+
+                # Normalize NaNs→NULL for SQL
                 df = df.where(pd.notnull(df), None)
 
                 try:
@@ -188,3 +232,4 @@ def load_csvs_to_mysql(
         except Exception:
             pass
 
+load_csvs_to_mysql('datafiles\mctechnicals','mc_technicals')

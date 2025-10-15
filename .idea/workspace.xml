@@ -4,18 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="before to add market cap column">
-      <change afterPath="$PROJECT_DIR$/sravani_bp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sreeja_bp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/screeners.html" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="PORT parametrise">
       <change afterPath="$PROJECT_DIR$/test1.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/commonfunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/commonfunctions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mstockmargin_to_mysql.py" beforeDir="false" afterPath="$PROJECT_DIR$/mstockmargin_to_mysql.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -67,7 +60,7 @@
     &quot;last_opened_file_path&quot;: &quot;C:/Users/T490/PycharmProjects/stocksrating&quot;
   }
 }</component>
-  <component name="RunManager" selected="Python.test1">
+  <component name="RunManager" selected="Python.commonfunctions">
     <configuration name="commonfunctions" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
@@ -158,8 +151,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.test1" />
         <item itemvalue="Python.commonfunctions" />
+        <item itemvalue="Python.test1" />
         <item itemvalue="Python.test" />
         <item itemvalue="Python.latestresults_to_mysql" />
       </list>
@@ -285,7 +278,23 @@
       <option name="project" value="LOCAL" />
       <updated>1760452486757</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="v1.0 first report">
+      <option name="closed" value="true" />
+      <created>1760461740255</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1760461740255</updated>
+    </task>
+    <task id="LOCAL-00015" summary="PORT parametrise">
+      <option name="closed" value="true" />
+      <created>1760463826372</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1760463826372</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -293,6 +302,8 @@
     <MESSAGE value="path issue corrected" />
     <MESSAGE value="Path print added" />
     <MESSAGE value="before to add market cap column" />
-    <option name="LAST_COMMIT_MESSAGE" value="before to add market cap column" />
+    <MESSAGE value="v1.0 first report" />
+    <MESSAGE value="PORT parametrise" />
+    <option name="LAST_COMMIT_MESSAGE" value="PORT parametrise" />
   </component>
 </project>
