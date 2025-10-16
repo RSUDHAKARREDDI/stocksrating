@@ -40,7 +40,7 @@ SELECT `vw_screeners`.`Name`,
     `vw_screeners`.`FII holding`,
     `vw_screeners`.`DII holding`,
     `vw_screeners`.`Public holding`,
-    `vw_screeners`.`Screener`,
+    `vw_screeners`.`screener`,
     `vw_screeners`.`mc essentials`,
     `vw_screeners`.`mc technicals`,
     `vw_screeners`.`margin`    
