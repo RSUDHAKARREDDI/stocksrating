@@ -34,6 +34,7 @@
   tbody td { padding:8px 10px; border-bottom:1px solid #f2f2f2; color:#2c2c2c; }
   tbody tr:nth-child(even) { background:#fafafa; }
   tbody tr:hover { background:#eef6ff; }
+  tbody tr { cursor:pointer; } /* make rows clearly clickable */
   th.num, td.num { text-align:right; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
   th.sort-asc::after  { content:" ▲"; font-size:11px; color:#777; }
   th.sort-desc::after { content:" ▼"; font-size:11px; color:#777; }
@@ -57,6 +58,11 @@
   }
   .legend-item { display:flex; align-items:center; gap:8px; }
   .swatch { width:12px; height:12px; border-radius:3px; border:1px solid #ccc; }
+
+  /* Row details key-value table */
+  .kv-table { width:100%; border-collapse:collapse; }
+  .kv-table th, .kv-table td { padding:8px 10px; border-bottom:1px solid #eee; vertical-align:top; }
+  .kv-table th { width:28%; color:#555; text-align:left; background:#fafafa; font-weight:600; }
 </style>
 
 <div class="container">
@@ -204,13 +210,25 @@
   </div>
 </div>
 
-<!-- Modal -->
+<!-- Industry Pie Modal -->
 <div class="modal-backdrop" id="modal_backdrop">
   <div class="modal">
     <button class="close" id="modal_close">Close</button>
     <h3>Industry Distribution (Current View)</h3>
     <canvas id="industry_pie" width="640" height="360"></canvas>
     <div class="legend" id="industry_legend"></div>
+  </div>
+</div>
+
+<!-- Row Details Modal -->
+<div class="modal-backdrop" id="row_modal_backdrop">
+  <div class="modal">
+    <button class="close" id="row_modal_close">Close</button>
+    <h3 id="row_modal_title">Record Details</h3>
+    <div id="row_modal_body" style="max-height:60vh;overflow:auto"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button type="button" id="btn_copy_json" title="Copy this record as JSON">Copy JSON</button>
+    </div>
   </div>
 </div>
 
@@ -447,7 +465,7 @@
   // Initial render (no filters active)
   applyFilters();
 
-  // ====== Industry Pie Modal (no external libs) ======
+  // ====== Industry Pie Modal ======
   const modal = $("#modal_backdrop");
   const btnPie = $("#btn_industry_pie");
   const btnClose = $("#modal_close");
@@ -523,6 +541,59 @@
       legend.appendChild(row);
     });
   }
+
+  // ===== Row -> Details Modal (click anywhere on row) =====
+  const rowModal = $("#row_modal_backdrop");
+  const rowModalClose = $("#row_modal_close");
+  const rowModalBody = $("#row_modal_body");
+  const rowModalTitle = $("#row_modal_title");
+  const btnCopyJson = $("#btn_copy_json");
+
+  function openRowModal(){ rowModal.style.display = "flex"; }
+  function closeRowModal(){ rowModal.style.display = "none"; }
+  rowModalClose.addEventListener("click", closeRowModal);
+  rowModal.addEventListener("click", (e)=>{ if(e.target === rowModal) closeRowModal(); });
+
+  // Build headers once
+  const headers = $$("#resultsTable thead th").map(th => th.textContent.trim());
+
+  // Click any row to open details
+  tbody.addEventListener("click", (e)=>{
+    const tr = e.target.closest("tr");
+    if(!tr || !tbody.contains(tr)) return;
+
+    const rec = {};
+    headers.forEach((h, i)=>{
+      rec[h] = tr.children[i]?.textContent.trim() ?? "";
+    });
+
+    const title = rec["Name"] || rec["NSE Code"] || "Record Details";
+    rowModalTitle.textContent = title;
+
+    const html = [
+      '<table class="kv-table">',
+      ...headers.map(h=>{
+        const v = rec[h];
+        const show = v ? v : '<span style="opacity:.6">(empty)</span>';
+        return `<tr><th>${h}</th><td>${show}</td></tr>`;
+      }),
+      '</table>'
+    ].join("");
+    rowModalBody.innerHTML = html;
+
+    btnCopyJson.onclick = async ()=>{
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(rec, null, 2));
+        btnCopyJson.textContent = "Copied!";
+        setTimeout(()=>btnCopyJson.textContent = "Copy JSON", 1200);
+      } catch(err){
+        alert("Could not copy JSON");
+      }
+    };
+
+    openRowModal();
+  });
+
 })();
 </script>
 {% endblock %}
