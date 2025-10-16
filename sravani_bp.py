@@ -44,7 +44,7 @@ SELECT `vw_screeners`.`Name`,
     `vw_screeners`.`mc essentials`,
     `vw_screeners`.`mc technicals`,
     `vw_screeners`.`margin`    
-FROM `stocksrating`.`vw_screeners`;
+FROM `vw_screeners`;
 """
     with engine.connect() as conn:
         rows = conn.execute(text(sql)).mappings().all()

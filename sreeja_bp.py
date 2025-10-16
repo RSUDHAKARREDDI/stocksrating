@@ -45,7 +45,7 @@ SELECT `vw_latest_results`.`Name`,
        `vw_latest_results`.`mc essentials`,
        `vw_latest_results`.`mc technicals`,
        `vw_latest_results`.`Margin`
-FROM `stocksrating`.`vw_latest_results`;
+FROM `vw_latest_results`;
 """
     with engine.connect() as conn:
         rows = conn.execute(text(sql)).mappings().all()

@@ -37,6 +37,26 @@
   th.num, td.num { text-align:right; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
   th.sort-asc::after  { content:" ▲"; font-size:11px; color:#777; }
   th.sort-desc::after { content:" ▼"; font-size:11px; color:#777; }
+
+  /* Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    display:none; align-items:center; justify-content:center; z-index: 9999;
+  }
+  .modal {
+    width:min(720px, 92vw); background:#fff; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.25);
+    padding:18px; position:relative;
+  }
+  .modal h3 { margin:0 0 10px; font-size:18px; }
+  .modal .close {
+    position:absolute; right:10px; top:10px; border:1px solid #ddd; background:#f7f7f7; border-radius:8px; padding:6px 10px; cursor:pointer;
+  }
+  .legend {
+    display:grid; grid-template-columns: 1fr 1fr; gap:8px 16px; margin-top:10px; max-height:40vh; overflow:auto;
+    font-size:13px;
+  }
+  .legend-item { display:flex; align-items:center; gap:8px; }
+  .swatch { width:12px; height:12px; border-radius:3px; border:1px solid #ccc; }
 </style>
 
 <div class="container">
@@ -49,7 +69,10 @@
       <label>Name (contains)</label>
       <input type="text" id="f_name" placeholder="e.g., TCS">
 
-      <label>Industry (multi-select)</label>
+      <label style="display:flex; align-items:center; justify-content:space-between;">
+        <span>Industry (multi-select)</span>
+        <button type="button" id="btn_industry_pie" title="Show Industry pie chart">📊 Pie</button>
+      </label>
       <select id="f_industry_multi" multiple></select>
 
       <div class="row" style="display:flex; gap:8px;">
@@ -89,8 +112,7 @@
       <label>Screener (multi-select)</label>
       <select id="f_scr_multi" multiple></select>
 
-      <label>Screener (contains)</label>
-      <input type="text" id="f_scr" placeholder="e.g., bullish">
+      <!-- ⛔️ Removed: Screener (contains) -->
 
       <label>MC Technicals (multi-select)</label>
       <select id="f_mc_tech_multi" multiple></select>
@@ -182,6 +204,16 @@
   </div>
 </div>
 
+<!-- Modal -->
+<div class="modal-backdrop" id="modal_backdrop">
+  <div class="modal">
+    <button class="close" id="modal_close">Close</button>
+    <h3>Industry Distribution (Current View)</h3>
+    <canvas id="industry_pie" width="640" height="360"></canvas>
+    <div class="legend" id="industry_legend"></div>
+  </div>
+</div>
+
 <script>
 (function(){
   const $  = (s,p=document)=>p.querySelector(s);
@@ -244,9 +276,7 @@
     mc_tech_multi:  $("#f_mc_tech_multi"),
     scr_multi:      $("#f_scr_multi"),
 
-    // Screener contains
-    scr_contains: $("#f_scr"),
-
+    // ⛔️ Removed scr_contains
     btn_reset: $("#btn_reset"),
   };
 
@@ -348,7 +378,7 @@
 
   const baseInputs = [
     F.name, F.industryMulti, F.mcap_multi, F.mc_tech_multi,
-    F.pe_min, F.pe_max, F.scr_contains, F.scr_multi
+    F.pe_min, F.pe_max, /* ⛔️ removed F.scr_contains */ F.scr_multi
   ].filter(Boolean);
 
   baseInputs.forEach(el=>{
@@ -369,10 +399,9 @@
 
       const nameOk = matchesText(c[idx.name].textContent, F.name.value);
 
-      // Screener filters
+      // Screener: only multi
       const scrVal = c[idx.scr].textContent.trim().toLowerCase();
-      const scrContainsOk = matchesText(scrVal, (F.scr_contains.value || "").toLowerCase());
-      const scrMultiOk    = scrSel.size === 0 || scrSel.has(scrVal);
+      const scrMultiOk = scrSel.size === 0 || scrSel.has(scrVal);
 
       const indVal = c[idx.industry].textContent.trim().toLowerCase();
       const industryOk = indSel.size === 0 || indSel.has(indVal);
@@ -396,13 +425,13 @@
       const techVal = c[idx.tech].textContent.trim().toLowerCase();
       const techOk  = techSel.size === 0 || techSel.has(techVal);
 
-      const ok = nameOk && scrContainsOk && scrMultiOk && industryOk && peOk && roeOk && roceOk && essOk && mcapOk && techOk;
+      const ok = nameOk && scrMultiOk && industryOk && peOk && roeOk && roceOk && essOk && mcapOk && techOk;
       tr.style.display = ok ? "" : "none";
     });
   }
 
   function resetFilters(){
-    [F.name, F.pe_min, F.pe_max, F.scr_contains].forEach(el => { if(el) el.value = ""; });
+    [F.name, F.pe_min, F.pe_max /* ⛔️ scr_contains removed */].forEach(el => { if(el) el.value = ""; });
     [F.industryMulti, F.mcap_multi, F.mc_tech_multi, F.scr_multi].forEach(sel=>{
       if(!sel) return; Array.from(sel.options).forEach(o=>o.selected = false);
     });
@@ -417,6 +446,83 @@
 
   // Initial render (no filters active)
   applyFilters();
+
+  // ====== Industry Pie Modal (no external libs) ======
+  const modal = $("#modal_backdrop");
+  const btnPie = $("#btn_industry_pie");
+  const btnClose = $("#modal_close");
+  const canvas = $("#industry_pie");
+  const legend = $("#industry_legend");
+
+  function openModal(){ modal.style.display = "flex"; }
+  function closeModal(){ modal.style.display = "none"; }
+  btnPie.addEventListener("click", ()=>{
+    renderIndustryPie();
+    openModal();
+  });
+  btnClose.addEventListener("click", closeModal);
+  modal.addEventListener("click", (e)=>{
+    if(e.target === modal) closeModal();
+  });
+
+  function getVisibleIndustryCounts(){
+    const counts = new Map();
+    $$("#resultsTable tbody tr").forEach(tr=>{
+      if(tr.style.display === "none") return; // only visible rows
+      const key = tr.children[idx.industry].textContent.trim() || "(Unknown)";
+      counts.set(key, (counts.get(key)||0)+1);
+    });
+    // sort by count desc
+    return Array.from(counts.entries()).sort((a,b)=>b[1]-a[1]);
+  }
+
+  function hue(i, total){ return Math.round((360 * i) / Math.max(1,total)); }
+  function makeColor(i,total){ return `hsl(${hue(i,total)},70%,55%)`; }
+
+  function renderIndustryPie(){
+    const ctx = canvas.getContext("2d");
+    const W = canvas.width, H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+
+    const data = getVisibleIndustryCounts();
+    const total = data.reduce((s, [,v])=>s+v, 0) || 1;
+
+    // Draw pie
+    const cx = W*0.4, cy = H*0.5;
+    const r  = Math.min(W, H)*0.38;
+
+    let start = -Math.PI/2;
+    data.forEach(([name, value], i)=>{
+      const slice = (value/total) * Math.PI*2;
+      const end = start + slice;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, start, end);
+      ctx.closePath();
+      ctx.fillStyle = makeColor(i, data.length);
+      ctx.fill();
+      start = end;
+    });
+
+    // Title total
+    ctx.fillStyle = "#333";
+    ctx.font = "14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+    ctx.fillText(`Total: ${total}`, 16, 22);
+
+    // Legend
+    legend.innerHTML = "";
+    data.forEach(([name, value], i)=>{
+      const percent = ((value/total)*100).toFixed(1);
+      const row = document.createElement("div");
+      row.className = "legend-item";
+      row.innerHTML = `
+        <span class="swatch" style="background:${makeColor(i,data.length)}"></span>
+        <span>${name}</span>
+        <span style="margin-left:auto; opacity:.8">${value} (${percent}%)</span>
+      `;
+      legend.appendChild(row);
+    });
+  }
 })();
 </script>
 {% endblock %}
