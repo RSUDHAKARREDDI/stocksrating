@@ -34,7 +34,7 @@
   tbody td { padding:8px 10px; border-bottom:1px solid #f2f2f2; color:#2c2c2c; }
   tbody tr:nth-child(even) { background:#fafafa; }
   tbody tr:hover { background:#eef6ff; }
-  tbody tr { cursor:pointer; } /* clickable rows */
+  tbody tr { cursor:pointer; }
   th.num, td.num { text-align:right; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
   th.sort-asc::after  { content:" ▲"; font-size:11px; color:#777; }
   th.sort-desc::after { content:" ▼"; font-size:11px; color:#777; }
@@ -63,6 +63,10 @@
   .kv-table { width:100%; border-collapse:collapse; }
   .kv-table th, .kv-table td { padding:8px 10px; border-bottom:1px solid #eee; vertical-align:top; }
   .kv-table th { width:28%; color:#555; text-align:left; background:#fafafa; font-weight:600; }
+
+  /* Conditional backgrounds */
+  .bg-good { background:#e7f7e9 !important; }  /* soft green */
+  .bg-bad  { background:#fdecec !important; }  /* very light red */
 </style>
 
 <div class="container">
@@ -92,7 +96,6 @@
         </div>
       </div>
 
-      <!-- Single sliders (≥ threshold) -->
       <div class="range-box">
         <label>ROE ≥</label>
         <input type="range" id="f_roe_min_r">
@@ -238,16 +241,17 @@
 
   // ----- Sorting -----
   let sortState = { col: null, dir: 1 };
-  $$("#resultsTable thead th").forEach((th, idx) => {
+  $$("#resultsTable thead th").forEach((th, idxCol) => {
     th.addEventListener("click", () => {
       const type = th.dataset.type || "text";
-      sortState.dir = (sortState.col === idx) ? -sortState.dir : 1;
-      sortState.col = idx;
+      sortState.dir = (sortState.col === idxCol) ? -sortState.dir : 1;
+      sortState.col = idxCol;
       $$("#resultsTable thead th").forEach(h=>h.classList.remove("sort-asc","sort-desc"));
       th.classList.add(sortState.dir === 1 ? "sort-asc" : "sort-desc");
       const rows = $$("#resultsTable tbody tr");
-      rows.sort((a,b)=> compare(get(a,idx), get(b,idx), type) * sortState.dir);
+      rows.sort((a,b)=> compare(get(a,idxCol), get(b,idxCol), type) * sortState.dir);
       rows.forEach(r=>tbody.appendChild(r));
+      applyHighlights(); // re-apply after sort
     });
   });
 
@@ -266,7 +270,6 @@
       if(isNaN(y)) return -1;
       return x-y;
     } else if(type==="date"){
-      // assumes parsable date strings
       return new Date(a) - new Date(b);
     } else {
       return a.localeCompare(b, undefined, {sensitivity:"base"});
@@ -304,6 +307,61 @@
     fii:23, dii:24, pub:25, date:26, scr:27, ess:28, tech:29, margin:30
   };
 
+  // ===== Conditional highlights (updated rules) =====
+  function applyHighlights(){
+    const rows = $$("#resultsTable tbody tr");
+    rows.forEach(tr=>{
+      const c = tr.children;
+      // clear old classes
+      for (const td of c) td.classList.remove("bg-good","bg-bad");
+
+      // 1) EPS: LQ> PQ and LQ> PYQ -> all three green else red
+      const eps_lq  = toNum(c[idx.eps_lq].textContent);
+      const eps_pq  = toNum(c[idx.eps_pq].textContent);
+      const eps_pyq = toNum(c[idx.eps_pyq].textContent);
+      if ([eps_lq,eps_pq,eps_pyq].every(Number.isFinite)) {
+        const ok = (eps_lq > eps_pq) && (eps_lq > eps_pyq);
+        [c[idx.eps_lq], c[idx.eps_pq], c[idx.eps_pyq]]
+          .forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+      }
+
+      // 2) P/E < Industry PE -> both green else red
+      const pe   = toNum(c[idx.pe].textContent);
+      const indp = toNum(c[idx.indpe].textContent);
+      if ([pe,indp].every(Number.isFinite)) {
+        const ok = pe < indp;
+        [c[idx.pe], c[idx.indpe]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+      }
+
+      // 3) Returns: r1w>0, r1m>10, r3m>10, r6m>0 -> all four green else red
+      const r1w = toNum(c[idx.r1w].textContent);
+      const r1m = toNum(c[idx.r1m].textContent);
+      const r3m = toNum(c[idx.r3m].textContent);
+      const r6m = toNum(c[idx.r6m].textContent);
+      if ([r1w,r1m,r3m,r6m].every(Number.isFinite)) {
+        const ok = (r1w > 0) && (r1m > 10) && (r3m > 10) && (r6m > 0);
+        [c[idx.r1w], c[idx.r1m], c[idx.r3m], c[idx.r6m]]
+          .forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+      }
+
+      // 4) OPM LQ > OPM PQ -> both green else red
+      const opm_lq = toNum(c[idx.opm_lq].textContent);
+      const opm_pq = toNum(c[idx.opm_pq].textContent);
+      if ([opm_lq,opm_pq].every(Number.isFinite)) {
+        const ok = opm_lq > opm_pq;
+        [c[idx.opm_lq], c[idx.opm_pq]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+      }
+
+      // 5) ROE>15 and ROCE>15 -> both green else red
+      const roe  = toNum(c[idx.roe].textContent);
+      const roce = toNum(c[idx.roce].textContent);
+      if ([roe,roce].every(Number.isFinite)) {
+        const ok = (roe > 15) && (roce > 15);
+        [c[idx.roe], c[idx.roce]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+      }
+    });
+  }
+
   // Multi-selects
   function fillMultiSelect(selectEl, values){
     selectEl.innerHTML = "";
@@ -326,15 +384,12 @@
   fillMultiSelect(F.mc_tech_multi, uniqueColumnValues(idx.tech));
   fillMultiSelect(F.mcap_multi,    uniqueColumnValues(idx.mcap));
 
-  // Sliders (inactive until moved)
+  // Sliders
   function colMinMax(colIndex){
     let min = +Infinity, max = -Infinity;
     $$("#resultsTable tbody tr").forEach(tr=>{
       const n = toNum(tr.children[colIndex].textContent);
-      if(isFinite(n)){
-        if(n < min) min = n;
-        if(n > max) max = n;
-      }
+      if(isFinite(n)){ if(n < min) min = n; if(n > max) max = n; }
     });
     if(min === +Infinity) min = 0;
     if(max === -Infinity) max = 0;
@@ -429,6 +484,8 @@
       const ok = nameOk && industryOk && peOk && roeOk && roceOk && essOk && mcapOk && techOk;
       tr.style.display = ok ? "" : "none";
     });
+
+    applyHighlights(); // highlight visible rows after filtering
   }
 
   function resetFilters(){
@@ -445,7 +502,8 @@
   }
 
   // Initial render
-  applyFilters();
+  applyFilters();        // triggers applyHighlights()
+  applyHighlights();     // extra safety
 
   // ====== Industry Pie Modal ======
   const modal = $("#modal_backdrop");
@@ -462,9 +520,7 @@
     openModal();
   });
   btnClose.addEventListener("click", closeModal);
-  modal.addEventListener("click", (e)=>{
-    if(e.target === modal) closeModal();
-  });
+  modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
 
   function getVisibleIndustryCounts(){
     const counts = new Map();
@@ -521,7 +577,7 @@
     });
   }
 
-  // ===== Row -> Details Modal (click anywhere on row) =====
+  // ===== Row -> Details Modal =====
   const rowModal = $("#row_modal_backdrop");
   const rowModalClose = $("#row_modal_close");
   const rowModalBody = $("#row_modal_body");
@@ -533,18 +589,14 @@
   rowModalClose.addEventListener("click", closeRowModal);
   rowModal.addEventListener("click", (e)=>{ if(e.target === rowModal) closeRowModal(); });
 
-  // Build headers once (uses current THEAD order)
   const headers = $$("#resultsTable thead th").map(th => th.textContent.trim());
 
-  // Click any row to open details
   tbody.addEventListener("click", (e)=>{
     const tr = e.target.closest("tr");
     if(!tr || !tbody.contains(tr)) return;
 
     const rec = {};
-    headers.forEach((h, i)=>{
-      rec[h] = tr.children[i]?.textContent.trim() ?? "";
-    });
+    headers.forEach((h, i)=>{ rec[h] = tr.children[i]?.textContent.trim() ?? ""; });
 
     const title = rec["Name"] || rec["NSE Code"] || "Record Details";
     rowModalTitle.textContent = title;
