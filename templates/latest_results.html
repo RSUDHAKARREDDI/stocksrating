@@ -142,6 +142,7 @@
               <th data-type="num"  class="num">Promoter holding</th>
               <th data-type="num"  class="num">Price to Earning</th>
               <th data-type="num"  class="num">Industry PE</th>
+              <th data-type="num"  class="num">PEG Ratio</th>
               <th data-type="num"  class="num">Return over 1week</th>
               <th data-type="num"  class="num">Return over 1month</th>
               <th data-type="num"  class="num">Return over 3months</th>
@@ -150,6 +151,8 @@
               <th data-type="num"  class="num">EPS preceding quarter</th>
               <th data-type="num"  class="num">EPS preceding year quarter</th>
               <th data-type="num"  class="num">Debt</th>
+              <th data-type="num"  class="num">Debt to equity</th>
+
               <th data-type="num"  class="num">OPM latest quarter</th>
               <th data-type="num"  class="num">OPM preceding quarter</th>
               <th data-type="num"  class="num">Return on equity</th>
@@ -178,6 +181,7 @@
               <td class="num">{{ r['Promoter holding'] }}</td>
               <td class="num">{{ r['Price to Earning'] }}</td>
               <td class="num">{{ r['Industry PE'] }}</td>
+              <td class="num">{{ r['PEG Ratio'] }}</td>
               <td class="num">{{ r['Return over 1week'] }}</td>
               <td class="num">{{ r['Return over 1month'] }}</td>
               <td class="num">{{ r['Return over 3months'] }}</td>
@@ -186,6 +190,7 @@
               <td class="num">{{ r['EPS preceding quarter'] }}</td>
               <td class="num">{{ r['EPS preceding year quarter'] }}</td>
               <td class="num">{{ r['Debt'] }}</td>
+              <td class="num">{{ r['Debt to equity'] }}</td>
               <td class="num">{{ r['OPM latest quarter'] }}</td>
               <td class="num">{{ r['OPM preceding quarter'] }}</td>
               <td class="num">{{ r['Return on equity'] }}</td>
@@ -300,11 +305,11 @@
   const idx = {
     name:0, bse:1, nse:2, industry:3,
     price:4, mcap_capitalization:5, mcap:6,
-    promoter:7, pe:8, indpe:9,
-    r1w:10, r1m:11, r3m:12, r6m:13,
-    eps_lq:14, eps_pq:15, eps_pyq:16, debt:17,
-    opm_lq:18, opm_pq:19, roe:20, roce:21, pbv:22,
-    fii:23, dii:24, pub:25, date:26, scr:27, ess:28, tech:29, margin:30
+    promoter:7, pe:8, indpe:9,pegr:10,
+    r1w:11, r1m:12, r3m:13, r6m:14,
+    eps_lq:15, eps_pq:16, eps_pyq:17, debt:18,dbttoeq:19,
+    opm_lq:20, opm_pq:21, roe:22, roce:23, pbv:24,
+    fii:25, dii:26, pub:27, date:28, scr:29, ess:30, tech:31, margin:32
   };
 
   // ===== Conditional highlights (updated rules) =====
