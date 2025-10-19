@@ -138,11 +138,12 @@
             <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
             <td><span class="chip">{{ basket_id }}</span></td>
             <td>
-              <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">Edit</a>
-              <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">Sell</a>
+              <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">💰</a>
+              <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">✏️</a>
+
               <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" style="display:inline;"
                     onsubmit="return confirm('Delete this record?');">
-                <button type="submit" class="btn danger">Delete</button>
+                <button type="submit" class="btn danger">🗑️</button>
               </form>
             </td>
           </tr>
