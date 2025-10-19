@@ -1,13 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>{% extends "layout.html" %}
+{% extends "layout.html" %}
 {% block title %}Sell Holding #{{ row.holding_id }}{% endblock %}
 {% block content %}
 <style>
@@ -25,14 +16,16 @@
 <div class="page-wrap">
   <aside class="left-menu">
     <h3>Holdings Menu</h3>
-    <a href="{{ url_for('my_holdings_bp.my_holdings_view', holding_id=row.holding_id) }}">Back to View</a>
+    <a href="{{ url_for('my_holdings_bp.my_holdings_list') }}">Back to List</a>
   </aside>
 
   <section class="content">
     <h2>Sell — {{ row.Company_Name }}</h2>
+
     <form method="post">
       <div class="form-row"><label>Sell Qty</label>
-        <input type="number" name="Sell_Qty" value="{{ row.Sell_Qty or '' }}">
+        <!-- prefill directly from Buy_Qty -->
+        <input type="number" name="Sell_Qty" value="{{ row.Buy_Qty or 0 }}" min="0" step="1">
       </div>
       <div class="form-row"><label>Sell Price</label>
         <input type="number" step="0.01" name="Sell_Price" value="{{ row.Sell_Price or '' }}">
@@ -43,7 +36,7 @@
 
       <div class="actions">
         <button type="submit" class="btn primary">Save</button>
-        <a href="{{ url_for('my_holdings_bp.my_holdings_view', holding_id=row.holding_id) }}" class="btn">Cancel</a>
+        <a href="{{ url_for('my_holdings_bp.my_holdings_list') }}" class="btn">Cancel</a>
       </div>
     </form>
   </section>

@@ -13,9 +13,10 @@
   .btn.primary { background:#edf5ff; }
   .btn.danger { background:#ffecec; }
   .num { text-align:right; white-space:nowrap; }
-  .controls { display:flex; gap:10px; align-items:center; margin:10px 0; }
-  .controls input[type="text"] { padding:6px 8px; border:1px solid #ddd; border-radius:8px; min-width:220px; }
+  .controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0; }
+  .controls input[type="text"], .controls select { padding:6px 8px; border:1px solid #ddd; border-radius:8px; }
   .arrow { font-size:11px; opacity:0.6; margin-left:4px; }
+  .muted { opacity:.7; }
 </style>
 
 <div class="page-wrap">
@@ -32,15 +33,24 @@
     </div>
 
     <div class="controls">
-      <label for="filterCompany">Filter company:</label>
+      <label for="filterCompany" class="muted">Company:</label>
       <input id="filterCompany" type="text" placeholder="Type to filter by company…">
-      <small style="opacity:.7;">Click column headers to sort (client-side)</small>
+
+      <label for="filterBasket" class="muted">Basket:</label>
+      <select id="filterBasket">
+        <option value="">All</option>
+        <!-- options populated from table data -->
+      </select>
+
+      <label for="filterBasketId" class="muted">Basket ID:</label>
+      <input id="filterBasketId" type="text" placeholder="e.g. 1, 12, 205…" inputmode="numeric">
+
     </div>
 
     <table id="holdingsTable">
       <thead>
         <tr>
-
+          <th data-key="id">ID</th>
           <th class="sortable" data-key="company" data-type="text">Company <span class="arrow"></span></th>
           <th class="num" data-key="buy_qty">Buy Qty</th>
           <th class="num" data-key="buy_price">Buy Price</th>
@@ -49,7 +59,7 @@
           <th class="num" data-key="sell_price">Sell Price</th>
           <th class="num sortable" data-key="sell_value" data-type="num">Sell Value <span class="arrow"></span></th>
           <th class="num sortable" data-key="profit" data-type="num">Profit <span class="arrow"></span></th>
-          <th class="sortable" data-key="basket" data-type="num">Basket</th>
+          <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -63,19 +73,21 @@
         {% set has_sell = sq > 0 %}
         {% set sell_value = (sq * sp) if has_sell else None %}
         {% set profit = (sell_value - invested) if has_sell else None %}
+        {% set basket_id = r.Basket_ID or '-' %}
         <tr
           data-id="{{ r.holding_id }}"
           data-company="{{ r.Company_Name|e }}"
           data-buy_qty="{{ bq|int }}"
-          data-buy_price="{{ bp|round(4) }}"
-          data-invested="{{ invested|round(4) }}"
+          data-buy_price="{{ bp|round(6) }}"
+          data-invested="{{ invested|round(6) }}"
           data-sell_qty="{{ sq|int }}"
-          data-sell_price="{{ sp|round(4) }}"
-          data-sell_value="{{ (sell_value|round(4)) if has_sell else '' }}"
-          data-profit="{{ (profit|round(4)) if has_sell else '' }}"
-          data-basket="{{ r.Basket_ID or '' }}"
+          data-sell_price="{{ sp|round(6) }}"
+          data-sell_value="{{ (sell_value|round(6)) if has_sell else '' }}"
+          data-profit="{{ (profit|round(6)) if has_sell else '' }}"
+          data-basket="{{ basket_id }}"
+          data-basket_id="{{ basket_id }}"
         >
-
+          <td>{{ r.holding_id }}</td>
           <td>{{ r.Company_Name }}</td>
           <td class="num">{{ bq|int }}</td>
           <td class="num">{{ bp|round(2) }}</td>
@@ -84,7 +96,7 @@
           <td class="num">{{ sp|round(2) }}</td>
           <td class="num">{{ '-' if not has_sell else (sell_value|round(2)) }}</td>
           <td class="num">{{ '-' if not has_sell else (profit|round(2)) }}</td>
-          <td>{{ r.Basket_ID or '-' }}</td>
+          <td>{{ basket_id }}</td>
           <td>
             <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">Edit</a>
             <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">Sell</a>
@@ -107,24 +119,65 @@
   const table = document.getElementById('holdingsTable');
   const tbody = table.querySelector('tbody');
   const headers = table.querySelectorAll('th.sortable');
-  const filterInput = document.getElementById('filterCompany');
+  const filterCompany = document.getElementById('filterCompany');
+  const filterBasket = document.getElementById('filterBasket');
+  const filterBasketId = document.getElementById('filterBasketId');
 
   let sortState = { key: null, dir: 'asc' }; // asc | desc
+
+  // Build Basket dropdown from unique Basket IDs in the table
+  (function populateBasketFilter(){
+    const set = new Set();
+    Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
+      const b = tr.dataset.basket || '-';
+      set.add(b);
+    });
+    const values = Array.from(set).sort((a,b)=>{
+      if (a === '-') return 1; if (b === '-') return -1;
+      const an = Number(a), bn = Number(b);
+      const aNum = !isNaN(an), bNum = !isNaN(bn);
+      if (aNum && bNum) return an - bn;
+      if (aNum) return -1;
+      if (bNum) return 1;
+      return a.localeCompare(b);
+    });
+    values.forEach(v=>{
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = v;
+      filterBasket.appendChild(opt);
+    });
+  })();
 
   function getRowValue(tr, key, type){
     const val = tr.dataset[key] ?? '';
     if (type === 'num') {
-      // treat empty as NaN -> sort to bottom consistently
       const n = parseFloat(val);
       return isNaN(n) ? null : n;
     }
-    // text
     return (val || '').toString().toLowerCase();
   }
 
+  function applyFilters(){
+    const nameQ = filterCompany.value.trim().toLowerCase();
+    const basketSel = filterBasket.value; // exact match if selected
+    const basketIdQ = filterBasketId.value.trim(); // substring match
+
+    Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
+      const name = (tr.dataset.company || '').toLowerCase();
+      const bask = tr.dataset.basket || '';
+      const baskId = tr.dataset.basket_id || '';
+
+      const matchName = !nameQ || name.includes(nameQ);
+      const matchBasketDrop = !basketSel || bask === basketSel;
+      const matchBasketId = !basketIdQ || baskId.includes(basketIdQ);
+
+      tr.style.display = (matchName && matchBasketDrop && matchBasketId) ? '' : 'none';
+    });
+  }
+
   function sortBy(key, type){
-    const rows = Array.from(tbody.querySelectorAll('tr'));
-    // toggle dir
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
     sortState.dir = (sortState.key === key && sortState.dir === 'asc') ? 'desc' : 'asc';
     sortState.key = key;
 
@@ -132,15 +185,11 @@
       const av = getRowValue(a, key, type);
       const bv = getRowValue(b, key, type);
 
-      // Handle nulls (e.g., no sell yet)
       if (av === null && bv === null) return 0;
-      if (av === null) return 1; // nulls last
+      if (av === null) return 1;
       if (bv === null) return -1;
 
-      if (type === 'num') {
-        return av - bv;
-      }
-      // text
+      if (type === 'num') return av - bv;
       if (av < bv) return -1;
       if (av > bv) return 1;
       return 0;
@@ -148,12 +197,12 @@
 
     if (sortState.dir === 'desc') rows.reverse();
 
-    // reattach
+    const hidden = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display === 'none');
     const frag = document.createDocumentFragment();
     rows.forEach(r => frag.appendChild(r));
+    hidden.forEach(r => frag.appendChild(r));
     tbody.appendChild(frag);
 
-    // update arrows
     headers.forEach(h=> h.querySelector('.arrow').textContent = '');
     const active = Array.from(headers).find(h => h.dataset.key === key);
     if (active) active.querySelector('.arrow').textContent = sortState.dir === 'asc' ? '▲' : '▼';
@@ -163,14 +212,9 @@
     h.addEventListener('click', ()=> sortBy(h.dataset.key, h.dataset.type || 'text'));
   });
 
-  // Filter by company (client-side)
-  filterInput.addEventListener('input', ()=>{
-    const q = filterInput.value.trim().toLowerCase();
-    Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
-      const name = (tr.dataset.company || '').toLowerCase();
-      tr.style.display = name.includes(q) ? '' : 'none';
-    });
-  });
+  filterCompany.addEventListener('input', applyFilters);
+  filterBasket.addEventListener('change', applyFilters);
+  filterBasketId.addEventListener('input', applyFilters);
 })();
 </script>
 {% endblock %}
