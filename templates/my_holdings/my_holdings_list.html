@@ -28,9 +28,21 @@
     background:#fff;
   }
 
-  .btn { padding:5px 9px; border:1px solid var(--bd); border-radius:8px; text-decoration:none; font-size:12px; }
+  .btn { padding:4px 8px; border:1px solid var(--bd); border-radius:8px; text-decoration:none; font-size:12px; display:inline-flex; align-items:center; gap:4px; }
   .btn.primary { background:#edf5ff; }
   .btn.danger { background:#ffecec; }
+
+  /* Summary cards */
+  .summary-cards{
+    display:grid; grid-template-columns:repeat(5,minmax(120px,1fr));
+    gap:8px; margin:6px 0 10px;
+  }
+  .summary-card{
+    background:#fff; border:1px solid var(--bd); border-radius:10px;
+    padding:8px 10px; box-shadow:0 1px 6px rgba(0,0,0,.03);
+  }
+  .summary-card .label{ font-size:11px; color:var(--muted); margin-bottom:4px; }
+  .summary-card .value{ font-size:13px; font-weight:700; }
 
   .table-wrap{
     max-height:70vh; overflow:auto; border:1px solid var(--bd); border-radius:10px;
@@ -54,7 +66,6 @@
     font-size:11px;
   }
   .muted { color:var(--muted); }
-
   .pos { color:var(--pos); font-weight:600; }
   .neg { color:var(--neg); font-weight:600; }
 </style>
@@ -69,7 +80,49 @@
   <section class="content">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
       <h2 style="margin:0;font-size:14px;">My Holdings</h2>
-      <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_create') }}">+ Add Holding</a>
+      <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_create') }}">➕</a>
+    </div>
+
+    {# ===== Summary totals (computed once above filters) ===== #}
+    {% set ns = namespace(rows=0, companies=[], invested=0.0, sell=0.0) %}
+    {% for r in rows %}
+      {% set bq = (r.Buy_Qty or 0) | float %}
+      {% set bp = (r.Buy_Price or 0) | float %}
+      {% set sq = (r.Sell_Qty or 0) | float %}
+      {% set sp = (r.Sell_Price or 0) | float %}
+
+      {% set ns.rows = ns.rows + 1 %}
+      {% set ns.invested = ns.invested + (bq * bp) %}
+      {% set ns.sell = ns.sell + (sq * sp) %}
+
+      {% if r.Company_Name not in ns.companies %}
+        {% set _ = ns.companies.append(r.Company_Name) %}
+      {% endif %}
+    {% endfor %}
+    {% set netpl = ns.sell - ns.invested %}
+    {% set pl_class = 'pos' if netpl>0 else ('neg' if netpl<0 else 'muted') %}
+
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="label">Total Holdings</div>
+        <div class="value">{{ ns.rows }}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Unique Companies</div>
+        <div class="value">{{ ns.companies|length }}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Total Invested</div>
+        <div class="value">₹{{ '%.2f'|format(ns.invested) }}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Total Sell Value</div>
+        <div class="value">₹{{ '%.2f'|format(ns.sell) }}</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Net P/L</div>
+        <div class="value {{ pl_class }}">₹{{ '%.2f'|format(netpl) }}</div>
+      </div>
     </div>
 
     <div class="controls">
@@ -90,7 +143,6 @@
       <table id="holdingsTable">
         <thead>
           <tr>
-
             <th class="sortable" data-key="company" data-type="text">Company <span class="arrow"></span></th>
             <th class="num">Buy&nbsp;Qty</th>
             <th class="num">Buy&nbsp;Price</th>
@@ -127,7 +179,6 @@
             data-basket="{{ basket_id }}"
             data-basket_id="{{ basket_id }}"
           >
-
             <td>{{ r.Company_Name }}</td>
             <td class="num">{{ bq|int }}</td>
             <td class="num">{{ bp|round(2) }}</td>
@@ -138,9 +189,9 @@
             <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
             <td><span class="chip">{{ basket_id }}</span></td>
             <td>
-              <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">💰</a>
+              <!-- Emoji-only action buttons as you preferred -->
               <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">✏️</a>
-
+              <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">💰</a>
               <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" style="display:inline;"
                     onsubmit="return confirm('Delete this record?');">
                 <button type="submit" class="btn danger">🗑️</button>
@@ -191,6 +242,42 @@
     });
   })();
 
+function refreshSummaryFromVisible(){
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
+
+  let totalRows = 0, invested = 0, sell = 0;
+  const companySet = new Set();
+
+  rows.forEach(tr=>{
+    totalRows++;
+    const name = (tr.dataset.company || '').trim();
+    if (name) companySet.add(name);
+
+    const inv = parseFloat(tr.dataset.invested || '0') || 0;
+    const sv  = parseFloat(tr.dataset.sell_value || '0') || 0;
+    invested += inv;
+    sell     += sv;
+  });
+
+  const net = sell - invested;
+
+  // Update the summary cards (keep same order as in the template)
+  const cards = document.querySelectorAll('.summary-card .value');
+  if (cards.length >= 5){
+    cards[0].textContent = totalRows;                             // Total Holdings
+    cards[1].textContent = companySet.size;                       // Unique Companies
+    cards[2].textContent = '₹' + invested.toFixed(2);             // Total Invested
+    cards[3].textContent = '₹' + sell.toFixed(2);                 // Total Sell Value
+    cards[4].textContent = '₹' + net.toFixed(2);                  // Net P/L
+
+    // set P/L color class
+    const plEl = cards[4];
+    plEl.classList.remove('pos','neg','muted');
+    plEl.classList.add(net > 0 ? 'pos' : (net < 0 ? 'neg' : 'muted'));
+  }
+}
+
+
   function getRowValue(tr, key, type){
     const val = tr.dataset[key] ?? '';
     if (type === 'num') {
@@ -215,6 +302,7 @@
       const matchBasketId = !basketIdQ || baskId.includes(basketIdQ);
 
       tr.style.display = (matchName && matchBasketDrop && matchBasketId) ? '' : 'none';
+    refreshSummaryFromVisible();
     });
   }
 
@@ -235,6 +323,7 @@
       if (av < bv) return -1;
       if (av > bv) return 1;
       return 0;
+   refreshSummaryFromVisible();
     });
 
     if (sortState.dir === 'desc') rows.reverse();
