@@ -4,6 +4,8 @@ from flask import Flask, request, redirect, url_for, flash, render_template,json
 from werkzeug.utils import secure_filename
 from sreeja_bp import sreeja_bp
 from sravani_bp import sravani_bp
+from baskets_bp import baskets_bp
+from my_holdings_bp import my_holdings_bp
 import commonfunctions as cf
 from file_list_config import file_list_config
 import logging
@@ -26,6 +28,8 @@ app.secret_key = "dev"  # for flashing messages
 # Register Blueprint
 app.register_blueprint(sreeja_bp)
 app.register_blueprint(sravani_bp)
+app.register_blueprint(baskets_bp)
+app.register_blueprint(my_holdings_bp)
 
 # ------------------------
 # Home, Dashboard, Index

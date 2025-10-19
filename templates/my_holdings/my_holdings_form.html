@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}{{ 'Add' if mode=='create' else 'Edit' }} Holding{% endblock %}
+{% block content %}
+<style>
+  .page-wrap { display:flex; gap:16px; align-items:flex-start; }
+  .left-menu { flex:0 0 220px; width:220px; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; }
+  .content { flex:1; background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; }
+  .form-row { margin-bottom:10px; }
+  .form-row label { display:block; font-weight:600; margin-bottom:4px; }
+  .form-row input, .form-row select { width:100%; padding:8px; border:1px solid #ddd; border-radius:8px; }
+  .actions { margin-top:10px; display:flex; gap:10px; }
+  .btn { padding:8px 12px; border:1px solid #ddd; border-radius:8px; text-decoration:none; }
+  .btn.primary { background:#edf5ff; }
+</style>
+
+<div class="page-wrap">
+  <aside class="left-menu">
+    <h3>Holdings Menu</h3>
+    <a href="{{ url_for('my_holdings_bp.my_holdings_list') }}">All Holdings</a>
+  </aside>
+
+  <section class="content">
+    <h2>{{ 'Add New Holding' if mode=='create' else 'Edit Holding' }}</h2>
+
+    <form method="post">
+      <!-- Company (free text with suggestions from company_list) -->
+      <div class="form-row">
+        <label>Company *</label>
+        <input type="text" name="Company_Name" list="companies" required
+               value="{{ form.Company_Name or '' }}" autocomplete="off" />
+        <datalist id="companies">
+          {% for c in companies %}
+            <option value="{{ c.Name }}"></option>
+          {% endfor %}
+        </datalist>
+      </div>
+
+      <div class="form-row"><label>Buy Qty</label><input type="number" name="Buy_Qty" value="{{ form.Buy_Qty or '' }}"></div>
+      <div class="form-row"><label>Buy Price</label><input type="number" step="0.01" name="Buy_Price" value="{{ form.Buy_Price or '' }}"></div>
+      <div class="form-row"><label>Buy Date</label><input type="date" name="Buy_Date" value="{{ form.Buy_Date or '' }}"></div>
+
+      <!-- Basket dropdown by name (required) -->
+      <div class="form-row">
+        <label>Basket *</label>
+        <select name="Basket_ID" required>
+          <option value="">-- Select Basket --</option>
+          {% for b in baskets %}
+            <option value="{{ b.basket_id }}"
+              {% if form.Basket_ID == b.basket_id or form.Basket_ID|string == b.basket_id|string %}selected{% endif %}>
+              {{ b.basket_name }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">{{ 'Create' if mode=='create' else 'Update' }}</button>
+        <a href="{{ url_for('my_holdings_bp.my_holdings_list') }}" class="btn">Cancel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}

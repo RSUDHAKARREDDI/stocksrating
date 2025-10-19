@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+{% block title %}Holding #{{ row.holding_id }}{% endblock %}
+{% block content %}
+<style>
+  .page-wrap { display:flex; gap:16px; align-items:flex-start; }
+  .left-menu { flex:0 0 220px; width:220px; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; }
+  .content { flex:1; background:#fff; border:1px solid #eee; border-radius:12px; padding:16px; }
+  .field { margin-bottom:10px; }
+  .label { font-weight:600; color:#666; margin-bottom:4px; }
+  .value { white-space:pre-wrap; }
+  .btn { padding:8px 12px; border:1px solid #ddd; border-radius:8px; text-decoration:none; }
+  .btn.primary { background:#edf5ff; }
+  .btn.danger { background:#ffecec; }
+</style>
+
+<div class="page-wrap">
+  <aside class="left-menu">
+    <h3>Holdings Menu</h3>
+    <a href="{{ url_for('my_holdings_bp.my_holdings_list') }}">All Holdings</a>
+  </aside>
+
+  <section class="content">
+    <h2 style="margin-top:0;">Holding #{{ row.holding_id }}</h2>
+
+    <div class="field"><div class="label">Company</div><div class="value">{{ row.Company_Name }}</div></div>
+    <div class="field"><div class="label">Basket</div><div class="value">{{ basket_name or row.Basket_ID or '-' }}</div></div>
+    <div class="field"><div class="label">Buy Qty</div><div class="value">{{ row.Buy_Qty }}</div></div>
+    <div class="field"><div class="label">Buy Price</div><div class="value">{{ row.Buy_Price }}</div></div>
+    <div class="field"><div class="label">Buy Date</div><div class="value">{{ row.Buy_Date }}</div></div>
+
+    <div class="field"><div class="label">Sell Qty</div><div class="value">{{ row.Sell_Qty or '-' }}</div></div>
+    <div class="field"><div class="label">Sell Price</div><div class="value">{{ row.Sell_Price or '-' }}</div></div>
+    <div class="field"><div class="label">Sell Date</div><div class="value">{{ row.Sell_Date or '-' }}</div></div>
+
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=row.holding_id) }}">Sell</a>
+      <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=row.holding_id) }}">Edit</a>
+      <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=row.holding_id) }}"
+            onsubmit="return confirm('Delete this record?');">
+        <button type="submit" class="btn danger">Delete</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% block title %}Baskets{% endblock %}
+
+{% block content %}
+<style>
+  .page-wrap { display:flex; gap:16px; align-items:flex-start; }
+  .left-menu {
+    flex: 0 0 220px; width:220px;
+    background:#fff; border:1px solid #eee; border-radius:12px;
+    padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    position:sticky; top:12px;
+  }
+  .left-menu h3 { margin:0 0 10px; font-size:16px; }
+  .left-menu a { display:block; padding:8px 10px; border-radius:8px; text-decoration:none; color:#222; }
+  .left-menu a:hover { background:#f5f7fb; }
+  .content {
+    flex:1; background:#fff; border:1px solid #eee; border-radius:12px;
+    padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    overflow:auto;
+  }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:10px; border-bottom:1px solid #f0f0f0; text-align:left; }
+  th { background:#fafafa; font-weight:600; }
+  .actions a, .actions form { display:inline-block; margin-right:8px; }
+  .btn {
+    display:inline-block; padding:8px 12px; border-radius:8px; text-decoration:none;
+    border:1px solid #ddd; background:#f9f9f9;
+  }
+  .btn.primary { background:#edf5ff; border-color:#cfe3ff; }
+  .btn.danger { background:#ffecec; border-color:#ffd0d0; }
+</style>
+
+<div class="page-wrap">
+  <!-- Left menu inside page -->
+  <aside class="left-menu">
+    <h3>Basket Menu</h3>
+    <a href="{{ url_for('baskets_bp.basket_list') }}">All Baskets</a>
+    <a href="{{ url_for('baskets_bp.basket_create') }}">Create Basket</a>
+  </aside>
+
+  <section class="content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <h2 style="margin:0;">Baskets</h2>
+      <a class="btn primary" href="{{ url_for('baskets_bp.basket_create') }}">+ New Basket</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div>
+          {% for cat, msg in messages %}
+            <div class="flash {{cat}}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:100px;">ID</th>
+          <th>Basket Name</th>
+          <th>Description</th>
+          <th style="width:240px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr>
+          <td>{{ r.basket_id }}</td>
+          <td>{{ r.basket_name }}</td>
+          <td>{{ r.description }}</td>
+          <td class="actions">
+            <a class="btn" href="{{ url_for('baskets_bp.basket_view', basket_id=r.basket_id) }}">View</a>
+            <a class="btn" href="{{ url_for('baskets_bp.basket_edit', basket_id=r.basket_id) }}">Edit</a>
+            <form action="{{ url_for('baskets_bp.basket_delete', basket_id=r.basket_id) }}" method="post" style="display:inline;"
+                  onsubmit="return confirm('Delete this basket?');">
+              <button class="btn danger" type="submit">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="4">No baskets found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+{% endblock %}

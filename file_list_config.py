@@ -18,5 +18,10 @@ file_list_config = {
         'file_list': ['mstock_margin.csv'],
         'target_directory': 'datafiles/mstock_margin',
         'table_name':'mstock_margin'
+    },
+'company_list': {
+        'file_list': ['company_list.csv'],
+        'target_directory': 'datafiles/others',
+        'table_name':'company_list'
     }
 }

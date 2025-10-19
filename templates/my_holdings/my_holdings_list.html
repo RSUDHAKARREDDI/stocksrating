@@ -1,0 +1,176 @@
+{% extends "layout.html" %}
+{% block title %}My Holdings{% endblock %}
+{% block content %}
+<style>
+  .page-wrap { display:flex; gap:16px; align-items:flex-start; }
+  .left-menu { flex:0 0 220px; width:220px; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; }
+  .content { flex:1; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; overflow:auto; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:8px; border-bottom:1px solid #f0f0f0; text-align:left; }
+  th { background:#fafafa; white-space:nowrap; cursor:pointer; user-select:none; }
+  th.sortable:hover { background:#f0f4ff; }
+  .btn { padding:6px 10px; border:1px solid #ddd; border-radius:8px; text-decoration:none; }
+  .btn.primary { background:#edf5ff; }
+  .btn.danger { background:#ffecec; }
+  .num { text-align:right; white-space:nowrap; }
+  .controls { display:flex; gap:10px; align-items:center; margin:10px 0; }
+  .controls input[type="text"] { padding:6px 8px; border:1px solid #ddd; border-radius:8px; min-width:220px; }
+  .arrow { font-size:11px; opacity:0.6; margin-left:4px; }
+</style>
+
+<div class="page-wrap">
+  <aside class="left-menu">
+    <h3>Holdings Menu</h3>
+    <a href="{{ url_for('my_holdings_bp.my_holdings_list') }}">All Holdings</a>
+    <a href="{{ url_for('my_holdings_bp.my_holdings_create') }}">Add Holding</a>
+  </aside>
+
+  <section class="content">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="margin:0;">My Holdings</h2>
+      <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_create') }}">+ Add Holding</a>
+    </div>
+
+    <div class="controls">
+      <label for="filterCompany">Filter company:</label>
+      <input id="filterCompany" type="text" placeholder="Type to filter by company…">
+      <small style="opacity:.7;">Click column headers to sort (client-side)</small>
+    </div>
+
+    <table id="holdingsTable">
+      <thead>
+        <tr>
+
+          <th class="sortable" data-key="company" data-type="text">Company <span class="arrow"></span></th>
+          <th class="num" data-key="buy_qty">Buy Qty</th>
+          <th class="num" data-key="buy_price">Buy Price</th>
+          <th class="num sortable" data-key="invested" data-type="num">Invested <span class="arrow"></span></th>
+          <th class="num" data-key="sell_qty">Sell Qty</th>
+          <th class="num" data-key="sell_price">Sell Price</th>
+          <th class="num sortable" data-key="sell_value" data-type="num">Sell Value <span class="arrow"></span></th>
+          <th class="num sortable" data-key="profit" data-type="num">Profit <span class="arrow"></span></th>
+          <th class="sortable" data-key="basket" data-type="num">Basket</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        {% set bq = (r.Buy_Qty or 0) | float %}
+        {% set bp = (r.Buy_Price or 0) | float %}
+        {% set invested = bq * bp %}
+        {% set sq = (r.Sell_Qty or 0) | float %}
+        {% set sp = (r.Sell_Price or 0) | float %}
+        {% set has_sell = sq > 0 %}
+        {% set sell_value = (sq * sp) if has_sell else None %}
+        {% set profit = (sell_value - invested) if has_sell else None %}
+        <tr
+          data-id="{{ r.holding_id }}"
+          data-company="{{ r.Company_Name|e }}"
+          data-buy_qty="{{ bq|int }}"
+          data-buy_price="{{ bp|round(4) }}"
+          data-invested="{{ invested|round(4) }}"
+          data-sell_qty="{{ sq|int }}"
+          data-sell_price="{{ sp|round(4) }}"
+          data-sell_value="{{ (sell_value|round(4)) if has_sell else '' }}"
+          data-profit="{{ (profit|round(4)) if has_sell else '' }}"
+          data-basket="{{ r.Basket_ID or '' }}"
+        >
+
+          <td>{{ r.Company_Name }}</td>
+          <td class="num">{{ bq|int }}</td>
+          <td class="num">{{ bp|round(2) }}</td>
+          <td class="num">{{ invested|round(2) }}</td>
+          <td class="num">{{ sq|int }}</td>
+          <td class="num">{{ sp|round(2) }}</td>
+          <td class="num">{{ '-' if not has_sell else (sell_value|round(2)) }}</td>
+          <td class="num">{{ '-' if not has_sell else (profit|round(2)) }}</td>
+          <td>{{ r.Basket_ID or '-' }}</td>
+          <td>
+            <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">Edit</a>
+            <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">Sell</a>
+            <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" style="display:inline;"
+                  onsubmit="return confirm('Delete this record?');">
+              <button type="submit" class="btn danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="11">No records.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<script>
+(function(){
+  const table = document.getElementById('holdingsTable');
+  const tbody = table.querySelector('tbody');
+  const headers = table.querySelectorAll('th.sortable');
+  const filterInput = document.getElementById('filterCompany');
+
+  let sortState = { key: null, dir: 'asc' }; // asc | desc
+
+  function getRowValue(tr, key, type){
+    const val = tr.dataset[key] ?? '';
+    if (type === 'num') {
+      // treat empty as NaN -> sort to bottom consistently
+      const n = parseFloat(val);
+      return isNaN(n) ? null : n;
+    }
+    // text
+    return (val || '').toString().toLowerCase();
+  }
+
+  function sortBy(key, type){
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    // toggle dir
+    sortState.dir = (sortState.key === key && sortState.dir === 'asc') ? 'desc' : 'asc';
+    sortState.key = key;
+
+    rows.sort((a,b)=>{
+      const av = getRowValue(a, key, type);
+      const bv = getRowValue(b, key, type);
+
+      // Handle nulls (e.g., no sell yet)
+      if (av === null && bv === null) return 0;
+      if (av === null) return 1; // nulls last
+      if (bv === null) return -1;
+
+      if (type === 'num') {
+        return av - bv;
+      }
+      // text
+      if (av < bv) return -1;
+      if (av > bv) return 1;
+      return 0;
+    });
+
+    if (sortState.dir === 'desc') rows.reverse();
+
+    // reattach
+    const frag = document.createDocumentFragment();
+    rows.forEach(r => frag.appendChild(r));
+    tbody.appendChild(frag);
+
+    // update arrows
+    headers.forEach(h=> h.querySelector('.arrow').textContent = '');
+    const active = Array.from(headers).find(h => h.dataset.key === key);
+    if (active) active.querySelector('.arrow').textContent = sortState.dir === 'asc' ? '▲' : '▼';
+  }
+
+  headers.forEach(h=>{
+    h.addEventListener('click', ()=> sortBy(h.dataset.key, h.dataset.type || 'text'));
+  });
+
+  // Filter by company (client-side)
+  filterInput.addEventListener('input', ()=>{
+    const q = filterInput.value.trim().toLowerCase();
+    Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
+      const name = (tr.dataset.company || '').toLowerCase();
+      tr.style.display = name.includes(q) ? '' : 'none';
+    });
+  });
+})();
+</script>
+{% endblock %}

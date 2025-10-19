@@ -4,15 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="Upload files page centered">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="PEG Ration and Debt to Equity added">
+      <change afterPath="$PROJECT_DIR$/baskets_bp.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/my_holdings_bp.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/screeners_load.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/basket/basket_form.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/basket/basket_list.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/basket/basket_view.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/my_holdings.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_form.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_sell.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_view.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/quality_stocks.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/file_list_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/file_list_config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mstockmargin_to_mysql.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sravani_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sravani_bp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sreeja_bp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/stocks_rating.sql" beforeDir="false" afterPath="$PROJECT_DIR$/stocks_rating.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/screeners.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/screeners.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -23,8 +34,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -52,19 +63,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Python.commonfunctions.executor&quot;: &quot;Run&quot;,
-    &quot;Python.latestresults_to_mysql.executor&quot;: &quot;Run&quot;,
-    &quot;Python.screeners_load.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test1.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/T490/PycharmProjects/stocksrating&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Python.commonfunctions.executor": "Run",
+    "Python.latestresults_to_mysql.executor": "Run",
+    "Python.screeners_load.executor": "Run",
+    "Python.test.executor": "Run",
+    "Python.test1.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/T490/PycharmProjects/stocksrating/templates"
   }
-}</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
+    </key>
+  </component>
   <component name="RunManager" selected="Python.screeners_load">
     <configuration name="commonfunctions" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
@@ -378,7 +394,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760604661813</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="PEG Ration and Debt to Equity added">
+      <option name="closed" value="true" />
+      <created>1760776835709</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1760776835709</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -394,6 +418,7 @@
     <MESSAGE value="screener population issue fix" />
     <MESSAGE value="v5.0 Popup added" />
     <MESSAGE value="Upload files page centered" />
-    <option name="LAST_COMMIT_MESSAGE" value="Upload files page centered" />
+    <MESSAGE value="PEG Ration and Debt to Equity added" />
+    <option name="LAST_COMMIT_MESSAGE" value="PEG Ration and Debt to Equity added" />
   </component>
 </project>

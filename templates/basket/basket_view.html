@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}Basket #{{ row.basket_id }}{% endblock %}
+
+{% block content %}
+<style>
+  .page-wrap { display:flex; gap:16px; align-items:flex-start; }
+  .left-menu {
+    flex: 0 0 220px; width:220px;
+    background:#fff; border:1px solid #eee; border-radius:12px;
+    padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    position:sticky; top:12px;
+  }
+  .content {
+    flex:1; background:#fff; border:1px solid #eee; border-radius:12px;
+    padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+  }
+  .field { margin-bottom:12px; }
+  .label { font-weight:600; color:#666; margin-bottom:4px; }
+  .value { white-space:pre-wrap; }
+  .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid #ddd; background:#f9f9f9; text-decoration:none; }
+  .btn.danger { background:#ffecec; border-color:#ffd0d0; }
+</style>
+
+<div class="page-wrap">
+  <aside class="left-menu">
+    <h3>Basket Menu</h3>
+    <a href="{{ url_for('baskets_bp.basket_list') }}">All Baskets</a>
+    <a href="{{ url_for('baskets_bp.basket_edit', basket_id=row.basket_id) }}">Edit Basket</a>
+  </aside>
+
+  <section class="content">
+    <h2 style="margin-top:0;">Basket #{{ row.basket_id }}</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div>
+          {% for cat, msg in messages %}
+            <div class="flash {{cat}}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="field">
+      <div class="label">Basket Name</div>
+      <div class="value">{{ row.basket_name }}</div>
+    </div>
+
+    <div class="field">
+      <div class="label">Description</div>
+      <div class="value">{{ row.description }}</div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:16px;">
+      <a class="btn" href="{{ url_for('baskets_bp.basket_edit', basket_id=row.basket_id) }}">Edit</a>
+      <form action="{{ url_for('baskets_bp.basket_delete', basket_id=row.basket_id) }}" method="post"
+            onsubmit="return confirm('Delete this basket?');">
+        <button class="btn danger" type="submit">Delete</button>
+      </form>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block title %}{{ 'Create Basket' if mode=='create' else 'Edit Basket' }}{% endblock %}
+
+{% block content %}
+<style>
+  .page-wrap { display:flex; gap:16px; align-items:flex-start; }
+  .left-menu {
+    flex: 0 0 220px; width:220px;
+    background:#fff; border:1px solid #eee; border-radius:12px;
+    padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+    position:sticky; top:12px;
+  }
+  .content {
+    flex:1; background:#fff; border:1px solid #eee; border-radius:12px;
+    padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.04);
+  }
+  .form-row { margin-bottom:12px; }
+  .form-row label { display:block; margin-bottom:6px; font-weight:600; }
+  .form-row input[type="text"],
+  .form-row textarea {
+    width:100%; padding:10px; border:1px solid #ddd; border-radius:8px;
+  }
+  .actions { margin-top:16px; display:flex; gap:10px; }
+  .btn { display:inline-block; padding:8px 12px; border-radius:8px; border:1px solid #ddd; background:#f9f9f9; text-decoration:none; }
+  .btn.primary { background:#edf5ff; border-color:#cfe3ff; }
+</style>
+
+<div class="page-wrap">
+  <aside class="left-menu">
+    <h3>Basket Menu</h3>
+    <a href="{{ url_for('baskets_bp.basket_list') }}">All Baskets</a>
+    {% if mode == 'edit' %}
+      <a href="{{ url_for('baskets_bp.basket_view', basket_id=basket_id) }}">View This Basket</a>
+    {% endif %}
+  </aside>
+
+  <section class="content">
+    <h2 style="margin-top:0;">{{ 'Create Basket' if mode=='create' else 'Edit Basket' }}</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div>
+          {% for cat, msg in messages %}
+            <div class="flash {{cat}}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <form method="post">
+      <div class="form-row">
+        <label for="basket_name">Basket Name *</label>
+        <input type="text" id="basket_name" name="basket_name" value="{{ form.basket_name }}">
+      </div>
+
+      <div class="form-row">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="4">{{ form.description }}</textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" type="submit">{{ 'Create' if mode=='create' else 'Update' }}</button>
+        <a class="btn" href="{{ url_for('baskets_bp.basket_list') }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+</div>
+{% endblock %}
