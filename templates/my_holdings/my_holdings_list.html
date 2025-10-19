@@ -83,8 +83,8 @@
       <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_create') }}">➕</a>
     </div>
 
-    {# ===== Summary totals (computed once above filters) ===== #}
-    {% set ns = namespace(rows=0, companies=[], invested=0.0, sell=0.0) %}
+    {# ===== Summary totals (sold-only P/L) ===== #}
+    {% set ns = namespace(rows=0, companies=[], invested=0.0, sell=0.0, invested_sold=0.0) %}
     {% for r in rows %}
       {% set bq = (r.Buy_Qty or 0) | float %}
       {% set bp = (r.Buy_Price or 0) | float %}
@@ -92,14 +92,18 @@
       {% set sp = (r.Sell_Price or 0) | float %}
 
       {% set ns.rows = ns.rows + 1 %}
-      {% set ns.invested = ns.invested + (bq * bp) %}
-      {% set ns.sell = ns.sell + (sq * sp) %}
+      {% set ns.invested = ns.invested + (bq * bp) %}                 {# total invested (all buys) #}
+
+      {% if sq > 0 %}
+        {% set ns.sell = ns.sell + (sq * sp) %}                       {# only sold value #}
+        {% set ns.invested_sold = ns.invested_sold + (sq * bp) %}     {# cost only for sold qty #}
+      {% endif %}
 
       {% if r.Company_Name not in ns.companies %}
         {% set _ = ns.companies.append(r.Company_Name) %}
       {% endif %}
     {% endfor %}
-    {% set netpl = ns.sell - ns.invested %}
+    {% set netpl = ns.sell - ns.invested_sold %}
     {% set pl_class = 'pos' if netpl>0 else ('neg' if netpl<0 else 'muted') %}
 
     <div class="summary-cards">
@@ -120,7 +124,7 @@
         <div class="value">₹{{ '%.2f'|format(ns.sell) }}</div>
       </div>
       <div class="summary-card">
-        <div class="label">Net P/L</div>
+        <div class="label">Net P/L (Sold Only)</div>
         <div class="value {{ pl_class }}">₹{{ '%.2f'|format(netpl) }}</div>
       </div>
     </div>
@@ -164,7 +168,8 @@
           {% set sp = (r.Sell_Price or 0) | float %}
           {% set has_sell = sq > 0 %}
           {% set sell_value = (sq * sp) if has_sell else None %}
-          {% set profit = (sell_value - invested) if has_sell else None %}
+          {# Profit is only for the SOLD leg #}
+          {% set profit = (sq * (sp - bp)) if has_sell else None %}
           {% set basket_id = r.Basket_ID or '-' %}
           {% set profit_class = ('pos' if profit and profit>0 else ('neg' if profit and profit<0 else 'muted')) %}
           <tr
@@ -189,9 +194,10 @@
             <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
             <td><span class="chip">{{ basket_id }}</span></td>
             <td>
-              <!-- Emoji-only action buttons as you preferred -->
-              <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">✏️</a>
+              <!-- Emoji-only action buttons -->
               <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">💰</a>
+              <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">✏️</a>
+
               <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" style="display:inline;"
                     onsubmit="return confirm('Delete this record?');">
                 <button type="submit" class="btn danger">🗑️</button>
@@ -242,42 +248,6 @@
     });
   })();
 
-function refreshSummaryFromVisible(){
-  const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
-
-  let totalRows = 0, invested = 0, sell = 0;
-  const companySet = new Set();
-
-  rows.forEach(tr=>{
-    totalRows++;
-    const name = (tr.dataset.company || '').trim();
-    if (name) companySet.add(name);
-
-    const inv = parseFloat(tr.dataset.invested || '0') || 0;
-    const sv  = parseFloat(tr.dataset.sell_value || '0') || 0;
-    invested += inv;
-    sell     += sv;
-  });
-
-  const net = sell - invested;
-
-  // Update the summary cards (keep same order as in the template)
-  const cards = document.querySelectorAll('.summary-card .value');
-  if (cards.length >= 5){
-    cards[0].textContent = totalRows;                             // Total Holdings
-    cards[1].textContent = companySet.size;                       // Unique Companies
-    cards[2].textContent = '₹' + invested.toFixed(2);             // Total Invested
-    cards[3].textContent = '₹' + sell.toFixed(2);                 // Total Sell Value
-    cards[4].textContent = '₹' + net.toFixed(2);                  // Net P/L
-
-    // set P/L color class
-    const plEl = cards[4];
-    plEl.classList.remove('pos','neg','muted');
-    plEl.classList.add(net > 0 ? 'pos' : (net < 0 ? 'neg' : 'muted'));
-  }
-}
-
-
   function getRowValue(tr, key, type){
     const val = tr.dataset[key] ?? '';
     if (type === 'num') {
@@ -285,6 +255,45 @@ function refreshSummaryFromVisible(){
       return isNaN(n) ? null : n;
     }
     return (val || '').toString().toLowerCase();
+  }
+
+  function refreshSummaryFromVisible(){
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
+
+    let totalRows = 0, investedAll = 0, sellOnly = 0, investedSoldOnly = 0;
+    const companySet = new Set();
+
+    rows.forEach(tr=>{
+      totalRows++;
+      const name = (tr.dataset.company || '').trim();
+      if (name) companySet.add(name);
+
+      const buyPrice  = parseFloat(tr.dataset.buy_price || '0') || 0;
+      const buyQty    = parseFloat(tr.dataset.buy_qty   || '0') || 0;
+      const sellQty   = parseFloat(tr.dataset.sell_qty  || '0') || 0;
+      const sellValue = parseFloat(tr.dataset.sell_value|| '0') || 0;
+
+      investedAll += buyQty * buyPrice;           // total invested (all buys)
+      if (sellQty > 0){
+        sellOnly += sellValue;                    // only sold value
+        investedSoldOnly += sellQty * buyPrice;   // cost only for sold qty
+      }
+    });
+
+    const net = sellOnly - investedSoldOnly;
+
+    const cards = document.querySelectorAll('.summary-card .value');
+    if (cards.length >= 5){
+      cards[0].textContent = totalRows;                     // Total Holdings (visible)
+      cards[1].textContent = companySet.size;               // Unique Companies
+      cards[2].textContent = '₹' + investedAll.toFixed(2);  // Total Invested (all buys)
+      cards[3].textContent = '₹' + sellOnly.toFixed(2);     // Total Sell Value (sold only)
+      cards[4].textContent = '₹' + net.toFixed(2);          // Net P/L (sold only)
+
+      const plEl = cards[4];
+      plEl.classList.remove('pos','neg','muted');
+      plEl.classList.add(net > 0 ? 'pos' : (net < 0 ? 'neg' : 'muted'));
+    }
   }
 
   function applyFilters(){
@@ -302,8 +311,9 @@ function refreshSummaryFromVisible(){
       const matchBasketId = !basketIdQ || baskId.includes(basketIdQ);
 
       tr.style.display = (matchName && matchBasketDrop && matchBasketId) ? '' : 'none';
-    refreshSummaryFromVisible();
     });
+
+    refreshSummaryFromVisible();
   }
 
   function sortBy(key, type){
@@ -323,7 +333,6 @@ function refreshSummaryFromVisible(){
       if (av < bv) return -1;
       if (av > bv) return 1;
       return 0;
-   refreshSummaryFromVisible();
     });
 
     if (sortState.dir === 'desc') rows.reverse();
@@ -337,6 +346,8 @@ function refreshSummaryFromVisible(){
     headers.forEach(h=> h.querySelector('.arrow').textContent = '');
     const active = Array.from(headers).find(h => h.dataset.key === key);
     if (active) active.querySelector('.arrow').textContent = sortState.dir === 'asc' ? '▲' : '▼';
+
+    refreshSummaryFromVisible();
   }
 
   headers.forEach(h=>{
@@ -346,6 +357,9 @@ function refreshSummaryFromVisible(){
   filterCompany.addEventListener('input', applyFilters);
   filterBasket.addEventListener('change', applyFilters);
   filterBasketId.addEventListener('input', applyFilters);
+
+  // Initial summary
+  refreshSummaryFromVisible();
 })();
 </script>
 {% endblock %}
