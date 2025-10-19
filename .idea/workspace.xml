@@ -4,27 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="PEG Ration and Debt to Equity added">
-      <change afterPath="$PROJECT_DIR$/baskets_bp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/my_holdings_bp.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/screeners_load.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/basket/basket_form.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/basket/basket_list.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/basket/basket_view.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/my_holdings.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_form.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_sell.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_view.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/quality_stocks.html" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v2.0 My holdings enhancements with filters">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file_list_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/file_list_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mstockmargin_to_mysql.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sreeja_bp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stocks_rating.sql" beforeDir="false" afterPath="$PROJECT_DIR$/stocks_rating.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_sell.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_sell.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -402,7 +385,23 @@
       <option name="project" value="LOCAL" />
       <updated>1760776835709</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="v1.0 My holdings initial">
+      <option name="closed" value="true" />
+      <created>1760867389093</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1760867389093</updated>
+    </task>
+    <task id="LOCAL-00025" summary="v2.0 My holdings enhancements with filters">
+      <option name="closed" value="true" />
+      <created>1760872788369</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1760872788369</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -419,6 +418,8 @@
     <MESSAGE value="v5.0 Popup added" />
     <MESSAGE value="Upload files page centered" />
     <MESSAGE value="PEG Ration and Debt to Equity added" />
-    <option name="LAST_COMMIT_MESSAGE" value="PEG Ration and Debt to Equity added" />
+    <MESSAGE value="v1.0 My holdings initial" />
+    <MESSAGE value="v2.0 My holdings enhancements with filters" />
+    <option name="LAST_COMMIT_MESSAGE" value="v2.0 My holdings enhancements with filters" />
   </component>
 </project>

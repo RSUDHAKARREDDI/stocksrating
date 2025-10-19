@@ -2,115 +2,156 @@
 {% block title %}My Holdings{% endblock %}
 {% block content %}
 <style>
-  .page-wrap { display:flex; gap:16px; align-items:flex-start; }
-  .left-menu { flex:0 0 220px; width:220px; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; }
-  .content { flex:1; background:#fff; border:1px solid #eee; border-radius:12px; padding:12px; overflow:auto; }
-  table { width:100%; border-collapse:collapse; }
-  th, td { padding:8px; border-bottom:1px solid #f0f0f0; text-align:left; }
-  th { background:#fafafa; white-space:nowrap; cursor:pointer; user-select:none; }
-  th.sortable:hover { background:#f0f4ff; }
-  .btn { padding:6px 10px; border:1px solid #ddd; border-radius:8px; text-decoration:none; }
+  :root{
+    --bg:#fff; --bd:#e9e9ef; --muted:#6b7280; --light:#f7f7fb; --hover:#f2f6ff;
+    --chip:#eef2ff; --chip-bd:#dbe3ff; --pos:#0ea25a; --neg:#d14343;
+  }
+
+  .page-wrap { display:flex; gap:14px; align-items:flex-start; }
+  .left-menu {
+    flex:0 0 200px; width:200px; background:var(--bg); border:1px solid var(--bd);
+    border-radius:12px; padding:10px; font-size:12px;
+  }
+  .left-menu a { display:block; padding:6px 8px; border-radius:8px; text-decoration:none; color:#111827; }
+  .left-menu a:hover { background:var(--hover); }
+
+  .content {
+    flex:1; background:var(--bg); border:1px solid var(--bd); border-radius:12px;
+    padding:10px; overflow:auto; font-size:12px; line-height:1.35;
+    box-shadow:0 2px 10px rgba(0,0,0,0.035);
+  }
+
+  .controls { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin:8px 0 10px; }
+  .controls label { font-size:11px; color:var(--muted); }
+  .controls input[type="text"], .controls select {
+    height:28px; padding:4px 8px; border:1px solid var(--bd); border-radius:8px; font-size:12px;
+    background:#fff;
+  }
+
+  .btn { padding:5px 9px; border:1px solid var(--bd); border-radius:8px; text-decoration:none; font-size:12px; }
   .btn.primary { background:#edf5ff; }
   .btn.danger { background:#ffecec; }
+
+  .table-wrap{
+    max-height:70vh; overflow:auto; border:1px solid var(--bd); border-radius:10px;
+  }
+
+  table { width:100%; border-collapse:separate; border-spacing:0; font-variant-numeric:tabular-nums; }
+  thead th {
+    position:sticky; top:0; background:#fafafa; border-bottom:1px solid var(--bd);
+    padding:8px; text-align:left; white-space:nowrap; font-weight:600; z-index:1;
+  }
+  tbody td { padding:7px 8px; border-bottom:1px solid #f0f0f4; background:#fff; }
+  tbody tr:nth-child(even) td { background:var(--light); }
+  tbody tr:hover td { background:var(--hover); }
+  th.sortable { cursor:pointer; user-select:none; }
+  th.sortable:hover { background:#f0f4ff; }
+  .arrow { font-size:10px; opacity:.7; margin-left:4px; }
   .num { text-align:right; white-space:nowrap; }
-  .controls { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:10px 0; }
-  .controls input[type="text"], .controls select { padding:6px 8px; border:1px solid #ddd; border-radius:8px; }
-  .arrow { font-size:11px; opacity:0.6; margin-left:4px; }
-  .muted { opacity:.7; }
+
+  .chip {
+    display:inline-block; padding:2px 8px; border-radius:999px; background:var(--chip); border:1px solid var(--chip-bd);
+    font-size:11px;
+  }
+  .muted { color:var(--muted); }
+
+  .pos { color:var(--pos); font-weight:600; }
+  .neg { color:var(--neg); font-weight:600; }
 </style>
 
 <div class="page-wrap">
   <aside class="left-menu">
-    <h3>Holdings Menu</h3>
+    <h3 style="margin:0 0 6px;font-size:13px;">Holdings Menu</h3>
     <a href="{{ url_for('my_holdings_bp.my_holdings_list') }}">All Holdings</a>
     <a href="{{ url_for('my_holdings_bp.my_holdings_create') }}">Add Holding</a>
   </aside>
 
   <section class="content">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 style="margin:0;">My Holdings</h2>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <h2 style="margin:0;font-size:14px;">My Holdings</h2>
       <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_create') }}">+ Add Holding</a>
     </div>
 
     <div class="controls">
-      <label for="filterCompany" class="muted">Company:</label>
+      <label for="filterCompany">Company</label>
       <input id="filterCompany" type="text" placeholder="Type to filter by company…">
 
-      <label for="filterBasket" class="muted">Basket:</label>
+      <label for="filterBasket">Basket</label>
       <select id="filterBasket">
         <option value="">All</option>
         <!-- options populated from table data -->
       </select>
 
-      <label for="filterBasketId" class="muted">Basket ID:</label>
+      <label for="filterBasketId">Basket ID</label>
       <input id="filterBasketId" type="text" placeholder="e.g. 1, 12, 205…" inputmode="numeric">
-
     </div>
 
-    <table id="holdingsTable">
-      <thead>
-        <tr>
-          <th data-key="id">ID</th>
-          <th class="sortable" data-key="company" data-type="text">Company <span class="arrow"></span></th>
-          <th class="num" data-key="buy_qty">Buy Qty</th>
-          <th class="num" data-key="buy_price">Buy Price</th>
-          <th class="num sortable" data-key="invested" data-type="num">Invested <span class="arrow"></span></th>
-          <th class="num" data-key="sell_qty">Sell Qty</th>
-          <th class="num" data-key="sell_price">Sell Price</th>
-          <th class="num sortable" data-key="sell_value" data-type="num">Sell Value <span class="arrow"></span></th>
-          <th class="num sortable" data-key="profit" data-type="num">Profit <span class="arrow"></span></th>
-          <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for r in rows %}
-        {% set bq = (r.Buy_Qty or 0) | float %}
-        {% set bp = (r.Buy_Price or 0) | float %}
-        {% set invested = bq * bp %}
-        {% set sq = (r.Sell_Qty or 0) | float %}
-        {% set sp = (r.Sell_Price or 0) | float %}
-        {% set has_sell = sq > 0 %}
-        {% set sell_value = (sq * sp) if has_sell else None %}
-        {% set profit = (sell_value - invested) if has_sell else None %}
-        {% set basket_id = r.Basket_ID or '-' %}
-        <tr
-          data-id="{{ r.holding_id }}"
-          data-company="{{ r.Company_Name|e }}"
-          data-buy_qty="{{ bq|int }}"
-          data-buy_price="{{ bp|round(6) }}"
-          data-invested="{{ invested|round(6) }}"
-          data-sell_qty="{{ sq|int }}"
-          data-sell_price="{{ sp|round(6) }}"
-          data-sell_value="{{ (sell_value|round(6)) if has_sell else '' }}"
-          data-profit="{{ (profit|round(6)) if has_sell else '' }}"
-          data-basket="{{ basket_id }}"
-          data-basket_id="{{ basket_id }}"
-        >
-          <td>{{ r.holding_id }}</td>
-          <td>{{ r.Company_Name }}</td>
-          <td class="num">{{ bq|int }}</td>
-          <td class="num">{{ bp|round(2) }}</td>
-          <td class="num">{{ invested|round(2) }}</td>
-          <td class="num">{{ sq|int }}</td>
-          <td class="num">{{ sp|round(2) }}</td>
-          <td class="num">{{ '-' if not has_sell else (sell_value|round(2)) }}</td>
-          <td class="num">{{ '-' if not has_sell else (profit|round(2)) }}</td>
-          <td>{{ basket_id }}</td>
-          <td>
-            <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">Edit</a>
-            <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">Sell</a>
-            <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" style="display:inline;"
-                  onsubmit="return confirm('Delete this record?');">
-              <button type="submit" class="btn danger">Delete</button>
-            </form>
-          </td>
-        </tr>
-        {% else %}
-        <tr><td colspan="11">No records.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <div class="table-wrap">
+      <table id="holdingsTable">
+        <thead>
+          <tr>
+
+            <th class="sortable" data-key="company" data-type="text">Company <span class="arrow"></span></th>
+            <th class="num">Buy&nbsp;Qty</th>
+            <th class="num">Buy&nbsp;Price</th>
+            <th class="num sortable" data-key="invested" data-type="num">Invested <span class="arrow"></span></th>
+            <th class="num">Sell&nbsp;Qty</th>
+            <th class="num">Sell&nbsp;Price</th>
+            <th class="num sortable" data-key="sell_value" data-type="num">Sell&nbsp;Value <span class="arrow"></span></th>
+            <th class="num sortable" data-key="profit" data-type="num">Profit <span class="arrow"></span></th>
+            <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
+            <th class="muted">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in rows %}
+          {% set bq = (r.Buy_Qty or 0) | float %}
+          {% set bp = (r.Buy_Price or 0) | float %}
+          {% set invested = bq * bp %}
+          {% set sq = (r.Sell_Qty or 0) | float %}
+          {% set sp = (r.Sell_Price or 0) | float %}
+          {% set has_sell = sq > 0 %}
+          {% set sell_value = (sq * sp) if has_sell else None %}
+          {% set profit = (sell_value - invested) if has_sell else None %}
+          {% set basket_id = r.Basket_ID or '-' %}
+          {% set profit_class = ('pos' if profit and profit>0 else ('neg' if profit and profit<0 else 'muted')) %}
+          <tr
+            data-company="{{ r.Company_Name|e }}"
+            data-buy_qty="{{ bq|int }}"
+            data-buy_price="{{ bp|round(6) }}"
+            data-invested="{{ invested|round(6) }}"
+            data-sell_qty="{{ sq|int }}"
+            data-sell_price="{{ sp|round(6) }}"
+            data-sell_value="{{ (sell_value|round(6)) if has_sell else '' }}"
+            data-profit="{{ (profit|round(6)) if has_sell else '' }}"
+            data-basket="{{ basket_id }}"
+            data-basket_id="{{ basket_id }}"
+          >
+
+            <td>{{ r.Company_Name }}</td>
+            <td class="num">{{ bq|int }}</td>
+            <td class="num">{{ bp|round(2) }}</td>
+            <td class="num">{{ invested|round(2) }}</td>
+            <td class="num">{{ sq|int }}</td>
+            <td class="num">{{ sp|round(2) }}</td>
+            <td class="num">{{ '-' if not has_sell else (sell_value|round(2)) }}</td>
+            <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
+            <td><span class="chip">{{ basket_id }}</span></td>
+            <td>
+              <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">Edit</a>
+              <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">Sell</a>
+              <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" style="display:inline;"
+                    onsubmit="return confirm('Delete this record?');">
+                <button type="submit" class="btn danger">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="10">No records.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </section>
 </div>
 
@@ -139,7 +180,7 @@
       if (aNum && bNum) return an - bn;
       if (aNum) return -1;
       if (bNum) return 1;
-      return a.localeCompare(b);
+      return String(a).localeCompare(String(b));
     });
     values.forEach(v=>{
       const opt = document.createElement('option');
@@ -200,7 +241,7 @@
     const hidden = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display === 'none');
     const frag = document.createDocumentFragment();
     rows.forEach(r => frag.appendChild(r));
-    hidden.forEach(r => frag.appendChild(r));
+    hidden.forEach(r => frag.appendChild(r)); // keep hidden rows at the end
     tbody.appendChild(frag);
 
     headers.forEach(h=> h.querySelector('.arrow').textContent = '');
