@@ -138,8 +138,21 @@ def my_holdings_view(holding_id):
 
 @my_holdings_bp.route("/my_holdings/<int:holding_id>/edit", methods=["GET", "POST"])
 def my_holdings_edit(holding_id):
+    # helper: tolerant getter for keys with different casings/names
+    def _g(row, *keys, default=None):
+        for k in keys:
+            if k in row and row[k] is not None:
+                return row[k]
+        return default
+
+    # load companies & baskets for the form (both GET and on validation errors)
     with engine.begin() as conn:
-        companies = conn.execute(text("SELECT Name FROM company_list ORDER BY Name")).mappings().all()
+        companies = conn.execute(
+            text("SELECT Name FROM company_list ORDER BY Name")
+        ).mappings().all()
+        baskets = conn.execute(
+            text("SELECT basket_id, basket_name FROM basket ORDER BY basket_name")
+        ).mappings().all()
 
     if request.method == "POST":
         data = {
@@ -153,10 +166,22 @@ def my_holdings_edit(holding_id):
             "Basket_ID": request.form.get("Basket_ID") or None,
             "holding_id": holding_id,
         }
+
         if not data["Company_Name"]:
             flash("Company name required.", "danger")
-            return render_template("my_holdings/my_holdings_form.html", mode="edit",
-                                   companies=companies, form=data, holding_id=holding_id)
+            return render_template(
+                "my_holdings/my_holdings_form.html",
+                mode="edit", companies=companies, baskets=baskets,
+                form=data, holding_id=holding_id
+            )
+
+        if not data["Basket_ID"]:
+            flash("Please select a Basket.", "danger")
+            return render_template(
+                "my_holdings/my_holdings_form.html",
+                mode="edit", companies=companies, baskets=baskets,
+                form=data, holding_id=holding_id
+            )
 
         sql = text("""
             UPDATE my_holdings
@@ -170,14 +195,36 @@ def my_holdings_edit(holding_id):
         flash("Holding updated.", "success")
         return redirect(url_for("my_holdings_bp.my_holdings_list"))
 
+    # GET -> load current row from the view
     with engine.begin() as conn:
-        row = conn.execute(text("SELECT * FROM vw_my_holdings WHERE holding_id=:id"), {"id": holding_id}).mappings().first()
+        row = conn.execute(
+            text("SELECT * FROM vw_my_holdings WHERE holding_id=:id"),
+            {"id": holding_id}
+        ).mappings().first()
+
     if not row:
         flash("Record not found.", "warning")
         return redirect(url_for("my_holdings_bp.my_holdings_list"))
 
-    return render_template("my_holdings/my_holdings_form.html", mode="edit",
-                           companies=companies, form=row, holding_id=holding_id)
+    # Try to read Basket_ID from the view; if missing, fetch from base table
+    basket_id = _g(row, "Basket_ID", "basket_id", "Basket Id", "basketId")
+    if basket_id is None:
+        with engine.begin() as conn:
+            base = conn.execute(
+                text("SELECT Basket_ID FROM my_holdings WHERE holding_id=:id"),
+                {"id": holding_id}
+            ).mappings().first()
+            basket_id = base["Basket_ID"] if base and base.get("Basket_ID") is not None else None
+
+    # Build a 'form' dict so the template shows current values & preselects the basket
+    form = dict(row)
+    form["Basket_ID"] = basket_id
+
+    return render_template(
+        "my_holdings/my_holdings_form.html",
+        mode="edit", companies=companies, baskets=baskets,
+        form=form, holding_id=holding_id
+    )
 
 @my_holdings_bp.route("/my_holdings/<int:holding_id>/delete", methods=["POST"])
 def my_holdings_delete(holding_id):

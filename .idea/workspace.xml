@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v5.0 My holdings dynamic summary">
-      <change afterPath="$PROJECT_DIR$/api_ninja.py" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v6.0 Live price added to my holdings">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/my_holdings_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_holdings_bp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sreeja_bp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -428,7 +425,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760875778941</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="v6.0 Live price added to my holdings">
+      <option name="closed" value="true" />
+      <created>1760927487430</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1760927487430</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -450,6 +455,7 @@
     <MESSAGE value="v3.0 My holdings holding view page enhanced" />
     <MESSAGE value="v4.0 My holdings emojis added" />
     <MESSAGE value="v5.0 My holdings dynamic summary" />
-    <option name="LAST_COMMIT_MESSAGE" value="v5.0 My holdings dynamic summary" />
+    <MESSAGE value="v6.0 Live price added to my holdings" />
+    <option name="LAST_COMMIT_MESSAGE" value="v6.0 Live price added to my holdings" />
   </component>
 </project>

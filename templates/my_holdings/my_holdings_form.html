@@ -46,7 +46,7 @@
           <option value="">-- Select Basket --</option>
           {% for b in baskets %}
             <option value="{{ b.basket_id }}"
-              {% if form.Basket_ID == b.basket_id or form.Basket_ID|string == b.basket_id|string %}selected{% endif %}>
+              {% if form.Basket_ID|string == b.basket_id|string %}selected{% endif %}>
               {{ b.basket_name }}
             </option>
           {% endfor %}
