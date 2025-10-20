@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v2.0 My holdings enhancements with filters">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v5.0 My holdings dynamic summary">
+      <change afterPath="$PROJECT_DIR$/api_ninja.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/my_holdings_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_holdings_bp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sreeja_bp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_sell.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_sell.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,8 +19,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -49,6 +51,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "DefaultHtmlFileTemplate": "HTML File",
+    "Python.api_ninja.executor": "Run",
     "Python.commonfunctions.executor": "Run",
     "Python.latestresults_to_mysql.executor": "Run",
     "Python.screeners_load.executor": "Run",
@@ -64,7 +67,29 @@
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.screeners_load">
+  <component name="RunManager" selected="Python.api_ninja">
+    <configuration name="api_ninja" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="stocksrating" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/api_ninja.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="commonfunctions" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
@@ -79,28 +104,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/commonfunctions.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="latestresults_to_mysql" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="stocksrating" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/latestresults_to_mysql.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -177,11 +180,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.api_ninja" />
         <item itemvalue="Python.screeners_load" />
         <item itemvalue="Python.commonfunctions" />
         <item itemvalue="Python.test1" />
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.latestresults_to_mysql" />
       </list>
     </recent_temporary>
   </component>
@@ -401,7 +404,31 @@
       <option name="project" value="LOCAL" />
       <updated>1760872788369</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="v3.0 My holdings holding view page enhanced">
+      <option name="closed" value="true" />
+      <created>1760874238053</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1760874238053</updated>
+    </task>
+    <task id="LOCAL-00027" summary="v4.0 My holdings emojis added">
+      <option name="closed" value="true" />
+      <created>1760874686612</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1760874686612</updated>
+    </task>
+    <task id="LOCAL-00028" summary="v5.0 My holdings dynamic summary">
+      <option name="closed" value="true" />
+      <created>1760875778941</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1760875778941</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -420,6 +447,9 @@
     <MESSAGE value="PEG Ration and Debt to Equity added" />
     <MESSAGE value="v1.0 My holdings initial" />
     <MESSAGE value="v2.0 My holdings enhancements with filters" />
-    <option name="LAST_COMMIT_MESSAGE" value="v2.0 My holdings enhancements with filters" />
+    <MESSAGE value="v3.0 My holdings holding view page enhanced" />
+    <MESSAGE value="v4.0 My holdings emojis added" />
+    <MESSAGE value="v5.0 My holdings dynamic summary" />
+    <option name="LAST_COMMIT_MESSAGE" value="v5.0 My holdings dynamic summary" />
   </component>
 </project>

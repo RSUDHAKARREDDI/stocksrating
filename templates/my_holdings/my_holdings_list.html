@@ -148,6 +148,7 @@
         <thead>
           <tr>
             <th class="sortable" data-key="company" data-type="text">Company <span class="arrow"></span></th>
+            <th class="num">Live&nbsp;Price</th>
             <th class="num">Buy&nbsp;Qty</th>
             <th class="num">Buy&nbsp;Price</th>
             <th class="num sortable" data-key="invested" data-type="num">Invested <span class="arrow"></span></th>
@@ -156,6 +157,8 @@
             <th class="num sortable" data-key="sell_value" data-type="num">Sell&nbsp;Value <span class="arrow"></span></th>
             <th class="num sortable" data-key="profit" data-type="num">Profit <span class="arrow"></span></th>
             <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
+            <!-- NEW: Live Price column -->
+
             <th class="muted">Actions</th>
           </tr>
         </thead>
@@ -183,8 +186,10 @@
             data-profit="{{ (profit|round(6)) if has_sell else '' }}"
             data-basket="{{ basket_id }}"
             data-basket_id="{{ basket_id }}"
+            data-holding_id="{{ r.holding_id }}"
           >
             <td>{{ r.Company_Name }}</td>
+            <td class="num"><span id="lp-{{ r.holding_id }}">—</span></td>
             <td class="num">{{ bq|int }}</td>
             <td class="num">{{ bp|round(2) }}</td>
             <td class="num">{{ invested|round(2) }}</td>
@@ -193,6 +198,8 @@
             <td class="num">{{ '-' if not has_sell else (sell_value|round(2)) }}</td>
             <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
             <td><span class="chip">{{ basket_id }}</span></td>
+
+
             <td>
               <!-- Emoji-only action buttons -->
               <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">💰</a>
@@ -205,7 +212,7 @@
             </td>
           </tr>
           {% else %}
-          <tr><td colspan="10">No records.</td></tr>
+          <tr><td colspan="11">No records.</td></tr>
           {% endfor %}
         </tbody>
       </table>
@@ -358,8 +365,35 @@
   filterBasket.addEventListener('change', applyFilters);
   filterBasketId.addEventListener('input', applyFilters);
 
-  // Initial summary
+  // ===== NEW: Lazy-load Live Prices per row =====
+  function fetchLivePrice(holdingId, el) {
+    // NOTE: endpoint provided by your blueprint
+    fetch(`/my_holdings/${holdingId}/price`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && !data.error && typeof data.price !== 'undefined') {
+          el.textContent = `₹ ${Number(data.price).toFixed(2)}`;
+          el.title = data.ticker ? `${data.ticker}${data.exchange ? ' | ' + data.exchange : ''}` : '';
+        } else {
+          el.textContent = 'NA';
+          el.title = data && data.error ? data.error : '';
+        }
+      })
+      .catch(() => { el.textContent = 'NA'; });
+  }
+
+  function hydrateLivePrices() {
+    const cells = Array.from(document.querySelectorAll('[id^="lp-"]'));
+    // gentle staggering to avoid a sudden burst of requests
+    cells.forEach((el, idx) => {
+      const id = el.id.replace('lp-', '');
+      setTimeout(() => fetchLivePrice(id, el), idx * 120); // 120ms gap per row
+    });
+  }
+
+  // Initial summary + live prices
   refreshSummaryFromVisible();
+  hydrateLivePrices();
 })();
 </script>
 {% endblock %}
