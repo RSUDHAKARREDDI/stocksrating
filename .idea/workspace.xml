@@ -4,17 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v8.0 all KPI columns ordered">
-      <change afterPath="$PROJECT_DIR$/static/css/latest_results.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/quality_stocks.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/css/screeners.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/latest_results.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/quality_stocks.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/screeners.js" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v9.0 filters hide and show">
+      <change afterPath="$PROJECT_DIR$/static/css/my_holdings.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/my_holdings.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/quality_stocks.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/quality_stocks.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/screeners.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/screeners.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -457,7 +451,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761009942829</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="v9.0 filters hide and show">
+      <option name="closed" value="true" />
+      <created>1761020041981</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1761020041981</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -482,6 +484,7 @@
     <MESSAGE value="v6.0 Live price added to my holdings" />
     <MESSAGE value="v7.0 my holdings update fix" />
     <MESSAGE value="v8.0 all KPI columns ordered" />
-    <option name="LAST_COMMIT_MESSAGE" value="v8.0 all KPI columns ordered" />
+    <MESSAGE value="v9.0 filters hide and show" />
+    <option name="LAST_COMMIT_MESSAGE" value="v9.0 filters hide and show" />
   </component>
 </project>

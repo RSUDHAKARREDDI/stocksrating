@@ -1,86 +1,26 @@
 {% extends "layout.html" %}
 {% block title %}My Holdings{% endblock %}
+
 {% block content %}
-<style>
-  :root{
-    --bg:#fff; --bd:#e9e9ef; --muted:#6b7280; --light:#f7f7fb; --hover:#f2f6ff;
-    --chip:#eef2ff; --chip-bd:#dbe3ff; --pos:#0ea25a; --neg:#d14343;
-  }
-
-  .page-wrap { display:flex; gap:14px; align-items:flex-start; }
-  .left-menu {
-    flex:0 0 200px; width:200px; background:var(--bg); border:1px solid var(--bd);
-    border-radius:12px; padding:10px; font-size:12px;
-  }
-  .left-menu a { display:block; padding:6px 8px; border-radius:8px; text-decoration:none; color:#111827; }
-  .left-menu a:hover { background:var(--hover); }
-
-  .content {
-    flex:1; background:var(--bg); border:1px solid var(--bd); border-radius:12px;
-    padding:10px; overflow:auto; font-size:12px; line-height:1.35;
-    box-shadow:0 2px 10px rgba(0,0,0,0.035);
-  }
-
-  .controls { display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; margin:8px 0 10px; }
-  .controls label { font-size:11px; color:var(--muted); }
-  .controls input[type="text"], .controls select {
-    height:28px; padding:4px 8px; border:1px solid var(--bd); border-radius:8px; font-size:12px;
-    background:#fff;
-  }
-
-  .btn { padding:4px 8px; border:1px solid var(--bd); border-radius:8px; text-decoration:none; font-size:12px; display:inline-flex; align-items:center; gap:4px; }
-  .btn.primary { background:#edf5ff; }
-  .btn.danger { background:#ffecec; }
-
-  /* Summary cards */
-  .summary-cards{
-    display:grid; grid-template-columns:repeat(5,minmax(120px,1fr));
-    gap:8px; margin:6px 0 10px;
-  }
-  .summary-card{
-    background:#fff; border:1px solid var(--bd); border-radius:10px;
-    padding:8px 10px; box-shadow:0 1px 6px rgba(0,0,0,.03);
-  }
-  .summary-card .label{ font-size:11px; color:var(--muted); margin-bottom:4px; }
-  .summary-card .value{ font-size:13px; font-weight:700; }
-
-  .table-wrap{
-    max-height:70vh; overflow:auto; border:1px solid var(--bd); border-radius:10px;
-  }
-
-  table { width:100%; border-collapse:separate; border-spacing:0; font-variant-numeric:tabular-nums; }
-  thead th {
-    position:sticky; top:0; background:#fafafa; border-bottom:1px solid var(--bd);
-    padding:8px; text-align:left; white-space:nowrap; font-weight:600; z-index:1;
-  }
-  tbody td { padding:7px 8px; border-bottom:1px solid #f0f0f4; background:#fff; }
-  tbody tr:nth-child(even) td { background:var(--light); }
-  tbody tr:hover td { background:var(--hover); }
-  th.sortable { cursor:pointer; user-select:none; }
-  th.sortable:hover { background:#f0f4ff; }
-  .arrow { font-size:10px; opacity:.7; margin-left:4px; }
-  .num { text-align:right; white-space:nowrap; }
-
-  .chip {
-    display:inline-block; padding:2px 8px; border-radius:999px; background:var(--chip); border:1px solid var(--chip-bd);
-    font-size:11px;
-  }
-  .muted { color:var(--muted); }
-  .pos { color:var(--pos); font-weight:600; }
-  .neg { color:var(--neg); font-weight:600; }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/my_holdings.css') }}">
+<script defer src="{{ url_for('static', filename='js/my_holdings.js') }}"></script>
 
 <div class="page-wrap">
   <aside class="left-menu">
-    <h3 style="margin:0 0 6px;font-size:13px;">Holdings Menu</h3>
+    <h3 class="menu-title">Holdings Menu</h3>
     <a href="{{ url_for('my_holdings_bp.my_holdings_list') }}">All Holdings</a>
     <a href="{{ url_for('my_holdings_bp.my_holdings_create') }}">Add Holding</a>
   </aside>
 
   <section class="content">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-      <h2 style="margin:0;font-size:14px;">My Holdings</h2>
-      <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_create') }}">➕</a>
+    <div class="content-head">
+      <h2>My Holdings</h2>
+      <div class="actions">
+        <!-- Add record -->
+        <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_create') }}" title="Add holding">➕</a>
+        <!-- On-demand live prices -->
+
+      </div>
     </div>
 
     {# ===== Summary totals (sold-only P/L) ===== #}
@@ -92,11 +32,11 @@
       {% set sp = (r.Sell_Price or 0) | float %}
 
       {% set ns.rows = ns.rows + 1 %}
-      {% set ns.invested = ns.invested + (bq * bp) %}                 {# total invested (all buys) #}
+      {% set ns.invested = ns.invested + (bq * bp) %}
 
       {% if sq > 0 %}
-        {% set ns.sell = ns.sell + (sq * sp) %}                       {# only sold value #}
-        {% set ns.invested_sold = ns.invested_sold + (sq * bp) %}     {# cost only for sold qty #}
+        {% set ns.sell = ns.sell + (sq * sp) %}
+        {% set ns.invested_sold = ns.invested_sold + (sq * bp) %}
       {% endif %}
 
       {% if r.Company_Name not in ns.companies %}
@@ -136,7 +76,6 @@
       <label for="filterBasket">Basket</label>
       <select id="filterBasket">
         <option value="">All</option>
-        <!-- options populated from table data -->
       </select>
 
       <label for="filterBasketId">Basket ID</label>
@@ -148,7 +87,7 @@
         <thead>
           <tr>
             <th class="sortable" data-key="company" data-type="text">Company <span class="arrow"></span></th>
-            <th class="num">Live&nbsp;Price</th>
+            <th class="num">Live&nbsp;Price&nbsp;<button id="btn_load_prices" class="btn live" type="button" title="Fetch live prices (on demand)">🔄</button></th>
             <th class="num">Buy&nbsp;Qty</th>
             <th class="num">Buy&nbsp;Price</th>
             <th class="num sortable" data-key="invested" data-type="num">Invested <span class="arrow"></span></th>
@@ -157,8 +96,6 @@
             <th class="num sortable" data-key="sell_value" data-type="num">Sell&nbsp;Value <span class="arrow"></span></th>
             <th class="num sortable" data-key="profit" data-type="num">Profit <span class="arrow"></span></th>
             <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
-            <!-- NEW: Live Price column -->
-
             <th class="muted">Actions</th>
           </tr>
         </thead>
@@ -171,7 +108,6 @@
           {% set sp = (r.Sell_Price or 0) | float %}
           {% set has_sell = sq > 0 %}
           {% set sell_value = (sq * sp) if has_sell else None %}
-          {# Profit is only for the SOLD leg #}
           {% set profit = (sq * (sp - bp)) if has_sell else None %}
           {% set basket_id = r.Basket_ID or '-' %}
           {% set profit_class = ('pos' if profit and profit>0 else ('neg' if profit and profit<0 else 'muted')) %}
@@ -198,16 +134,12 @@
             <td class="num">{{ '-' if not has_sell else (sell_value|round(2)) }}</td>
             <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
             <td><span class="chip">{{ basket_id }}</span></td>
-
-
             <td>
-              <!-- Emoji-only action buttons -->
-              <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}">💰</a>
-              <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}">✏️</a>
-
-              <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" style="display:inline;"
+              <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}" title="Sell">💰</a>
+              <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}" title="Edit">✏️</a>
+              <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" class="inline-delete"
                     onsubmit="return confirm('Delete this record?');">
-                <button type="submit" class="btn danger">🗑️</button>
+                <button type="submit" class="btn danger" title="Delete">🗑️</button>
               </form>
             </td>
           </tr>
@@ -219,181 +151,4 @@
     </div>
   </section>
 </div>
-
-<script>
-(function(){
-  const table = document.getElementById('holdingsTable');
-  const tbody = table.querySelector('tbody');
-  const headers = table.querySelectorAll('th.sortable');
-  const filterCompany = document.getElementById('filterCompany');
-  const filterBasket = document.getElementById('filterBasket');
-  const filterBasketId = document.getElementById('filterBasketId');
-
-  let sortState = { key: null, dir: 'asc' }; // asc | desc
-
-  // Build Basket dropdown from unique Basket IDs in the table
-  (function populateBasketFilter(){
-    const set = new Set();
-    Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
-      const b = tr.dataset.basket || '-';
-      set.add(b);
-    });
-    const values = Array.from(set).sort((a,b)=>{
-      if (a === '-') return 1; if (b === '-') return -1;
-      const an = Number(a), bn = Number(b);
-      const aNum = !isNaN(an), bNum = !isNaN(bn);
-      if (aNum && bNum) return an - bn;
-      if (aNum) return -1;
-      if (bNum) return 1;
-      return String(a).localeCompare(String(b));
-    });
-    values.forEach(v=>{
-      const opt = document.createElement('option');
-      opt.value = v;
-      opt.textContent = v;
-      filterBasket.appendChild(opt);
-    });
-  })();
-
-  function getRowValue(tr, key, type){
-    const val = tr.dataset[key] ?? '';
-    if (type === 'num') {
-      const n = parseFloat(val);
-      return isNaN(n) ? null : n;
-    }
-    return (val || '').toString().toLowerCase();
-  }
-
-  function refreshSummaryFromVisible(){
-    const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
-
-    let totalRows = 0, investedAll = 0, sellOnly = 0, investedSoldOnly = 0;
-    const companySet = new Set();
-
-    rows.forEach(tr=>{
-      totalRows++;
-      const name = (tr.dataset.company || '').trim();
-      if (name) companySet.add(name);
-
-      const buyPrice  = parseFloat(tr.dataset.buy_price || '0') || 0;
-      const buyQty    = parseFloat(tr.dataset.buy_qty   || '0') || 0;
-      const sellQty   = parseFloat(tr.dataset.sell_qty  || '0') || 0;
-      const sellValue = parseFloat(tr.dataset.sell_value|| '0') || 0;
-
-      investedAll += buyQty * buyPrice;           // total invested (all buys)
-      if (sellQty > 0){
-        sellOnly += sellValue;                    // only sold value
-        investedSoldOnly += sellQty * buyPrice;   // cost only for sold qty
-      }
-    });
-
-    const net = sellOnly - investedSoldOnly;
-
-    const cards = document.querySelectorAll('.summary-card .value');
-    if (cards.length >= 5){
-      cards[0].textContent = totalRows;                     // Total Holdings (visible)
-      cards[1].textContent = companySet.size;               // Unique Companies
-      cards[2].textContent = '₹' + investedAll.toFixed(2);  // Total Invested (all buys)
-      cards[3].textContent = '₹' + sellOnly.toFixed(2);     // Total Sell Value (sold only)
-      cards[4].textContent = '₹' + net.toFixed(2);          // Net P/L (sold only)
-
-      const plEl = cards[4];
-      plEl.classList.remove('pos','neg','muted');
-      plEl.classList.add(net > 0 ? 'pos' : (net < 0 ? 'neg' : 'muted'));
-    }
-  }
-
-  function applyFilters(){
-    const nameQ = filterCompany.value.trim().toLowerCase();
-    const basketSel = filterBasket.value; // exact match if selected
-    const basketIdQ = filterBasketId.value.trim(); // substring match
-
-    Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
-      const name = (tr.dataset.company || '').toLowerCase();
-      const bask = tr.dataset.basket || '';
-      const baskId = tr.dataset.basket_id || '';
-
-      const matchName = !nameQ || name.includes(nameQ);
-      const matchBasketDrop = !basketSel || bask === basketSel;
-      const matchBasketId = !basketIdQ || baskId.includes(basketIdQ);
-
-      tr.style.display = (matchName && matchBasketDrop && matchBasketId) ? '' : 'none';
-    });
-
-    refreshSummaryFromVisible();
-  }
-
-  function sortBy(key, type){
-    const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
-    sortState.dir = (sortState.key === key && sortState.dir === 'asc') ? 'desc' : 'asc';
-    sortState.key = key;
-
-    rows.sort((a,b)=>{
-      const av = getRowValue(a, key, type);
-      const bv = getRowValue(b, key, type);
-
-      if (av === null && bv === null) return 0;
-      if (av === null) return 1;
-      if (bv === null) return -1;
-
-      if (type === 'num') return av - bv;
-      if (av < bv) return -1;
-      if (av > bv) return 1;
-      return 0;
-    });
-
-    if (sortState.dir === 'desc') rows.reverse();
-
-    const hidden = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display === 'none');
-    const frag = document.createDocumentFragment();
-    rows.forEach(r => frag.appendChild(r));
-    hidden.forEach(r => frag.appendChild(r)); // keep hidden rows at the end
-    tbody.appendChild(frag);
-
-    headers.forEach(h=> h.querySelector('.arrow').textContent = '');
-    const active = Array.from(headers).find(h => h.dataset.key === key);
-    if (active) active.querySelector('.arrow').textContent = sortState.dir === 'asc' ? '▲' : '▼';
-
-    refreshSummaryFromVisible();
-  }
-
-  headers.forEach(h=>{
-    h.addEventListener('click', ()=> sortBy(h.dataset.key, h.dataset.type || 'text'));
-  });
-
-  filterCompany.addEventListener('input', applyFilters);
-  filterBasket.addEventListener('change', applyFilters);
-  filterBasketId.addEventListener('input', applyFilters);
-
-  // ===== NEW: Lazy-load Live Prices per row =====
-  function fetchLivePrice(holdingId, el) {
-    // NOTE: endpoint provided by your blueprint
-    fetch(`/my_holdings/${holdingId}/price`)
-      .then(r => r.json())
-      .then(data => {
-        if (data && !data.error && typeof data.price !== 'undefined') {
-          el.textContent = `₹ ${Number(data.price).toFixed(2)}`;
-          el.title = data.ticker ? `${data.ticker}${data.exchange ? ' | ' + data.exchange : ''}` : '';
-        } else {
-          el.textContent = 'NA';
-          el.title = data && data.error ? data.error : '';
-        }
-      })
-      .catch(() => { el.textContent = 'NA'; });
-  }
-
-  function hydrateLivePrices() {
-    const cells = Array.from(document.querySelectorAll('[id^="lp-"]'));
-    // gentle staggering to avoid a sudden burst of requests
-    cells.forEach((el, idx) => {
-      const id = el.id.replace('lp-', '');
-      setTimeout(() => fetchLivePrice(id, el), idx * 120); // 120ms gap per row
-    });
-  }
-
-  // Initial summary + live prices
-  refreshSummaryFromVisible();
-  hydrateLivePrices();
-})();
-</script>
 {% endblock %}
