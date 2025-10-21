@@ -40,33 +40,21 @@
   th.sort-desc::after { content:" ▼"; font-size:11px; color:#777; }
 
   /* Modal */
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,.45);
-    display:none; align-items:center; justify-content:center; z-index: 9999;
-  }
-  .modal {
-    width:min(720px, 92vw); background:#fff; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.25);
-    padding:18px; position:relative;
-  }
+  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index: 9999; }
+  .modal { width:min(720px, 92vw); background:#fff; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.25); padding:18px; position:relative; }
   .modal h3 { margin:0 0 10px; font-size:18px; }
-  .modal .close {
-    position:absolute; right:10px; top:10px; border:1px solid #ddd; background:#f7f7f7; border-radius:8px; padding:6px 10px; cursor:pointer;
-  }
-  .legend {
-    display:grid; grid-template-columns: 1fr 1fr; gap:8px 16px; margin-top:10px; max-height:40vh; overflow:auto;
-    font-size:13px;
-  }
+  .modal .close { position:absolute; right:10px; top:10px; border:1px solid #ddd; background:#f7f7f7; border-radius:8px; padding:6px 10px; cursor:pointer; }
+  .legend { display:grid; grid-template-columns: 1fr 1fr; gap:8px 16px; margin-top:10px; max-height:40vh; overflow:auto; font-size:13px; }
   .legend-item { display:flex; align-items:center; gap:8px; }
   .swatch { width:12px; height:12px; border-radius:3px; border:1px solid #ccc; }
 
-  /* Row details key-value table */
   .kv-table { width:100%; border-collapse:collapse; }
   .kv-table th, .kv-table td { padding:8px 10px; border-bottom:1px solid #eee; vertical-align:top; }
   .kv-table th { width:28%; color:#555; text-align:left; background:#fafafa; font-weight:600; }
 
   /* Conditional backgrounds */
-  .bg-good { background:#e7f7e9 !important; }  /* soft green */
-  .bg-bad  { background:#fdecec !important; }  /* very light red */
+  .bg-good { background:#e7f7e9 !important; }
+  .bg-bad  { background:#fdecec !important; }
 </style>
 
 <div class="container">
@@ -139,28 +127,33 @@
               <th data-type="num"  class="num">Current Price</th>
               <th data-type="num"  class="num">Market Capitalization</th>
               <th data-type="text">Market Cap</th>
-              <th data-type="num"  class="num">Promoter holding</th>
+
+              <!-- KPI order starts here -->
+              <th data-type="num"  class="num">EPS latest quarter</th>
+              <th data-type="num"  class="num">EPS preceding quarter</th>
+              <th data-type="num"  class="num">EPS preceding year quarter</th>
+
+              <th data-type="num"  class="num">Return on equity</th>
+              <th data-type="num"  class="num">Return on capital employed</th>
+
               <th data-type="num"  class="num">Price to Earning</th>
               <th data-type="num"  class="num">Industry PE</th>
               <th data-type="num"  class="num">PEG Ratio</th>
+
+              <th data-type="num"  class="num">Debt</th>
+              <th data-type="num"  class="num">Debt to equity</th>
+
+              <th data-type="num"  class="num">Promoter holding</th>
+              <th data-type="num"  class="num">FII holding</th>
+              <th data-type="num"  class="num">DII holding</th>
+              <th data-type="num"  class="num">Public holding</th>
+
               <th data-type="num"  class="num">Return over 1week</th>
               <th data-type="num"  class="num">Return over 1month</th>
               <th data-type="num"  class="num">Return over 3months</th>
               <th data-type="num"  class="num">Return over 6months</th>
-              <th data-type="num"  class="num">EPS latest quarter</th>
-              <th data-type="num"  class="num">EPS preceding quarter</th>
-              <th data-type="num"  class="num">EPS preceding year quarter</th>
-              <th data-type="num"  class="num">Debt</th>
-              <th data-type="num"  class="num">Debt to equity</th>
+              <!-- KPI order ends here -->
 
-              <th data-type="num"  class="num">OPM latest quarter</th>
-              <th data-type="num"  class="num">OPM preceding quarter</th>
-              <th data-type="num"  class="num">Return on equity</th>
-              <th data-type="num"  class="num">Return on capital employed</th>
-              <th data-type="num"  class="num">Price to book value</th>
-              <th data-type="num"  class="num">FII holding</th>
-              <th data-type="num"  class="num">DII holding</th>
-              <th data-type="num"  class="num">Public holding</th>
               <th data-type="date">Last result date</th>
               <th data-type="text">screener</th>
               <th data-type="num"  class="num">mc essentials</th>
@@ -178,27 +171,38 @@
               <td class="num">{{ r['Current Price'] }}</td>
               <td class="num">{{ r['Market Capitalization'] }}</td>
               <td>{{ r['Market Cap'] }}</td>
-              <td class="num">{{ r['Promoter holding'] }}</td>
+
+              <!-- EPS trio -->
+              <td class="num">{{ r['EPS latest quarter'] }}</td>
+              <td class="num">{{ r['EPS preceding quarter'] }}</td>
+              <td class="num">{{ r['EPS preceding year quarter'] }}</td>
+
+              <!-- ROE/ROCE -->
+              <td class="num">{{ r['Return on equity'] }}</td>
+              <td class="num">{{ r['Return on capital employed'] }}</td>
+
+              <!-- PE / Industry PE / PEG -->
               <td class="num">{{ r['Price to Earning'] }}</td>
               <td class="num">{{ r['Industry PE'] }}</td>
               <td class="num">{{ r['PEG Ratio'] }}</td>
+
+              <!-- Debt -->
+              <td class="num">{{ r['Debt'] }}</td>
+              <td class="num">{{ r['Debt to equity'] }}</td>
+
+              <!-- Holdings -->
+              <td class="num">{{ r['Promoter holding'] }}</td>
+              <td class="num">{{ r['FII holding'] }}</td>
+              <td class="num">{{ r['DII holding'] }}</td>
+              <td class="num">{{ r['Public holding'] }}</td>
+
+              <!-- Returns -->
               <td class="num">{{ r['Return over 1week'] }}</td>
               <td class="num">{{ r['Return over 1month'] }}</td>
               <td class="num">{{ r['Return over 3months'] }}</td>
               <td class="num">{{ r['Return over 6months'] }}</td>
-              <td class="num">{{ r['EPS latest quarter'] }}</td>
-              <td class="num">{{ r['EPS preceding quarter'] }}</td>
-              <td class="num">{{ r['EPS preceding year quarter'] }}</td>
-              <td class="num">{{ r['Debt'] }}</td>
-              <td class="num">{{ r['Debt to equity'] }}</td>
-              <td class="num">{{ r['OPM latest quarter'] }}</td>
-              <td class="num">{{ r['OPM preceding quarter'] }}</td>
-              <td class="num">{{ r['Return on equity'] }}</td>
-              <td class="num">{{ r['Return on capital employed'] }}</td>
-              <td class="num">{{ r['Price to book value'] }}</td>
-              <td class="num">{{ r['FII holding'] }}</td>
-              <td class="num">{{ r['DII holding'] }}</td>
-              <td class="num">{{ r['Public holding'] }}</td>
+
+              <!-- Others -->
               <td>{{ r['Last result date'] }}</td>
               <td>{{ r['screener'] }}</td>
               <td class="num">{{ r['mc essentials'] }}</td>
@@ -301,71 +305,91 @@
     btn_reset: $("#btn_reset"),
   };
 
-  // Column indices
+  /* ===== UPDATED idx map to match new column order ===== */
   const idx = {
     name:0, bse:1, nse:2, industry:3,
     price:4, mcap_capitalization:5, mcap:6,
-    promoter:7, pe:8, indpe:9,pegr:10,
-    r1w:11, r1m:12, r3m:13, r6m:14,
-    eps_lq:15, eps_pq:16, eps_pyq:17, debt:18,dbttoeq:19,
-    opm_lq:20, opm_pq:21, roe:22, roce:23, pbv:24,
-    fii:25, dii:26, pub:27, date:28, scr:29, ess:30, tech:31, margin:32
+
+    eps_lq:7, eps_pq:8, eps_pyq:9,
+
+    roe:10, roce:11,
+
+    pe:12, indpe:13, pegr:14,
+
+    debt:15, dbttoeq:16,
+
+    promoter:17, fii:18, dii:19, pub:20,
+
+    r1w:21, r1m:22, r3m:23, r6m:24,
+
+    date:25, scr:26, ess:27, tech:28, margin:29
   };
 
-  // ===== Conditional highlights (updated rules) =====
+  // ===== Conditional highlights (rules unchanged) =====
   function applyHighlights(){
-    const rows = $$("#resultsTable tbody tr");
-    rows.forEach(tr=>{
-      const c = tr.children;
-      // clear old classes
-      for (const td of c) td.classList.remove("bg-good","bg-bad");
+  const rows = $$("#resultsTable tbody tr");
+  rows.forEach(tr=>{
+    const c = tr.children;
+    // clear old classes
+    for (const td of c) td.classList.remove("bg-good","bg-bad");
 
-      // 1) EPS: LQ> PQ and LQ> PYQ -> all three green else red
-      const eps_lq  = toNum(c[idx.eps_lq].textContent);
-      const eps_pq  = toNum(c[idx.eps_pq].textContent);
-      const eps_pyq = toNum(c[idx.eps_pyq].textContent);
-      if ([eps_lq,eps_pq,eps_pyq].every(Number.isFinite)) {
-        const ok = (eps_lq > eps_pq) && (eps_lq > eps_pyq);
-        [c[idx.eps_lq], c[idx.eps_pq], c[idx.eps_pyq]]
-          .forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
+    // 1) EPS: LQ> PQ and LQ> PYQ -> all three green else red
+    const eps_lq  = toNum(c[idx.eps_lq].textContent);
+    const eps_pq  = toNum(c[idx.eps_pq].textContent);
+    const eps_pyq = toNum(c[idx.eps_pyq].textContent);
+    if ([eps_lq,eps_pq,eps_pyq].every(Number.isFinite)) {
+      const ok = (eps_lq > eps_pq) && (eps_lq > eps_pyq);
+      [c[idx.eps_lq], c[idx.eps_pq], c[idx.eps_pyq]]
+        .forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+    }
 
-      // 2) P/E < Industry PE -> both green else red
-      const pe   = toNum(c[idx.pe].textContent);
-      const indp = toNum(c[idx.indpe].textContent);
-      if ([pe,indp].every(Number.isFinite)) {
-        const ok = pe < indp;
-        [c[idx.pe], c[idx.indpe]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
+    // 2) P/E < Industry PE -> both green else red
+    const pe   = toNum(c[idx.pe].textContent);
+    const indp = toNum(c[idx.indpe].textContent);
+    if ([pe,indp].every(Number.isFinite)) {
+      const ok = pe < indp;
+      [c[idx.pe], c[idx.indpe]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+    }
 
-      // 3) Returns: r1w>0, r1m>10, r3m>10, r6m>0 -> all four green else red
-      const r1w = toNum(c[idx.r1w].textContent);
-      const r1m = toNum(c[idx.r1m].textContent);
-      const r3m = toNum(c[idx.r3m].textContent);
-      const r6m = toNum(c[idx.r6m].textContent);
-      if ([r1w,r1m,r3m,r6m].every(Number.isFinite)) {
-        const ok = (r1w > 0) && (r1m > 10) && (r3m > 10) && (r6m > 0);
-        [c[idx.r1w], c[idx.r1m], c[idx.r3m], c[idx.r6m]]
-          .forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
+    // 3) Returns set -> all four green else red
+    const r1w = toNum(c[idx.r1w].textContent);
+    const r1m = toNum(c[idx.r1m].textContent);
+    const r3m = toNum(c[idx.r3m].textContent);
+    const r6m = toNum(c[idx.r6m].textContent);
+    if ([r1w,r1m,r3m,r6m].every(Number.isFinite)) {
+      const ok = (r1w > 0) && (r1m > 10) && (r3m > 10) && (r6m > 0);
+      [c[idx.r1w], c[idx.r1m], c[idx.r3m], c[idx.r6m]]
+        .forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+    }
 
-      // 4) OPM LQ > OPM PQ -> both green else red
-      const opm_lq = toNum(c[idx.opm_lq].textContent);
-      const opm_pq = toNum(c[idx.opm_pq].textContent);
-      if ([opm_lq,opm_pq].every(Number.isFinite)) {
-        const ok = opm_lq > opm_pq;
-        [c[idx.opm_lq], c[idx.opm_pq]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
+    // 4) ROE>15 and ROCE>15 -> both green else red
+    const roe  = toNum(c[idx.roe].textContent);
+    const roce = toNum(c[idx.roce].textContent);
+    if ([roe,roce].every(Number.isFinite)) {
+      const ok = (roe > 15) && (roce > 15);
+      [c[idx.roe], c[idx.roce]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+    }
 
-      // 5) ROE>15 and ROCE>15 -> both green else red
-      const roe  = toNum(c[idx.roe].textContent);
-      const roce = toNum(c[idx.roce].textContent);
-      if ([roe,roce].every(Number.isFinite)) {
-        const ok = (roe > 15) && (roce > 15);
-        [c[idx.roe], c[idx.roce]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
-    });
-  }
+    // ✅ NEW 5) PEG Ratio < 1 -> green else light red
+    const pegr = toNum(c[idx.pegr].textContent);
+    if (Number.isFinite(pegr)) {
+      c[idx.pegr].classList.add(pegr < 1 ? "bg-good" : "bg-bad");
+    }
+
+    // ✅ NEW 6) Debt to equity < 1 -> green else light red
+    const dte = toNum(c[idx.dbttoeq].textContent);
+    if (Number.isFinite(dte)) {
+      c[idx.dbttoeq].classList.add(dte < 1 ? "bg-good" : "bg-bad");
+    }
+
+    // ✅ NEW 7) Public holding < 25 -> green else light red
+    const pub = toNum(c[idx.pub].textContent);
+    if (Number.isFinite(pub)) {
+      c[idx.pub].classList.add(pub < 25 ? "bg-good" : "bg-bad");
+    }
+  });
+}
+
 
   // Multi-selects
   function fillMultiSelect(selectEl, values){
