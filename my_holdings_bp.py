@@ -1,8 +1,9 @@
 # bp_my_holdings.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash,session
 from sqlalchemy import create_engine, text
 from urllib.parse import quote_plus
 from api_ninja import build_ticker, get_stock_price
+from app_auth_utils import login_required
 
 try:
     from config_db import HOST, PORT, USER, PASSWORD, DB
@@ -26,6 +27,7 @@ def _load_companies():
         return conn.execute(text("SELECT Name FROM company_list ORDER BY Name")).mappings().all()
 
 @my_holdings_bp.route("/my_holdings/<int:holding_id>/price")
+@login_required
 def my_holdings_price(holding_id):
     with engine.begin() as conn:
         row = conn.execute(
@@ -50,6 +52,7 @@ def my_holdings_price(holding_id):
     return payload, (200 if "error" not in payload else 502)
 
 @my_holdings_bp.route("/my_holdings/")
+@login_required
 def my_holdings_list():
     sql = text("""
         SELECT holding_id, Company_Name, Buy_Qty, Buy_Price, Buy_Date,
@@ -62,6 +65,7 @@ def my_holdings_list():
     return render_template("my_holdings/my_holdings_list.html", rows=rows)
 
 @my_holdings_bp.route("/my_holdings/create", methods=["GET", "POST"])
+@login_required
 def my_holdings_create():
     with engine.begin() as conn:
         baskets = conn.execute(
@@ -102,6 +106,7 @@ def my_holdings_create():
 
 
 @my_holdings_bp.route("/my_holdings/<int:holding_id>")
+@login_required
 def my_holdings_view(holding_id):
     with engine.begin() as conn:
         row = conn.execute(
@@ -137,6 +142,7 @@ def my_holdings_view(holding_id):
 
 
 @my_holdings_bp.route("/my_holdings/<int:holding_id>/edit", methods=["GET", "POST"])
+@login_required
 def my_holdings_edit(holding_id):
     # helper: tolerant getter for keys with different casings/names
     def _g(row, *keys, default=None):
@@ -227,6 +233,7 @@ def my_holdings_edit(holding_id):
     )
 
 @my_holdings_bp.route("/my_holdings/<int:holding_id>/delete", methods=["POST"])
+@login_required
 def my_holdings_delete(holding_id):
     with engine.begin() as conn:
         conn.execute(text("DELETE FROM my_holdings WHERE holding_id=:id"), {"id": holding_id})
@@ -234,6 +241,7 @@ def my_holdings_delete(holding_id):
     return redirect(url_for("my_holdings_bp.my_holdings_list"))
 
 @my_holdings_bp.route("/my_holdings/<int:holding_id>/sell", methods=["GET", "POST"])
+@login_required
 def my_holdings_sell(holding_id):
     with engine.begin() as conn:
         row = conn.execute(

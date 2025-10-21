@@ -1,0 +1,102 @@
+{% block content %}
+
+<!-- Scoped styles for this page only -->
+<style>
+  #login-page {
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: url("{{ url_for('static', filename='Background.png') }}") no-repeat center center;
+    background-size: cover;
+  }
+  /* scope everything under #login-page to avoid leaking styles */
+  #login-page {
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f6f8fb;
+  }
+  #login-card {
+    width: 100%;
+    max-width: 220px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.08);
+    padding: 28px;
+  }
+  #login-card h2 {
+    margin: 0 0 6px;
+    text-align: center;
+    font-size: 26px;
+  }
+  #login-sub {
+    text-align: center;
+    color: #6b7280;
+    margin: -2px 0 16px;
+  }
+  .login-label {
+    display: block;
+    margin: 10px 0 6px;
+    font-weight: 600;
+  }
+  .login-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #dfe3ea;
+    border-radius: 10px;
+    background: #f8fbff;
+  }
+  .login-btn {
+    width: 100%;
+    display: block;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border: 0;
+    border-radius: 10px;
+    background: #0d6efd;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .login-btn:hover { filter: brightness(0.95); }
+  .alert-login {
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    background: #fdecec;
+    color: #b02a37;
+  }
+</style>
+
+<div id="login-page"
+     style="min-height:88vh;display:flex;align-items:center;justify-content:center;
+            background:url('{{ url_for('static', filename='Background.png') }}') no-repeat center center;
+            background-size:cover;">
+  <div id="login-card">
+    <div style="text-align:center;font-size:34px;">🔑</div>
+    <h2>Please log in</h2>
+    <div id="login-sub">Access your Dashboard</div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert-login">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('login') }}">
+      <label for="username" class="login-label">Username</label>
+      <input type="text" id="username" name="username" class="login-input" required autofocus>
+
+      <label for="password" class="login-label">Password</label>
+      <input type="password" id="password" name="password" class="login-input" required>
+
+      <button type="submit" class="login-btn">Login</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

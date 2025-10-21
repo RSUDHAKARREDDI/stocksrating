@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from flask import Flask, request, redirect, url_for, flash, render_template,jsonify
+from flask import Flask, request, redirect, url_for, flash, render_template,jsonify,session
 from werkzeug.utils import secure_filename
 from sreeja_bp import sreeja_bp
 from sravani_bp import sravani_bp
@@ -9,6 +9,7 @@ from my_holdings_bp import my_holdings_bp
 import commonfunctions as cf
 from file_list_config import file_list_config
 import logging
+from app_auth_utils import login_required
 import json
 from pathlib import Path
 
@@ -46,6 +47,7 @@ def home():
 # Upload CSV/File
 # ------------------------
 @app.route("/upload-files", methods=["GET", "POST"])
+@login_required
 def upload_file():
     if request.method == "POST":
         # Validate presence of file part
@@ -130,6 +132,7 @@ def upload_file():
 
 
 @app.route("/data-load", methods=["GET"])
+@login_required
 def data_load_ui():
     """
     Renders the UI with buttons for each config.
@@ -147,6 +150,7 @@ def data_load_ui():
 
 
 @app.route("/data-load/run", methods=["POST"])
+@login_required
 def data_load_run():
     data = request.get_json(silent=True) or {}
     key = data.get("config")
@@ -177,6 +181,25 @@ def data_load_run():
     except Exception as e:
         logging.exception("Data load failed")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username == "inno-labs" and password == "Abc12345@":
+            session["user"] = username
+            flash("✅ Login successful!", "success")
+            return redirect(url_for("index"))
+        else:
+            flash("❌ Invalid username or password", "danger")
+            return redirect(url_for("login"))
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("login"))
 
 if __name__ == "__main__":
     app.run(debug=True)
