@@ -2,131 +2,88 @@
 {% block title %}Screeners{% endblock %}
 
 {% block content %}
-<style>
-  .page-wrap { display:flex; gap:18px; align-items:flex-start; }
-  .filters {
-    flex: 0 0 280px; width:280px;
-    background:#fff; border:1px solid #eee; border-radius:12px;
-    box-shadow:0 4px 10px rgba(0,0,0,.06); padding:16px;
-    position:sticky; top:16px; max-height:84vh; overflow:auto;
-  }
-  .results { flex:1 1 auto; min-width:0; background:#fff; border-radius:12px;
-    box-shadow:0 4px 10px rgba(0,0,0,.06); padding:20px; }
-
-  .filters h3 { margin:0 0 10px; font-size:18px; color:#333; }
-  .filters label { display:block; font-size:12px; color:#666; margin-top:10px; }
-  .filters input, .filters select { width:100%; padding:8px; border:1px solid #ddd; border-radius:8px; }
-  .filters select[multiple] { height:120px; }
-  .filters .btn-row { display:flex; gap:8px; margin-top:14px; }
-  .filters button { padding:8px 10px; border-radius:8px; border:1px solid #ddd; background:#f7f7f7; cursor:pointer; }
-
-  .range-box { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
-  .hint { color:#777; font-size:12px; }
-
-  .table-wrap { position:relative; overflow:auto; max-height:80vh; border:1px solid #eee; border-radius:12px; }
-  table { width:100%; border-collapse:collapse; min-width:1400px; font-size:13px; line-height:1.3; }
-  thead th {
-    position:sticky; top:0; z-index:1;
-    background:#f7f7f7; padding:8px 10px; text-align:left; border-bottom:1px solid #e9e9e9;
-    font-size:12.5px; letter-spacing:.02em; color:#444; cursor:pointer; user-select:none;
-    box-shadow: 0 1px 0 rgba(0,0,0,0.04);
-  }
-  tbody td { padding:8px 10px; border-bottom:1px solid #f2f2f2; color:#2c2c2c; }
-  tbody tr:nth-child(even) { background:#fafafa; }
-  tbody tr:hover { background:#eef6ff; }
-  tbody tr { cursor:pointer; }
-  th.num, td.num { text-align:right; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
-  th.sort-asc::after  { content:" ▲"; font-size:11px; color:#777; }
-  th.sort-desc::after { content:" ▼"; font-size:11px; color:#777; }
-
-  /* Row details key-value table */
-  .kv-table { width:100%; border-collapse:collapse; }
-  .kv-table th, .kv-table td { padding:8px 10px; border-bottom:1px solid #eee; vertical-align:top; }
-  .kv-table th { width:28%; color:#555; text-align:left; background:#fafafa; font-weight:600; }
-
-  /* Conditional backgrounds */
-  .bg-good { background:#e7f7e9 !important; }
-  .bg-bad  { background:#fdecec !important; }
-
-  /* Modal (MISSING BEFORE) */
-  .modal-backdrop{
-    position:fixed; inset:0; background:rgba(0,0,0,.45);
-    display:none; align-items:center; justify-content:center;
-    z-index:9999; /* sits above sticky headers, etc. */
-  }
-  .modal{
-    width:min(720px,92vw); max-height:80vh; overflow:auto;
-    background:#fff; border-radius:14px;
-    box-shadow:0 10px 30px rgba(0,0,0,.25);
-    padding:18px; position:relative;
-  }
-  .modal .close{
-    position:absolute; right:10px; top:10px;
-    border:1px solid #ddd; background:#f7f7f7;
-    border-radius:8px; padding:6px 10px; cursor:pointer;
-  }
-  /* Optional: prevent body scroll when modal open */
-  body.modal-open { overflow:hidden; }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/screeners.css') }}">
+<script defer src="{{ url_for('static', filename='js/screeners.js') }}"></script>
 
 <div class="container">
   <div class="page-wrap">
 
     <!-- Left panel (filters) -->
     <div class="filters" id="filters">
-      <h3>Filters</h3>
+      <div class="filters-header">
+        <h3>Filters</h3>
+        <button
+          type="button"
+          id="btn_toggle_filters"
+          class="filters-toggle"
+          aria-pressed="false"
+          aria-expanded="true"
+          title="Show/Hide filters"
+        >🪄 Hide</button>
+      </div>
 
-      <label>Name (contains)</label>
-      <input type="text" id="f_name" placeholder="e.g., TCS">
+      <div id="filters_content">
+        <label>Name (contains)</label>
+        <input type="text" id="f_name" placeholder="e.g., TCS">
 
-      <label style="display:flex; align-items:center; justify-content:space-between;">
-        <span>Industry (multi-select)</span>
-        <button type="button" id="btn_industry_pie" title="Show Industry pie chart">📊 Pie</button>
-      </label>
-      <select id="f_industry_multi" multiple></select>
+        <label class="label-split">
+          <span>Industry (multi-select)</span>
+          <button type="button" id="btn_industry_pie" title="Show Industry pie chart">📊 Pie</button>
+        </label>
+        <select id="f_industry_multi" multiple></select>
 
-      <div class="row" style="display:flex; gap:8px;">
-        <div style="flex:1">
-          <label>P/E ≥</label>
-          <input type="number" step="0.01" id="f_pe_min">
+        <div class="row-flex">
+          <div class="col">
+            <label>P/E ≥</label>
+            <input type="number" step="0.01" id="f_pe_min">
+          </div>
+          <div class="col">
+            <label>P/E ≤</label>
+            <input type="number" step="0.01" id="f_pe_max">
+          </div>
         </div>
-        <div style="flex:1">
-          <label>P/E ≤</label>
-          <input type="number" step="0.01" id="f_pe_max">
+
+        <div class="range-box">
+          <label>ROE ≥</label>
+          <input type="range" id="f_roe_min_r">
+          <small id="f_roe_hint" class="hint">All</small>
         </div>
-      </div>
 
-      <div class="range-box">
-        <label>ROE ≥</label>
-        <input type="range" id="f_roe_min_r">
-        <small id="f_roe_hint" class="hint">All</small>
-      </div>
+        <div class="range-box">
+          <label>ROCE ≥</label>
+          <input type="range" id="f_roce_min_r">
+          <small id="f_roce_hint" class="hint">All</small>
+        </div>
 
-      <div class="range-box">
-        <label>ROCE ≥</label>
-        <input type="range" id="f_roce_min_r">
-        <small id="f_roce_hint" class="hint">All</small>
-      </div>
+        <div class="range-box">
+          <label>MC Essentials ≥</label>
+          <input type="range" id="f_ess_min_r">
+          <small id="f_ess_hint" class="hint">All</small>
+        </div>
 
-      <div class="range-box">
-        <label>MC Essentials ≥</label>
-        <input type="range" id="f_ess_min_r">
-        <small id="f_ess_hint" class="hint">All</small>
-      </div>
+        <label>Market Cap (multi-select)</label>
+        <select id="f_mcap_multi" multiple></select>
 
-      <label>Market Cap (multi-select)</label>
-      <select id="f_mcap_multi" multiple></select>
+        <label>Screener (multi-select)</label>
+        <select id="f_scr_multi" multiple></select>
 
-      <label>Screener (multi-select)</label>
-      <select id="f_scr_multi" multiple></select>
+        <label>MC Technicals (multi-select)</label>
+        <select id="f_mc_tech_multi" multiple></select>
 
-      <label>MC Technicals (multi-select)</label>
-      <select id="f_mc_tech_multi" multiple></select>
-
-      <div class="btn-row">
-        <button type="button" id="btn_reset">Reset</button>
+        <div class="btn-row">
+          <button type="button" id="btn_reset">Reset</button>
+        </div>
       </div>
     </div>
+
+    <!-- Floating handle (shows only when filters are hidden) -->
+    <button
+      type="button"
+      id="btn_filters_handle"
+      class="filters-handle"
+      aria-label="Show filters"
+      title="Show filters"
+    >👉 Filters</button>
 
     <!-- Right: Results -->
     <div class="results">
@@ -238,452 +195,10 @@
   <div class="modal">
     <button class="close" id="row_modal_close">Close</button>
     <h3 id="row_modal_title">Record Details</h3>
-    <div id="row_modal_body" style="max-height:60vh;overflow:auto"></div>
-    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+    <div id="row_modal_body" class="modal-body"></div>
+    <div class="modal-actions">
       <button type="button" id="btn_copy_json" title="Copy this record as JSON">Copy JSON</button>
     </div>
   </div>
 </div>
-
-<script>
-(function(){
-  const $  = (s,p=document)=>p.querySelector(s);
-  const $$ = (s,p=document)=>Array.from(p.querySelectorAll(s));
-
-  const table = $("#resultsTable");
-  const tbody = table.tBodies[0];
-
-  // ----- Sorting -----
-  let sortState = { col: null, dir: 1 };
-  $$("#resultsTable thead th").forEach((th, idx) => {
-    th.addEventListener("click", () => {
-      const type = th.dataset.type || "text";
-      sortState.dir = (sortState.col === idx) ? -sortState.dir : 1;
-      sortState.col = idx;
-      $$("#resultsTable thead th").forEach(h=>h.classList.remove("sort-asc","sort-desc"));
-      th.classList.add(sortState.dir === 1 ? "sort-asc" : "sort-desc");
-      const rows = $$("#resultsTable tbody tr");
-      rows.sort((a,b)=> compare(get(a,idx), get(b,idx), type) * sortState.dir);
-      rows.forEach(r=>tbody.appendChild(r));
-      applyHighlights(); // recolor after sort
-    });
-  });
-
-  function get(tr, idx){ return tr.children[idx].textContent.trim(); }
-  function toNum(v){
-    if(!v) return NaN;
-    const s = v.replace(/[^\d.+\-eE]/g,'');
-    if(!s || s==='+'||s==='-'||s==='.') return NaN;
-    return parseFloat(s);
-  }
-  function compare(a,b,type){
-    if(type==="num"){
-      const x=toNum(a), y=toNum(b);
-      if(isNaN(x)&&isNaN(y)) return 0;
-      if(isNaN(x)) return 1;
-      if(isNaN(y)) return -1;
-      return x-y;
-    } else if(type==="date"){
-      return new Date(a) - new Date(b);
-    } else {
-      return a.localeCompare(b, undefined, {sensitivity:"base"});
-    }
-  }
-
-  // ----- Filters -----
-  const F = {
-    name: $("#f_name"),
-    industryMulti: $("#f_industry_multi"),
-    pe_min: $("#f_pe_min"),
-    pe_max: $("#f_pe_max"),
-
-    roe_min_r:  $("#f_roe_min_r"),
-    roe_hint:   $("#f_roe_hint"),
-    roce_min_r: $("#f_roce_min_r"),
-    roce_hint:  $("#f_roce_hint"),
-    ess_min_r:  $("#f_ess_min_r"),
-    ess_hint:   $("#f_ess_hint"),
-
-    mcap_multi:     $("#f_mcap_multi"),
-    mc_tech_multi:  $("#f_mc_tech_multi"),
-    scr_multi:      $("#f_scr_multi"),
-
-    btn_reset: $("#btn_reset"),
-  };
-
-  // Column indices (match THEAD order above)
-  const idx = {
-    name:0, bse:1, nse:2, industry:3,
-    price:4, mcap_capitalization:5, mcap:6,
-
-    eps_lq:7, eps_pq:8, eps_pyq:9,
-    roe:10, roce:11,
-
-    pe:12, indpe:13, pegr:14,
-
-    debt:15, dbttoeq:16,
-
-    promoter:17, fii:18, dii:19, pub:20,
-
-    r1w:21, r1m:22, r3m:23, r6m:24,
-
-    scr:25, ess:26, tech:27, margin:28
-  };
-
-  // ===== Conditional highlights =====
-  function applyHighlights(){
-    const rows = $$("#resultsTable tbody tr");
-    rows.forEach(tr=>{
-      const c = tr.children;
-      // clear old classes
-      for (const td of c) td.classList.remove("bg-good","bg-bad");
-
-      // 1) EPS: LQ > PQ and LQ > PYQ
-      const eps_lq  = toNum(c[idx.eps_lq].textContent);
-      const eps_pq  = toNum(c[idx.eps_pq].textContent);
-      const eps_pyq = toNum(c[idx.eps_pyq].textContent);
-      if ([eps_lq,eps_pq,eps_pyq].every(Number.isFinite)) {
-        const ok = (eps_lq > eps_pq) && (eps_lq > eps_pyq);
-        [c[idx.eps_lq], c[idx.eps_pq], c[idx.eps_pyq]]
-          .forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
-
-      // 2) P/E < Industry PE
-      const pe   = toNum(c[idx.pe].textContent);
-      const indp = toNum(c[idx.indpe].textContent);
-      if ([pe,indp].every(Number.isFinite)) {
-        const ok = pe < indp;
-        [c[idx.pe], c[idx.indpe]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
-
-      // 3) Returns block
-      const r1w = toNum(c[idx.r1w].textContent);
-      const r1m = toNum(c[idx.r1m].textContent);
-      const r3m = toNum(c[idx.r3m].textContent);
-      const r6m = toNum(c[idx.r6m].textContent);
-      if ([r1w,r1m,r3m,r6m].every(Number.isFinite)) {
-        const ok = (r1w > 0) && (r1m > 10) && (r3m > 10) && (r6m > 0);
-        [c[idx.r1w], c[idx.r1m], c[idx.r3m], c[idx.r6m]]
-          .forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
-
-      // 4) ROE > 15 and ROCE > 15
-      const roe  = toNum(c[idx.roe].textContent);
-      const roce = toNum(c[idx.roce].textContent);
-      if ([roe,roce].every(Number.isFinite)) {
-        const ok = (roe > 15) && (roce > 15);
-        [c[idx.roe], c[idx.roce]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
-      }
-
-      // 5) PEG < 1
-      const pegr = toNum(c[idx.pegr].textContent);
-      if (Number.isFinite(pegr)) {
-        c[idx.pegr].classList.add(pegr < 1 ? "bg-good" : "bg-bad");
-      }
-
-      // 6) Debt to equity < 1
-      const dte = toNum(c[idx.dbttoeq].textContent);
-      if (Number.isFinite(dte)) {
-        c[idx.dbttoeq].classList.add(dte < 1 ? "bg-good" : "bg-bad");
-      }
-
-      // 7) Public holding < 25
-      const pub = toNum(c[idx.pub].textContent);
-      if (Number.isFinite(pub)) {
-        c[idx.pub].classList.add(pub < 25 ? "bg-good" : "bg-bad");
-      }
-    });
-  }
-
-  // Populate multi-selects from the table values
-  function fillMultiSelect(selectEl, values){
-    selectEl.innerHTML = "";
-    values.sort((a,b)=>a.localeCompare(b, undefined, {sensitivity:"base"}))
-          .forEach(v=>{
-            const opt = document.createElement("option");
-            opt.value = opt.textContent = v;
-            selectEl.appendChild(opt);
-          });
-  }
-  function uniqueColumnValues(colIndex){
-    const set = new Set();
-    $$("#resultsTable tbody tr").forEach(tr=>{
-      const val = tr.children[colIndex].textContent.trim();
-      if(val) set.add(val);
-    });
-    return Array.from(set);
-  }
-  fillMultiSelect(F.industryMulti, uniqueColumnValues(idx.industry));
-  fillMultiSelect(F.mcap_multi,    uniqueColumnValues(idx.mcap));
-  fillMultiSelect(F.mc_tech_multi, uniqueColumnValues(idx.tech));
-  fillMultiSelect(F.scr_multi,     uniqueColumnValues(idx.scr));
-
-  // ---- Sliders (inactive until moved) ----
-  function colMinMax(colIndex){
-    let min = +Infinity, max = -Infinity;
-    $$("#resultsTable tbody tr").forEach(tr=>{
-      const n = toNum(tr.children[colIndex].textContent);
-      if(isFinite(n)){ if(n < min) min = n; if(n > max) max = n; }
-    });
-    if(min === +Infinity) min = 0;
-    if(max === -Infinity) max = 0;
-    return {min, max};
-  }
-
-  function setupMinSlider(sliderEl, hintEl, colIndex){
-    const {min, max} = colMinMax(colIndex);
-    const span = Math.max(1, max - min);
-    let step = Math.pow(10, Math.floor(Math.log10(span)) - 2);
-    if(!isFinite(step) || step <= 0) step = 1;
-
-    sliderEl.min = String(Math.floor(min));
-    sliderEl.max = String(Math.ceil(max));
-    sliderEl.step = String(step);
-    sliderEl.value = String(Math.floor(min));
-
-    sliderEl.dataset.active = "0";
-    if(hintEl) hintEl.textContent = "All";
-
-    sliderEl.addEventListener("input", ()=>{
-      sliderEl.dataset.active = "1";
-      if(hintEl) hintEl.textContent = `≥ ${sliderEl.value}`;
-      applyFilters();
-    });
-  }
-
-  setupMinSlider(F.roe_min_r,  F.roe_hint,  idx.roe);
-  setupMinSlider(F.roce_min_r, F.roce_hint, idx.roce);
-  setupMinSlider(F.ess_min_r,  F.ess_hint,  idx.ess);
-
-  // helpers
-  function debounce(fn, ms){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), ms); }; }
-  function selectedValues(selectEl){ return Array.from(selectEl.selectedOptions || []).map(o=>o.value.toLowerCase()); }
-  function matchesText(value, needle){ if(!needle) return true; return value.toLowerCase().includes(needle.toLowerCase()); }
-
-  function gteIfActive(sliderEl, cellText){
-    if(!sliderEl || sliderEl.dataset.active !== "1") return true;
-    const v = toNum(cellText);
-    if(!isFinite(v)) return false;
-    return v >= parseFloat(sliderEl.value);
-  }
-
-  function betweenNum(val, min, max){
-    const v = toNum(val);
-    if(!isFinite(v)) return false;
-    if(min !== "" && isFinite(min) && v < parseFloat(min)) return false;
-    if(max !== "" && isFinite(max) && v > parseFloat(max)) return false;
-    return true;
-  }
-
-  const baseInputs = [
-    F.name, F.industryMulti, F.mcap_multi, F.mc_tech_multi, F.scr_multi,
-    F.pe_min, F.pe_max
-  ].filter(Boolean);
-
-  baseInputs.forEach(el=>{
-    const evt = (el.tagName === "SELECT") ? "change" : "input";
-    el.addEventListener(evt, debounce(applyFilters, 120));
-  });
-
-  F.btn_reset.addEventListener("click", resetFilters);
-
-  function applyFilters(){
-    const indSel  = new Set(selectedValues(F.industryMulti));
-    const mcapSel = new Set(selectedValues(F.mcap_multi));
-    const techSel = new Set(selectedValues(F.mc_tech_multi));
-    const scrSel  = new Set(selectedValues(F.scr_multi));
-
-    $$("#resultsTable tbody tr").forEach(tr=>{
-      const c = tr.children;
-
-      const nameOk = matchesText(c[idx.name].textContent, F.name.value);
-
-      const scrVal = c[idx.scr].textContent.trim().toLowerCase();
-      const scrOk  = scrSel.size === 0 || scrSel.has(scrVal);
-
-      const indVal = c[idx.industry].textContent.trim().toLowerCase();
-      const industryOk = indSel.size === 0 || indSel.has(indVal);
-
-      const peOk = (()=>{
-        const min = F.pe_min.value === "" ? -Infinity : parseFloat(F.pe_min.value);
-        const max = F.pe_max.value === "" ? +Infinity : parseFloat(F.pe_max.value);
-        return betweenNum(c[idx.pe].textContent, min, max);
-      })();
-
-      const roeOk  = gteIfActive(F.roe_min_r,  c[idx.roe].textContent);
-      const roceOk = gteIfActive(F.roce_min_r, c[idx.roce].textContent);
-      const essOk  = gteIfActive(F.ess_min_r,  c[idx.ess].textContent);
-
-      const mcapVal = c[idx.mcap].textContent.trim().toLowerCase();
-      const mcapOk  = mcapSel.size === 0 || mcapSel.has(mcapVal);
-
-      const techVal = c[idx.tech].textContent.trim().toLowerCase();
-      const techOk  = techSel.size === 0 || techSel.has(techVal);
-
-      const ok = nameOk && scrOk && industryOk && peOk && roeOk && roceOk && essOk && mcapOk && techOk;
-      tr.style.display = ok ? "" : "none";
-    });
-
-    applyHighlights(); // color visible rows (and recalculated after filter)
-  }
-
-  function resetFilters(){
-    [F.name, F.pe_min, F.pe_max].forEach(el => { if(el) el.value = ""; });
-    [F.industryMulti, F.mcap_multi, F.mc_tech_multi, F.scr_multi].forEach(sel=>{
-      if(!sel) return; Array.from(sel.options).forEach(o=>o.selected = false);
-    });
-
-    setupMinSlider(F.roe_min_r,  F.roe_hint,  idx.roe);
-    setupMinSlider(F.roce_min_r, F.roce_hint, idx.roce);
-    setupMinSlider(F.ess_min_r,  F.ess_hint,  idx.ess);
-
-    applyFilters();
-  }
-
-  // Initial render
-  applyFilters();
-  applyHighlights();
-
-  // ====== Industry Pie Modal ======
-  const modal = $("#modal_backdrop");
-  const btnPie = $("#btn_industry_pie");
-  const btnClose = $("#modal_close");
-  const canvas = $("#industry_pie");
-  const legend = $("#industry_legend");
-
-  function openModal(){ modal.style.display = "flex"; }
-  function closeModal(){ modal.style.display = "none"; }
-  btnPie.addEventListener("click", ()=>{
-    renderIndustryPie();
-    openModal();
-  });
-  btnClose.addEventListener("click", closeModal);
-  modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
-
-  function getVisibleIndustryCounts(){
-    const counts = new Map();
-    $$("#resultsTable tbody tr").forEach(tr=>{
-      if(tr.style.display === "none") return;
-      const key = tr.children[idx.industry].textContent.trim() || "(Unknown)";
-      counts.set(key, (counts.get(key)||0)+1);
-    });
-    return Array.from(counts.entries()).sort((a,b)=>b[1]-a[1]);
-  }
-
-  function hue(i, total){ return Math.round((360 * i) / Math.max(1,total)); }
-  function color(i,total){ return `hsl(${hue(i,total)},70%,55%)`; }
-
-  function renderIndustryPie(){
-    const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
-    ctx.clearRect(0,0,W,H);
-
-    const data = getVisibleIndustryCounts();
-    const total = data.reduce((s, [,v])=>s+v, 0) || 1;
-
-    const cx = W*0.4, cy = H*0.5;
-    const r  = Math.min(W, H)*0.38;
-
-    let start = -Math.PI/2;
-    data.forEach(([name, value], i)=>{
-      const slice = (value/total) * Math.PI*2;
-      const end = start + slice;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, r, start, end);
-      ctx.closePath();
-      ctx.fillStyle = color(i, data.length);
-      ctx.fill();
-      start = end;
-    });
-
-    ctx.fillStyle = "#333";
-    ctx.font = "14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-    ctx.fillText(`Total: ${total}`, 16, 22);
-
-    legend.innerHTML = "";
-    data.forEach(([name, value], i)=>{
-      const percent = ((value/total)*100).toFixed(1);
-      const row = document.createElement("div");
-      row.className = "legend-item";
-      row.innerHTML = `
-        <span class="swatch" style="background:${color(i,data.length)}"></span>
-        <span>${name}</span>
-        <span style="margin-left:auto; opacity:.8">${value} (${percent}%)</span>
-      `;
-      legend.appendChild(row);
-    });
-  }
-
-  // ===== Row -> Details Modal =====
-  const rowModal = $("#row_modal_backdrop");
-  const rowModalClose = $("#row_modal_close");
-  const rowModalBody = $("#row_modal_body");
-  const rowModalTitle = $("#row_modal_title");
-  const btnCopyJson = $("#btn_copy_json");
-
-  function openRowModal(){ rowModal.style.display = "flex"; }
-  function closeRowModal(){ rowModal.style.display = "none"; }
-  rowModalClose.addEventListener("click", closeRowModal);
-  rowModal.addEventListener("click", (e)=>{ if(e.target === rowModal) closeRowModal(); });
-
-  const headers = $$("#resultsTable thead th").map(th => th.textContent.trim());
-
-  tbody.addEventListener("click", (e)=>{
-    const tr = e.target.closest("tr");
-    if(!tr || !tbody.contains(tr)) return;
-
-    const rec = {};
-    headers.forEach((h, i)=>{ rec[h] = tr.children[i]?.textContent.trim() ?? ""; });
-
-    const title = rec["Name"] || rec["NSE Code"] || "Record Details";
-    rowModalTitle.textContent = title;
-
-    const html = [
-      '<table class="kv-table">',
-      ...headers.map(h=>{
-        const v = rec[h];
-        const show = v ? v : '<span style="opacity:.6">(empty)</span>';
-        return `<tr><th>${h}</th><td>${show}</td></tr>`;
-      }),
-      '</table>'
-    ].join("");
-    rowModalBody.innerHTML = html;
-
-    btnCopyJson.onclick = async ()=>{
-      try {
-        await navigator.clipboard.writeText(JSON.stringify(rec, null, 2));
-        btnCopyJson.textContent = "Copied!";
-        setTimeout(()=>btnCopyJson.textContent = "Copy JSON", 1200);
-      } catch(err){
-        alert("Could not copy JSON");
-      }
-    };
-
-    openRowModal();
-  });
-
-})();
-
-  const rowModal = document.getElementById('row_modal_backdrop');
-  const rowModalClose = document.getElementById('row_modal_close');
-  const rowModalBody  = document.getElementById('row_modal_body');
-  const rowModalTitle = document.getElementById('row_modal_title');
-
-  function openRowModal(){
-    rowModal.style.display = 'flex';        // <-- key: flex centers it
-    document.body.classList.add('modal-open');
-  }
-  function closeRowModal(){
-    rowModal.style.display = 'none';
-    document.body.classList.remove('modal-open');
-  }
-
-  rowModalClose.addEventListener('click', closeRowModal);
-  rowModal.addEventListener('click', (e)=>{ if(e.target === rowModal) closeRowModal(); });
-  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeRowModal(); });
-
-  // When clicking a row, you already set rowModalBody.innerHTML and rowModalTitle…
-  // Just ensure you call openRowModal() at the end of that handler (you already do).
-</script>
 {% endblock %}

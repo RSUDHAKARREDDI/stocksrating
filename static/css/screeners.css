@@ -1,0 +1,135 @@
+/* Off-canvas behavior */
+/* Make the layout two-column again */
+.page-wrap{
+  display:flex; gap:18px; align-items:flex-start;
+  position:relative; /* off-canvas anchor */
+}
+
+/* Filters: restore width + card styles and keep transitions */
+.filters{
+  flex:0 0 280px; width:280px;
+  background:#fff; border:1px solid #eee; border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06); padding:16px;
+  position:sticky; top:16px; max-height:84vh; overflow:auto;
+  transition: transform .25s ease, opacity .2s ease;
+  will-change: transform;
+}
+
+/* When hidden: slide entire filters panel off the canvas to the left */
+.page-wrap.filters-offcanvas .filters{
+  position:absolute; left:0; top:0;
+  transform: translateX(calc(-100% - 18px));
+  opacity:0; pointer-events:none; z-index:1000;
+}
+
+
+/* Expand results to full width when filters are hidden */
+.page-wrap.filters-offcanvas .results{ flex:1 1 100%; }
+
+
+/* Floating handle (appears only when filters are hidden) */
+.filters-handle{
+  display:none; position:fixed; left:12px; top:88px; z-index:1100;
+  padding:8px 10px; border:1px solid #ddd; background:#fff;
+  border-radius:999px; box-shadow:0 4px 10px rgba(0,0,0,.10);
+  cursor:pointer; font-size:13px;
+}
+
+.page-wrap.filters-offcanvas .filters-handle{
+  display:inline-flex; align-items:center; gap:6px;
+}
+
+
+
+/* Floating handle (appears only when filters are hidden) */
+/* header/button styles */
+.filters-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.filters-toggle{ padding:6px 10px; border:1px solid #ddd; background:#f7f7f7; border-radius:8px; cursor:pointer; font-size:13px; line-height:1; }
+
+
+/* Results card (you already had this) */
+.results{
+  flex:1 1 auto; min-width:0;
+  background:#fff; border-radius:12px;
+  box-shadow:0 4px 10px rgba(0,0,0,.06); padding:20px;
+}
+
+.filters h3 { margin:0 0 10px; font-size:18px; color:#333; }
+.filters label { display:block; font-size:12px; color:#666; margin-top:10px; }
+.filters input, .filters select { width:100%; padding:8px; border:1px solid #ddd; border-radius:8px; }
+.filters select[multiple] { height:120px; }
+.filters .btn-row { display:flex; gap:8px; margin-top:14px; }
+.filters button { padding:8px 10px; border-radius:8px; border:1px solid #ddd; background:#f7f7f7; cursor:pointer; }
+
+.range-box { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+.hint { color:#777; font-size:12px; }
+
+.table-wrap { position:relative; overflow:auto; max-height:80vh; border:1px solid #eee; border-radius:12px; }
+table { width:100%; border-collapse:collapse; min-width:1400px; font-size:13px; line-height:1.3; }
+thead th {
+  position:sticky; top:0; z-index:1;
+  background:#f7f7f7; padding:8px 10px; text-align:left; border-bottom:1px solid #e9e9e9;
+  font-size:12.5px; letter-spacing:.02em; color:#444; cursor:pointer; user-select:none;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04);
+}
+tbody td { padding:8px 10px; border-bottom:1px solid #f2f2f2; color:#2c2c2c; }
+tbody tr:nth-child(even) { background:#fafafa; }
+tbody tr:hover { background:#eef6ff; }
+tbody tr { cursor:pointer; }
+th.num, td.num { text-align:right; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+th.sort-asc::after  { content:" ▲"; font-size:11px; color:#777; }
+th.sort-desc::after { content:" ▼"; font-size:11px; color:#777; }
+
+/* Row details key-value table */
+.kv-table { width:100%; border-collapse:collapse; }
+.kv-table th, .kv-table td { padding:8px 10px; border-bottom:1px solid #eee; vertical-align:top; }
+.kv-table th { width:28%; color:#555; text-align:left; background:#fafafa; font-weight:600; }
+
+/* Conditional backgrounds */
+.bg-good { background:#e7f7e9 !important; }
+.bg-bad  { background:#fdecec !important; }
+
+/* Modal */
+.modal-backdrop{
+  position:fixed; inset:0; background:rgba(0,0,0,.45);
+  display:none; align-items:center; justify-content:center;
+  z-index:9999;
+}
+.modal{
+  width:min(720px,92vw); max-height:80vh; overflow:auto;
+  background:#fff; border-radius:14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+  padding:18px; position:relative;
+}
+.modal .close{
+  position:absolute; right:10px; top:10px;
+  border:1px solid #ddd; background:#f7f7f7;
+  border-radius:8px; padding:6px 10px; cursor:pointer;
+}
+body.modal-open { overflow:hidden; }
+
+/* Utility to replace inline styles */
+.row-flex { display:flex; gap:8px; }
+.col { flex:1; }
+.label-split { display:flex; align-items:center; justify-content:space-between; }
+.modal-body { max-height:60vh; overflow:auto; }
+.modal-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+
+/* Filters header row with button inside the panel */
+.filters-header{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:8px;
+}
+
+/* Cute emoji button */
+.filters-toggle{
+  padding:6px 10px;
+  border:1px solid #ddd; background:#f7f7f7; border-radius:8px;
+  cursor:pointer; font-size:13px; line-height:1;
+}
+
+/* Collapsed state: hide just the inner content */
+.filters.is-collapsed #filters_content{ display:none; }
+
+/* Keep panel size tidy when collapsed */
+.filters.is-collapsed{ padding-bottom:12px; }

@@ -4,7 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v7.0 my holdings update fix">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v8.0 all KPI columns ordered">
+      <change afterPath="$PROJECT_DIR$/static/css/latest_results.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/css/quality_stocks.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/css/screeners.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/latest_results.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/quality_stocks.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/screeners.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/quality_stocks.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/quality_stocks.html" afterDir="false" />
@@ -443,7 +449,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760935459054</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="v8.0 all KPI columns ordered">
+      <option name="closed" value="true" />
+      <created>1761009942829</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1761009942829</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -467,6 +481,7 @@
     <MESSAGE value="v5.0 My holdings dynamic summary" />
     <MESSAGE value="v6.0 Live price added to my holdings" />
     <MESSAGE value="v7.0 my holdings update fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="v7.0 my holdings update fix" />
+    <MESSAGE value="v8.0 all KPI columns ordered" />
+    <option name="LAST_COMMIT_MESSAGE" value="v8.0 all KPI columns ordered" />
   </component>
 </project>
