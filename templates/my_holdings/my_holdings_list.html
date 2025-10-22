@@ -16,57 +16,45 @@
     <div class="content-head">
       <h2>My Holdings</h2>
       <div class="actions">
-        <!-- Add record -->
         <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_create') }}" title="Add holding">➕</a>
-        <!-- On-demand live prices -->
-
       </div>
     </div>
 
-    {# ===== Summary totals (sold-only P/L) ===== #}
-    {% set ns = namespace(rows=0, companies=[], invested=0.0, sell=0.0, invested_sold=0.0) %}
-    {% for r in rows %}
-      {% set bq = (r.Buy_Qty or 0) | float %}
-      {% set bp = (r.Buy_Price or 0) | float %}
-      {% set sq = (r.Sell_Qty or 0) | float %}
-      {% set sp = (r.Sell_Price or 0) | float %}
+    {# ===== Summary totals (sold-only P/L + live-current stats) ===== #}
+    {% set ns = namespace(rows=0, companies=[], invested_remaining=0.0, sell=0.0, invested_sold=0.0) %}
+{% for r in rows %}
+  {% set bq = (r.Buy_Qty or 0) | float %}
+  {% set bp = (r.Buy_Price or 0) | float %}
+  {% set sq = (r.Sell_Qty or 0) | float %}
+  {% set sp = (r.Sell_Price or 0) | float %}
+  {% set remaining = [bq - sq, 0] | max %}
 
-      {% set ns.rows = ns.rows + 1 %}
-      {% set ns.invested = ns.invested + (bq * bp) %}
+  {% set ns.rows = ns.rows + 1 %}
+  {% set ns.invested_remaining = ns.invested_remaining + (remaining * bp) %}
 
-      {% if sq > 0 %}
-        {% set ns.sell = ns.sell + (sq * sp) %}
-        {% set ns.invested_sold = ns.invested_sold + (sq * bp) %}
-      {% endif %}
+  {% if sq > 0 %}
+    {% set ns.sell = ns.sell + (sq * sp) %}
+    {% set ns.invested_sold = ns.invested_sold + (sq * bp) %}
+  {% endif %}
 
-      {% if r.Company_Name not in ns.companies %}
-        {% set _ = ns.companies.append(r.Company_Name) %}
-      {% endif %}
-    {% endfor %}
-    {% set netpl = ns.sell - ns.invested_sold %}
-    {% set pl_class = 'pos' if netpl>0 else ('neg' if netpl<0 else 'muted') %}
+  {% if r.Company_Name not in ns.companies %}
+    {% set _ = ns.companies.append(r.Company_Name) %}
+  {% endif %}
+{% endfor %}
+{% set realised = ns.sell - ns.invested_sold %}
+{% set realised_class = 'pos' if realised>0 else ('neg' if realised<0 else 'muted') %}
 
     <div class="summary-cards">
-      <div class="summary-card">
-        <div class="label">Total Holdings</div>
-        <div class="value">{{ ns.rows }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="label">Unique Companies</div>
-        <div class="value">{{ ns.companies|length }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="label">Total Invested</div>
-        <div class="value">₹{{ '%.2f'|format(ns.invested) }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="label">Total Sell Value</div>
-        <div class="value">₹{{ '%.2f'|format(ns.sell) }}</div>
-      </div>
-      <div class="summary-card">
-        <div class="label">Net P/L (Sold Only)</div>
-        <div class="value {{ pl_class }}">₹{{ '%.2f'|format(netpl) }}</div>
-      </div>
+      <div class="summary-card"><div class="label">Total Holdings</div><div id="card_total" class="value">{{ ns.rows }}</div></div>
+      <div class="summary-card"><div class="label">Unique Companies</div><div id="card_companies" class="value">{{ ns.companies|length }}</div></div>
+      <div class="summary-card"><div class="label">Total Invested</div><div id="card_invested" class="value">₹{{ '%.2f'|format(ns.invested_remaining) }}</div></div>
+
+      <!-- New cards (live-calculated in JS after price refresh) -->
+      <div class="summary-card"><div class="label">Current Value</div><div id="card_current" class="value">₹0.00</div></div>
+      <div class="summary-card"><div class="label">Unrealised P/L</div><div id="card_unrealised" class="value muted">₹0.00</div></div>
+
+      <div class="summary-card"><div class="label">Total Sell Value</div><div id="card_sell" class="value">₹{{ '%.2f'|format(ns.sell) }}</div></div>
+      <div class="summary-card"><div class="label">Realised P/L (Net Profit)</div><div id="card_realised" class="value {{ realised_class }}">₹{{ '%.2f'|format(realised) }}</div></div>
     </div>
 
     <div class="controls">
@@ -87,14 +75,25 @@
         <thead>
           <tr>
             <th class="sortable" data-key="company" data-type="text">Company <span class="arrow"></span></th>
-            <th class="num">Live&nbsp;Price&nbsp;<button id="btn_load_prices" class="btn live" type="button" title="Fetch live prices (on demand)">🔄</button></th>
+
+            <th class="num">
+              Live&nbsp;Price
+              <button id="btn_load_prices" class="btn live" type="button" title="Fetch live prices (on demand)">🔄</button>
+            </th>
+
             <th class="num">Buy&nbsp;Qty</th>
             <th class="num">Buy&nbsp;Price</th>
             <th class="num sortable" data-key="invested" data-type="num">Invested <span class="arrow"></span></th>
+
+            <!-- NEW: Current Value & Unrealised P/L -->
+            <th class="num sortable" data-key="current_value" data-type="num">Current&nbsp;Value <span class="arrow"></span></th>
+            <th class="num sortable" data-key="unrealised" data-type="num">Unrealised&nbsp;P/L <span class="arrow"></span></th>
+
             <th class="num">Sell&nbsp;Qty</th>
             <th class="num">Sell&nbsp;Price</th>
             <th class="num sortable" data-key="sell_value" data-type="num">Sell&nbsp;Value <span class="arrow"></span></th>
             <th class="num sortable" data-key="profit" data-type="num">Profit <span class="arrow"></span></th>
+
             <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
             <th class="num sortable" data-key="tscore" data-type="num">Total Score <span class="arrow"></span></th>
             <th class="muted">Actions</th>
@@ -113,11 +112,16 @@
           {% set basket_id = r.Basket_ID or '-' %}
           {% set tscore = r['Total Score'] or '-' %}
           {% set profit_class = ('pos' if profit and profit>0 else ('neg' if profit and profit<0 else 'muted')) %}
+
           <tr
             data-company="{{ r.Company_Name|e }}"
             data-buy_qty="{{ bq|int }}"
             data-buy_price="{{ bp|round(6) }}"
             data-invested="{{ invested|round(6) }}"
+
+            data-current_value=""          {# filled after live price #}
+            data-unrealised=""             {# filled after live price #}
+
             data-sell_qty="{{ sq|int }}"
             data-sell_price="{{ sp|round(6) }}"
             data-sell_value="{{ (sell_value|round(6)) if has_sell else '' }}"
@@ -125,29 +129,39 @@
             data-basket="{{ basket_id }}"
             data-basket_id="{{ basket_id }}"
             data-holding_id="{{ r.holding_id }}"
+            data-invested_remaining="{{ ([ (r.Buy_Qty or 0) - (r.Sell_Qty or 0), 0 ] | max * (r.Buy_Price or 0) ) | round(6) }}"
           >
             <td>{{ r.Company_Name }}</td>
+
             <td class="num"><span id="lp-{{ r.holding_id }}">—</span></td>
+
             <td class="num">{{ bq|int }}</td>
             <td class="num">{{ bp|round(2) }}</td>
             <td class="num">{{ invested|round(2) }}</td>
+
+            <!-- NEW cells: populated after price refresh -->
+            <td class="num"><span id="cv-{{ r.holding_id }}">—</span></td>
+            <td class="num"><span id="ug-{{ r.holding_id }}" class="muted">—</span></td>
+
             <td class="num">{{ sq|int }}</td>
             <td class="num">{{ sp|round(2) }}</td>
             <td class="num">{{ '-' if not has_sell else (sell_value|round(2)) }}</td>
             <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
-            <td><span class="chip">{{ basket_id }}</span></td>
+
+            <td><span class="chip">{{ r.Basket_ID or '-' }}</span></td>
             <td><span class="num">{{ tscore }}</span></td>
-            <td>
-              <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}" title="Sell">💰</a>
-              <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}" title="Edit">✏️</a>
-              <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" class="inline-delete"
-                    onsubmit="return confirm('Delete this record?');">
-                <button type="submit" class="btn danger" title="Delete">🗑️</button>
-              </form>
-            </td>
+
+<td class="actions-cell">
+  <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}" title="Sell">💰</a>
+  <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}" title="Edit">✏️</a>
+  <form method="post" action="{{ url_for('my_holdings_bp.my_holdings_delete', holding_id=r.holding_id) }}" class="inline-delete"
+        onsubmit="return confirm('Delete this record?');">
+    <button type="submit" class="btn danger" title="Delete">🗑️</button>
+  </form>
+</td>
           </tr>
           {% else %}
-          <tr><td colspan="11">No records.</td></tr>
+          <tr><td colspan="14">No records.</td></tr>
           {% endfor %}
         </tbody>
       </table>

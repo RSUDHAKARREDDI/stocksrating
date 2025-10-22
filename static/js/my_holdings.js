@@ -8,8 +8,16 @@
   const filterCompany  = document.getElementById('filterCompany');
   const filterBasket   = document.getElementById('filterBasket');
   const filterBasketId = document.getElementById('filterBasketId');
-
   const btnLoadPrices  = document.getElementById('btn_load_prices');
+
+  // Summary card elements (ids are stable)
+  const elTotal       = document.getElementById('card_total');
+  const elCompanies   = document.getElementById('card_companies');
+  const elInvested    = document.getElementById('card_invested');
+  const elCurrent     = document.getElementById('card_current');
+  const elUnrealised  = document.getElementById('card_unrealised');
+  const elSell        = document.getElementById('card_sell');
+  const elRealised    = document.getElementById('card_realised');
 
   let sortState = { key: null, dir: 'asc' }; // asc | desc
 
@@ -31,11 +39,12 @@
     });
     values.forEach(v=>{
       const opt = document.createElement('option');
-      opt.value = v;
-      opt.textContent = v;
+      opt.value = v; opt.textContent = v;
       filterBasket.appendChild(opt);
     });
   })();
+
+  function toNum(x, d=0){ const n = parseFloat(x); return isNaN(n) ? d : n; }
 
   function getRowValue(tr, key, type){
     const val = tr.dataset[key] ?? '';
@@ -46,44 +55,73 @@
     return (val || '').toString().toLowerCase();
   }
 
-  function refreshSummaryFromVisible(){
-    const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
-
-    let totalRows = 0, investedAll = 0, sellOnly = 0, investedSoldOnly = 0;
-    const companySet = new Set();
-
-    rows.forEach(tr=>{
-      totalRows++;
-      const name = (tr.dataset.company || '').trim();
-      if (name) companySet.add(name);
-
-      const buyPrice  = parseFloat(tr.dataset.buy_price || '0') || 0;
-      const buyQty    = parseFloat(tr.dataset.buy_qty   || '0') || 0;
-      const sellQty   = parseFloat(tr.dataset.sell_qty  || '0') || 0;
-      const sellValue = parseFloat(tr.dataset.sell_value|| '0') || 0;
-
-      investedAll += buyQty * buyPrice;           // total invested (all buys)
-      if (sellQty > 0){
-        sellOnly += sellValue;                    // only sold value
-        investedSoldOnly += sellQty * buyPrice;   // cost only for sold qty
-      }
-    });
-
-    const net = sellOnly - investedSoldOnly;
-
-    const cards = document.querySelectorAll('.summary-card .value');
-    if (cards.length >= 5){
-      cards[0].textContent = totalRows;
-      cards[1].textContent = companySet.size;
-      cards[2].textContent = '₹' + investedAll.toFixed(2);
-      cards[3].textContent = '₹' + sellOnly.toFixed(2);
-      cards[4].textContent = '₹' + net.toFixed(2);
-
-      const plEl = cards[4];
-      plEl.classList.remove('pos','neg','muted');
-      plEl.classList.add(net > 0 ? 'pos' : (net < 0 ? 'neg' : 'muted'));
-    }
+  function setPLClass(el, v){
+    el.classList.remove('pos','neg','muted');
+    el.classList.add(v > 0 ? 'pos' : (v < 0 ? 'neg' : 'muted'));
   }
+
+function refreshSummaryFromVisible(){
+  const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
+
+  let totalRows = 0,
+      investedRemainingAll = 0,   // <-- show this on the "Total Invested" card
+      sellOnly = 0,
+      investedSoldOnly = 0,
+      currentAll = 0;
+
+  const companySet = new Set();
+
+  rows.forEach(tr=>{
+    totalRows++;
+    const name = (tr.dataset.company || '').trim();
+    if (name) companySet.add(name);
+
+    const buyPrice  = toNum(tr.dataset.buy_price);
+    const buyQty    = toNum(tr.dataset.buy_qty);
+    const sellQty   = toNum(tr.dataset.sell_qty);
+    const sellValue = toNum(tr.dataset.sell_value);
+
+    // For realised P/L (sold-only)
+    if (sellQty > 0){
+      sellOnly += sellValue;
+      investedSoldOnly += sellQty * buyPrice;
+    }
+
+    // --- Invested (remaining only) ---
+    let invRem = tr.dataset.invested_remaining;
+    if (invRem === undefined || invRem === '' || invRem === null) {
+      // fallback compute if attribute missing
+      const remainingQty = Math.max(buyQty - sellQty, 0);
+      invRem = remainingQty * buyPrice;
+    } else {
+      invRem = toNum(invRem, 0);
+    }
+    investedRemainingAll += invRem;
+
+    // Current value is remainingQty * live (set after fetch); may be 0/NA before fetch
+    const cv = toNum(tr.dataset.current_value, null);
+    if (cv !== null) currentAll += cv;
+  });
+
+  const realised = sellOnly - investedSoldOnly;
+  const unrealised = currentAll - investedRemainingAll;
+
+  if (elTotal)     elTotal.textContent = totalRows;
+  if (elCompanies) elCompanies.textContent = companySet.size;
+  if (elInvested)  elInvested.textContent = '₹' + investedRemainingAll.toFixed(2);  // <-- changed
+  if (elSell)      elSell.textContent = '₹' + sellOnly.toFixed(2);
+
+  if (elRealised) {
+    elRealised.textContent = '₹' + realised.toFixed(2);
+    setPLClass(elRealised, realised);
+  }
+
+  if (elCurrent)   elCurrent.textContent = '₹' + currentAll.toFixed(2);
+  if (elUnrealised){
+    elUnrealised.textContent = '₹' + unrealised.toFixed(2);
+    setPLClass(elUnrealised, unrealised);
+  }
+}
 
   function applyFilters(){
     const nameQ      = filterCompany.value.trim().toLowerCase();
@@ -132,8 +170,8 @@
     hidden.forEach(r => frag.appendChild(r));
     tbody.appendChild(frag);
 
-    headers.forEach(h=> h.querySelector('.arrow').textContent = '');
-    const active = Array.from(headers).find(h => h.dataset.key === key);
+    table.querySelectorAll('th.sortable .arrow').forEach(a=> a.textContent = '');
+    const active = Array.from(table.querySelectorAll('th.sortable')).find(h => h.dataset.key === key);
     if (active) active.querySelector('.arrow').textContent = sortState.dir === 'asc' ? '▲' : '▼';
 
     refreshSummaryFromVisible();
@@ -148,26 +186,54 @@
   filterBasketId.addEventListener('input', applyFilters);
 
   // ===== On-demand Live Prices =====
-  function fetchLivePrice(holdingId, el) {
-    fetch(`/my_holdings/${holdingId}/price`)
-      .then(r => r.json())
-      .then(data => {
-        if (data && !data.error && typeof data.price !== 'undefined') {
-          el.textContent = `₹ ${Number(data.price).toFixed(2)}`;
-          el.title = data.ticker ? `${data.ticker}${data.exchange ? ' | ' + data.exchange : ''}` : '';
-        } else {
-          el.textContent = 'NA';
-          el.title = data && data.error ? data.error : '';
-        }
-      })
-      .catch(() => { el.textContent = 'NA'; });
-  }
+  function fetchLivePrice(holdingId, elPrice, elCV, elUG, tr) {
+  fetch(`/my_holdings/${holdingId}/price`)
+    .then(r => r.json())
+    .then(data => {
+      if (data && !data.error && typeof data.price !== 'undefined') {
+        const live = Number(data.price);
+        elPrice.textContent = `₹ ${live.toFixed(2)}`;
+        elPrice.title = data.ticker ? `${data.ticker}${data.exchange ? ' | ' + data.exchange : ''}` : '';
+
+        // === Correct unrealised logic: use remaining quantity only ===
+        const buyQty   = toNum(tr.dataset.buy_qty);
+        const sellQty  = toNum(tr.dataset.sell_qty);
+        const buyPrice = toNum(tr.dataset.buy_price);
+
+        const remainingQty = Math.max(buyQty - sellQty, 0);
+        const investedRemaining = remainingQty * buyPrice;
+        const currentValue = remainingQty * live;
+        const unrealised = currentValue - investedRemaining;
+
+        // Store for sorting/summary
+        tr.dataset.current_value = currentValue.toFixed(6);
+        tr.dataset.unrealised = unrealised.toFixed(6);
+        tr.dataset.invested_remaining = investedRemaining.toFixed(6);
+
+        // UI (show 0 when fully sold)
+        elCV.textContent = currentValue.toFixed(2);
+        elUG.textContent = unrealised.toFixed(2);
+        setPLClass(elUG, unrealised);
+      } else {
+        elPrice.textContent = 'NA';
+        elPrice.title = data && data.error ? data.error : '';
+      }
+    })
+    .catch(() => { elPrice.textContent = 'NA'; })
+    .finally(()=> {
+      refreshSummaryFromVisible();
+    });
+}
 
   function hydrateLivePrices() {
-    const cells = Array.from(document.querySelectorAll('[id^="lp-"]'));
-    cells.forEach((el, idx) => {
-      const id = el.id.replace('lp-', '');
-      setTimeout(() => fetchLivePrice(id, el), idx * 120); // gentle staggering
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    rows.forEach((tr, idx) => {
+      const id = tr.dataset.holding_id;
+      const elLP = document.getElementById(`lp-${id}`);
+      const elCV = document.getElementById(`cv-${id}`);
+      const elUG = document.getElementById(`ug-${id}`);
+      if (!elLP || !elCV || !elUG) return;
+      setTimeout(() => fetchLivePrice(id, elLP, elCV, elUG, tr), idx * 120); // gentle staggering
     });
   }
 
@@ -178,7 +244,6 @@
       const original = btnLoadPrices.textContent;
       btnLoadPrices.textContent = '⏳';
       hydrateLivePrices();
-      // Re-enable after a safe window (you can refine with promise tracking if needed)
       setTimeout(()=>{
         btnLoadPrices.textContent = original;
         btnLoadPrices.disabled = false;

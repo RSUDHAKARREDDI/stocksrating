@@ -254,8 +254,9 @@ select
   `company_list`.`NSE_Code` AS `NSE_Code`,
   `company_list`.`BSE_Code` AS `BSE_Code`,
   `company_list`.`Industry` AS `Industry` ,
-  `sr`.`Total Score` AS `Total Score`
+  `sr`.`Total Score` AS `Total Score`,
+  `latest_results`.`Market Cap` AS `Market Cap`
 from `my_holdings`
 join `company_list` on `my_holdings`.`Company_Name` = `company_list`.`Name`
 left join `latest_results` on  `my_holdings`.`Company_Name` = `latest_results`.`Name`
-left join `score_refactor` `sr` on `my_holdings`.`Company_Name`=`sr`.`Name`
+left join `score_refactor` `sr` on `my_holdings`.`Company_Name`=`sr`.`Name`;

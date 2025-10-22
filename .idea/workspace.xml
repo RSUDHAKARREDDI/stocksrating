@@ -4,19 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v11.0 Security added">
-      <change afterPath="$PROJECT_DIR$/score_recfactor.py" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v12.0 Total score included in all reports">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file_list_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/file_list_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_holdings_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/my_holdings_bp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sravani_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sravani_bp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sreeja_bp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/screeners.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/screeners.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/my_holdings.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/my_holdings.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/my_holdings.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/my_holdings.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/stocks_rating.sql" beforeDir="false" afterPath="$PROJECT_DIR$/stocks_rating.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/quality_stocks.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/quality_stocks.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/screeners.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/screeners.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -489,7 +483,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761028416310</updated>
     </task>
-    <option name="localTasksCounter" value="35" />
+    <task id="LOCAL-00035" summary="v12.0 Total score included in all reports">
+      <option name="closed" value="true" />
+      <created>1761105984796</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1761105984796</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -517,6 +519,7 @@
     <MESSAGE value="v9.0 filters hide and show" />
     <MESSAGE value="v10.0 live price pull on demand" />
     <MESSAGE value="v11.0 Security added" />
-    <option name="LAST_COMMIT_MESSAGE" value="v11.0 Security added" />
+    <MESSAGE value="v12.0 Total score included in all reports" />
+    <option name="LAST_COMMIT_MESSAGE" value="v12.0 Total score included in all reports" />
   </component>
 </project>

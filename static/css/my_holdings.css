@@ -40,8 +40,9 @@
   height:28px; padding:4px 8px; border:1px solid var(--bd); border-radius:8px; font-size:12px; background:#fff;
 }
 
+/* Increased from 5 -> 7 cards */
 .summary-cards{
-  display:grid; grid-template-columns:repeat(5,minmax(120px,1fr));
+  display:grid; grid-template-columns:repeat(7,minmax(120px,1fr));
   gap:8px; margin:6px 0 10px;
 }
 .summary-card{
@@ -74,3 +75,13 @@ th.sortable:hover { background:#f0f4ff; }
 }
 
 .inline-delete { display:inline; }
+
+
+/* Keep the last column (actions) on a single line */
+.actions-cell { white-space: nowrap; }
+
+/* Allow horizontal scroll rather than wrapping content */
+.table-wrap { overflow-x: auto; }
+
+/* Optional: prevent buttons from wrapping inside */
+.actions-cell .btn { white-space: nowrap; }
