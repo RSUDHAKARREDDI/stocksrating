@@ -45,7 +45,8 @@ SELECT `vw_screeners`.`Name`,
     `vw_screeners`.`screener`,
     `vw_screeners`.`mc essentials`,
     `vw_screeners`.`mc technicals`,
-    `vw_screeners`.`margin`    
+    `vw_screeners`.`margin` ,
+     `vw_screeners`.`Total Score`   
 FROM `vw_screeners`;
 """
     with engine.connect() as conn:

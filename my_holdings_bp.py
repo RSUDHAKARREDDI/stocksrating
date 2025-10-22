@@ -56,7 +56,7 @@ def my_holdings_price(holding_id):
 def my_holdings_list():
     sql = text("""
         SELECT holding_id, Company_Name, Buy_Qty, Buy_Price, Buy_Date,
-               Sell_Qty, Sell_Price, Sell_Date, Basket_ID
+               Sell_Qty, Sell_Price, Sell_Date, Basket_ID,`Total Score`
         FROM vw_my_holdings
         ORDER BY holding_id DESC
     """)

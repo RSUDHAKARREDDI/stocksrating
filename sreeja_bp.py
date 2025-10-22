@@ -46,8 +46,9 @@ SELECT `vw_latest_results`.`Name`,
     `vw_latest_results`.`screener`,
     `vw_latest_results`.`mc essentials`,
     `vw_latest_results`.`mc technicals`,
-    `vw_latest_results`.`Margin`
-FROM `vw_latest_results`;;
+    `vw_latest_results`.`Margin`,
+    `vw_latest_results`.`Total Score`
+FROM `vw_latest_results`;
 """
     with engine.connect() as conn:
         rows = conn.execute(text(sql)).mappings().all()
@@ -89,7 +90,8 @@ SELECT `vw_quality_stocks`.`Name`,
     `vw_quality_stocks`.`screener`,
     `vw_quality_stocks`.`mc essentials`,
     `vw_quality_stocks`.`mc technicals`,
-    `vw_quality_stocks`.`Margin`
+    `vw_quality_stocks`.`Margin`,
+    `vw_quality_stocks`.`Total Score`
 FROM `vw_quality_stocks`;
 """
     with engine.connect() as conn:

@@ -80,7 +80,7 @@
 
     r1w:21, r1m:22, r3m:23, r6m:24,
 
-    scr:25, ess:26, tech:27, margin:28
+    scr:25, ess:26, tech:27, margin:28,tscore:29
   };
 
   // ===== Conditional highlights =====
@@ -143,6 +143,11 @@
       const pub = toNum(c[idx.pub].textContent);
       if (Number.isFinite(pub)) {
         c[idx.pub].classList.add(pub < 25 ? "bg-good" : "bg-bad");
+      }
+      // 8) Total Score < 25
+      const tscore = toNum(c[idx.tscore].textContent);
+      if (Number.isFinite(tscore)) {
+        c[idx.tscore].classList.add(tscore >= 70 ? "bg-good" : "bg-bad");
       }
     });
   }

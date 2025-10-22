@@ -96,6 +96,7 @@
             <th class="num sortable" data-key="sell_value" data-type="num">Sell&nbsp;Value <span class="arrow"></span></th>
             <th class="num sortable" data-key="profit" data-type="num">Profit <span class="arrow"></span></th>
             <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
+            <th class="num sortable" data-key="tscore" data-type="num">Total Score <span class="arrow"></span></th>
             <th class="muted">Actions</th>
           </tr>
         </thead>
@@ -110,6 +111,7 @@
           {% set sell_value = (sq * sp) if has_sell else None %}
           {% set profit = (sq * (sp - bp)) if has_sell else None %}
           {% set basket_id = r.Basket_ID or '-' %}
+          {% set tscore = r['Total Score'] or '-' %}
           {% set profit_class = ('pos' if profit and profit>0 else ('neg' if profit and profit<0 else 'muted')) %}
           <tr
             data-company="{{ r.Company_Name|e }}"
@@ -134,6 +136,7 @@
             <td class="num">{{ '-' if not has_sell else (sell_value|round(2)) }}</td>
             <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
             <td><span class="chip">{{ basket_id }}</span></td>
+            <td><span class="num">{{ tscore }}</span></td>
             <td>
               <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}" title="Sell">💰</a>
               <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}" title="Edit">✏️</a>

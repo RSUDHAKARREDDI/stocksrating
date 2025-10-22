@@ -79,7 +79,7 @@
 
     r1w:21, r1m:22, r3m:23, r6m:24,
 
-    date:25, scr:26, ess:27, tech:28, margin:29
+    date:25, scr:26, ess:27, tech:28, margin:29,tscore:30
   };
 
   function applyHighlights(){
@@ -134,6 +134,12 @@
       // Public holding
       const pub = toNum(c[idx.pub].textContent);
       if (Number.isFinite(pub)) c[idx.pub].classList.add(pub < 25 ? "bg-good" : "bg-bad");
+
+      // 8) Total Score < 25
+      const tscore = toNum(c[idx.tscore].textContent);
+      if (Number.isFinite(tscore)) {
+        c[idx.tscore].classList.add(tscore >= 70 ? "bg-good" : "bg-bad");
+      }
     });
   }
 

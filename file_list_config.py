@@ -23,5 +23,10 @@ file_list_config = {
         'file_list': ['company_list.csv'],
         'target_directory': 'datafiles/others',
         'table_name':'company_list'
+},
+'score_refactor': {
+        'file_list': ['score_refactor.csv'],
+        'target_directory': 'datafiles/score_refactor',
+        'table_name':'score_refactor'
     }
 }

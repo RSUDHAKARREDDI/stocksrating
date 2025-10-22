@@ -56,7 +56,7 @@
     debt:15, dbttoeq:16,
     promoter:17, fii:18, dii:19, pub:20,
     r1w:21, r1m:22, r3m:23, r6m:24,
-    date:25, scr:26, ess:27, tech:28, margin:29
+    date:25, scr:26, ess:27, tech:28, margin:29,tscore:30
   };
 
   function applyHighlights(){
@@ -104,6 +104,12 @@
 
       const pub = toNum(c[idx.pub].textContent);
       if (Number.isFinite(pub)) c[idx.pub].classList.add(pub < 25 ? "bg-good" : "bg-bad");
+
+      // 8) Total Score < 25
+      const tscore = toNum(c[idx.tscore].textContent);
+      if (Number.isFinite(tscore)) {
+        c[idx.tscore].classList.add(tscore >= 70 ? "bg-good" : "bg-bad");
+      }
     });
   }
 
@@ -237,6 +243,8 @@
   btnPie && btnPie.addEventListener("click", ()=>{ renderIndustryPie(); openModal(); });
   btnClose && btnClose.addEventListener("click", closeModal);
   modal && modal.addEventListener("click", (e)=>{ if(e.target === modal) closeModal(); });
+
+
 
   function getVisibleIndustryCounts(){
     const counts = new Map();
