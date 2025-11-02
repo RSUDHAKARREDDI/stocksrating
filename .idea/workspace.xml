@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v13.0 Dashboard Enhancement">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v14.0 Dashboard Enhancement">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/score_recfactor.py" beforeDir="false" afterPath="$PROJECT_DIR$/score_recfactor.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/screeners_load.py" beforeDir="false" afterPath="$PROJECT_DIR$/screeners_load.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,7 +72,7 @@
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.score_recfactor">
+  <component name="RunManager" selected="Python.screeners_load">
     <configuration name="api_ninja" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
@@ -183,9 +185,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.screeners_load" />
         <item itemvalue="Python.score_recfactor" />
         <item itemvalue="Python.api_ninja" />
-        <item itemvalue="Python.screeners_load" />
         <item itemvalue="Python.commonfunctions" />
         <item itemvalue="Python.test1" />
       </list>
@@ -495,11 +497,18 @@
       <option name="project" value="LOCAL" />
       <updated>1761109711116</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="v14.0 Dashboard Enhancement">
+      <option name="closed" value="true" />
+      <created>1761111274696</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1761111274696</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="path issue corrected" />
     <MESSAGE value="Path print added" />
     <MESSAGE value="before to add market cap column" />
     <MESSAGE value="v1.0 first report" />
@@ -524,6 +533,7 @@
     <MESSAGE value="v11.0 Security added" />
     <MESSAGE value="v12.0 Total score included in all reports" />
     <MESSAGE value="v13.0 Dashboard Enhancement" />
-    <option name="LAST_COMMIT_MESSAGE" value="v13.0 Dashboard Enhancement" />
+    <MESSAGE value="v14.0 Dashboard Enhancement" />
+    <option name="LAST_COMMIT_MESSAGE" value="v14.0 Dashboard Enhancement" />
   </component>
 </project>

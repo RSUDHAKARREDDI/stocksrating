@@ -11,11 +11,11 @@ def build_score_refactor(latest_results_path=LATEST_RESULTS, mc_technicals_path=
     lr = pd.read_csv(latest_results_path, low_memory=False)
     mt = pd.read_csv(mc_technicals_path, low_memory=False)
 
-    # -------- normalization --------
+    # -------- normalization (column names only) --------
     lr.columns = [c.strip() for c in lr.columns]
     mt.columns = [c.strip() for c in mt.columns]
 
-    # Helpful standard aliases
+    # Helpful standard aliases (no value normalization, no dedup)
     rename_map = {
         "EPS latest quarter": "EPS latest quarter",
         "EPS preceding quarter": "EPS preceding quarter",
@@ -49,20 +49,16 @@ def build_score_refactor(latest_results_path=LATEST_RESULTS, mc_technicals_path=
                 mt.rename(columns={alt: "mc technicals"}, inplace=True)
                 break
 
-    # -------- merge (prefer NSE Code, else Name) --------
-    if "NSE Code" in lr.columns and "NSE Code" in mt.columns:
-        merge_key = "NSE Code"
-    elif "Name" in lr.columns and "Name" in mt.columns:
-        merge_key = "Name"
-    else:
-        raise ValueError("Cannot merge: need 'NSE Code' or 'Name' present in both CSVs.")
+    # -------- FORCE exact Name-based LEFT join --------
+    if "Name" not in lr.columns or "Name" not in mt.columns:
+        raise ValueError("Exact-Name join requested, but 'Name' is missing in one of the files.")
+    merge_key = "Name"
 
-    # Only include mc columns if they exist; else merge only key (MC score will default to 0)
     mt_cols = [merge_key]
     if "mc essentials" in mt.columns: mt_cols.append("mc essentials")
     if "mc technicals" in mt.columns: mt_cols.append("mc technicals")
 
-    df = lr.merge(mt[mt_cols], on=merge_key, how="left")
+    df = lr.merge(mt[mt_cols], on=merge_key, how="left")  # LEFT join, keep all latest-results rows
 
     # -------- safe numeric --------
     def num(x, default=0.0):
@@ -142,12 +138,14 @@ def build_score_refactor(latest_results_path=LATEST_RESULTS, mc_technicals_path=
     ]
     df["Total Score"] = df[score_cols].sum(axis=1)
 
-    # -------- output (exclude MC columns as requested) --------
+    # -------- output (exclude MC columns) --------
     out_cols = [c for c in ["Name","NSE Code","BSE Code"] if c in df.columns] + score_cols + ["Total Score"]
     out = df[out_cols].copy()
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     out.to_csv(output_path, index=False)
+
+    print(f"Input rows (latest-results): {len(lr)} | Output rows: {len(out)}")
     return out
 
 if __name__ == "__main__":

@@ -4,175 +4,334 @@ import operator as op
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_CSV  = os.path.join(BASE_DIR, "datafiles", "latestresults", "latest-results.csv")
-OUTPUT_CSV = os.path.join(BASE_DIR, "datafiles", "latestresults", "latest-results_tagged.csv")
+OUTPUT_PATH  = os.path.join(BASE_DIR, "datafiles", "screeners")
 
-# -----------------------------
-# Screener spec (structured)
-# value can be: ("col", "<Other Column Name>") or ("const", <Number>)
-# ops: ">", ">=", "<", "<=", "=", "!="
-# -----------------------------
-SCREENERS = {
-    "EPS_PE_MSCAPS": [
-        ("EPS latest quarter",       ">",  ("col",  "EPS preceding quarter")),
-        ("EPS latest quarter",       ">",  ("col",  "EPS preceding year quarter")),
-        ("EPS preceding quarter",    ">",  ("const", 0)),
-        ("EPS latest quarter",       ">",  ("const", 0)),
-        ("Price to Earning",         "<",  ("col",  "Industry PE")),
-        ("Market Capitalization",    ">",  ("const", 1000)),
-        ("Return over 1month",       ">",  ("const", 0)),
-        ("Return over 3months",      ">",  ("const", 5)),
-        ("Last result date",         "=",  ("const", 202509)),
-        ("Promoter holding",         ">",  ("const", 70)),
-        ("Market Capitalization",    "<",  ("const", 20000)),
-    ],
-"GOOD_ROE_ROCE_MORE_PE": [
-        ("EPS latest quarter",       ">",  ("col",  "EPS preceding quarter")),
-        ("EPS latest quarter",       ">",  ("col",  "EPS preceding year quarter")),
-        ("Price to Earning",         "<",  ("col",  "Industry PE")),
-        ("Promoter holding",         ">",  ("const", 50)),
-        ("EPS latest quarter",       ">",  ("const", 2)),
-
-        ("Market Capitalization",    ">",  ("const", 1000)),
-        ("Return over 1month",       ">",  ("const", 0)),
-        ("Return over 3months",      ">",  ("const", 5)),
-        ("Last result date",         "=",  ("const", 202509)),
-
-        ("Market Capitalization",    "<",  ("const", 20000)),
-    ],
-    # Add more screeners here (example):
-    # "GOOD_ROE_ROCE_MORE_PE": [
-    #     ("Return on equity", ">", ("const", 15)),
-    #     ("Return on capital employed", ">", ("const", 15)),
-    #     ("Price to Earning", ">", ("const", 10)),
-    # ]
-}
-
-# Operator map
-OPMAP = {
-    ">":  op.gt,
-    ">=": op.ge,
-    "<":  op.lt,
-    "<=": op.le,
-    "=":  op.eq,
-    "!=": op.ne,
-}
-
-# -----------------------------
-# Load data
-# -----------------------------
-if not os.path.exists(INPUT_CSV):
-    raise FileNotFoundError(f"File not found: {INPUT_CSV}")
-
-df = pd.read_csv(INPUT_CSV)
-
-# Coerce numeric columns (keep obvious text cols as-is)
-TEXT_COLS = {"Name", "BSE Code", "NSE Code", "Industry"}
-for c in df.columns:
-    if c not in TEXT_COLS:
-        df[c] = pd.to_numeric(df[c], errors="coerce")
-
-# -----------------------------
-# Evaluate screeners (vectorized)
-# -----------------------------
-def build_mask(df, conds):
-    m = pd.Series(True, index=df.index)
-    for col, op_str, val_spec in conds:
-        if col not in df.columns:
-            # Missing column -> fail whole condition set
-            return pd.Series(False, index=df.index)
-        if op_str not in OPMAP:
-            raise ValueError(f"Unsupported operator: {op_str}")
-
-        left = df[col]
-        # Right side can be column or constant
-        if val_spec[0] == "col":
-            rhs_col = val_spec[1]
-            if rhs_col not in df.columns:
-                return pd.Series(False, index=df.index)
-            right = df[rhs_col]
-        elif val_spec[0] == "const":
-            right = val_spec[1]
-        else:
-            raise ValueError(f"Bad value spec: {val_spec}")
-
-        # Compare; NaNs will propagate to False with fillna(False)
-        comp = OPMAP[op_str](left, right)
-        m = m & comp.fillna(False)
-    return m
-
-matched_cols = []
-for name, conditions in SCREENERS.items():
-    mask = build_mask(df, conditions)
-    df[name] = mask  # boolean column per screener
-    matched_cols.append(name)
-
-# Join all matched screener names for each row
-def join_matches(row):
-    hits = [s for s in matched_cols if bool(row.get(s))]
-    return ", ".join(hits)
-
-df["Matched_Screeners"] = df.apply(join_matches, axis=1)
-
-# -----------------------------
-# Save
-# -----------------------------
-os.makedirs(os.path.dirname(OUTPUT_CSV), exist_ok=True)
-df.to_csv(OUTPUT_CSV, index=False)
-print(f"✅ Processed {len(df)} rows")
-print(f"📄 Tagged file: {OUTPUT_CSV}")
-
-# Optional quick peek
-preview_cols = [
-    "Name", "Price to Earning", "Industry PE", "Market Capitalization",
-    "Return over 1month", "Return over 3months", "Last result date",
-    "Promoter holding", "EPS latest quarter", "EPS preceding quarter",
-    "EPS preceding year quarter", "Matched_Screeners"
+# ---- Config: column names used in filters ----
+NUM_COLS = [
+    "EPS latest quarter",
+    "EPS preceding quarter",
+    "EPS preceding year quarter",
+    "Price to Earning",
+    "Industry PE",
+    "Market Capitalization",
+    "Return over 1week",
+	"Return over 1month",
+    "Return over 3months",
+	"Return over 6months",
+    "Last result date",
+    "Current Price",
+    "PEG Ratio",
+    "Debt to equity",
+    "OPM latest quarter",
+    "OPM preceding quarter",
+    "Price to book value",
+    "Promoter holding",
+	"FII holding",
+    "DII holding",
+    "Public holding"
 ]
-print(df[[c for c in preview_cols if c in df.columns]].head())
+
+def _coerce_numeric(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    """
+    Make sure numeric-like columns become numbers (handles commas, blanks).
+    Non-convertible values turn into NaN.
+    """
+    for c in cols:
+        if c in df.columns:
+            df[c] = (
+                df[c]
+                .astype(str)
+                .str.replace(",", "", regex=False)
+                .str.strip()
+            )
+            df[c] = pd.to_numeric(df[c], errors="coerce")
+    return df
+
+def eps_pe_mscaps() -> pd.DataFrame:
+    """
+    Filter rows where:
+      EPS latest quarter > EPS preceding quarter
+      EPS latest quarter > EPS preceding year quarter
+      EPS preceding quarter > 0
+      EPS latest quarter > 0
+      Price to Earning < Industry PE
+      Market Capitalization > 1000
+      Return over 1month > 0
+      Return over 3months > 5
+      Last result date == 202509
+      Promoter holding > 70
+      Market Capitalization < 20000
+
+    Writes filtered rows to OUTPUT_FILE and returns the filtered DataFrame.
+    """
+    OUTPUT_FILE = os.path.join(OUTPUT_PATH, "eps_pe_mscaps.csv")
+    if not os.path.exists(INPUT_CSV):
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
+    df = _coerce_numeric(df, NUM_COLS)
+
+    # Build boolean mask with your conditions
+    cond = (
+        (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
+        (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
+        (df["EPS preceding quarter"] > 0) &
+        (df["EPS latest quarter"] > 0) &
+        (df["Price to Earning"] < df["Industry PE"]) &
+        (df["Market Capitalization"] > 1000) &
+        (df["Return over 1month"] > 0) &
+        (df["Return over 3months"] > 5) &
+        (df["Last result date"] == 202509) &
+        (df["Promoter holding"] > 70) &
+        (df["Market Capitalization"] < 20000)
+    )
+
+    out = df.loc[cond].copy()
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+
+    print(f"✅ Saved {len(out)} rows to: {OUTPUT_FILE}")
+    return out
+
+def good_roe_roce_more_pe() -> pd.DataFrame:
+
+    OUTPUT_FILE = os.path.join(OUTPUT_PATH, "good_roe_roce_more_pe.csv")
+    if not os.path.exists(INPUT_CSV):
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
+    df = _coerce_numeric(df, NUM_COLS)
+
+    # Build boolean mask with your conditions
+    cond = (
+            (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
+            (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
+            (df["Price to Earning"] < df["Industry PE"]) &
+            (df["Promoter holding"] > 50) &
+            (df["EPS latest quarter"] > 2) &
+            (df["Market Capitalization"] > 1000) &
+            (df["Last result date"] == 202509) &
+            (df["Return on equity"] > 20) &
+            (df["Return on capital employed"] > 20)
+    )
+
+    out = df.loc[cond].copy()
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+
+    print(f"✅ Saved {len(out)} rows to: {OUTPUT_FILE}")
+    return out
+
+def good_pe_roe_roce_lcap() -> pd.DataFrame:
+
+    OUTPUT_FILE = os.path.join(OUTPUT_PATH, "good_pe_roe_roce_lcap.csv")
+    if not os.path.exists(INPUT_CSV):
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
+    df = _coerce_numeric(df, NUM_COLS)
+
+    # Build boolean mask with your conditions
+    cond = (
+            (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
+            (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
+            (df["Price to Earning"] < df["Industry PE"]) &
+            (df["Promoter holding"] > 50) &
+            (df["Debt to equity"] < 1) &
+            (df["EPS latest quarter"] > 0) &
+            (df["Market Capitalization"] > 20000) &
+            (df["Last result date"] == 202509) &
+            (df["Return on equity"] > 15) &
+            (df["Return on capital employed"] > 15)
+    )
+
+    out = df.loc[cond].copy()
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+
+    print(f"✅ Saved {len(out)} rows to: {OUTPUT_FILE}")
+    return out
+
+def good_pe_less_roe_roce() -> pd.DataFrame:
+
+    OUTPUT_FILE = os.path.join(OUTPUT_PATH, "good_pe_less_roe_roce.csv")
+    if not os.path.exists(INPUT_CSV):
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
+    df = _coerce_numeric(df, NUM_COLS)
+
+    # Build boolean mask with your conditions
+    cond = (
+            (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
+            (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
+            (df["Promoter holding"] > 70) &
+            (df["Price to Earning"] < df["Industry PE"]) &
+            (df["EPS latest quarter"] > 2) &
+            (df["Market Capitalization"] > 1000) &
+            (df["Last result date"] == 202509) &
+            (df["Debt to equity"] < 1) &
+            (df["OPM latest quarter"] > 10) &
+            (df["Return on equity"] < 15) &
+            (df["Return on capital employed"] < 15)
+    )
+
+    out = df.loc[cond].copy()
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+
+    print(f"✅ Saved {len(out)} rows to: {OUTPUT_FILE}")
+    return out
+
+def good_pe_roe_roce_all_good() -> pd.DataFrame:
+
+    OUTPUT_FILE = os.path.join(OUTPUT_PATH, "good_pe_roe_roce_all_good.csv")
+    if not os.path.exists(INPUT_CSV):
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
+    df = _coerce_numeric(df, NUM_COLS)
+
+    # Build boolean mask with your conditions
+    cond = (
+            (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
+            (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
+            (df["Promoter holding"] > 50) &
+            (df["Price to Earning"] < df["Industry PE"]) &
+            (df["EPS latest quarter"] > 0) &
+            (df["Market Capitalization"] < 20000) &
+            (df["Market Capitalization"] > 1000) &
+            (df["Last result date"] == 202509) &
+            (df["Debt to equity"] < 1) &
+            (df["Return on equity"] > 15) &
+            (df["Return on capital employed"] > 15)
+    )
+
+    out = df.loc[cond].copy()
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+
+    print(f"✅ Saved {len(out)} rows to: {OUTPUT_FILE}")
+    return out
+
+def good_pe_roe_roce_altimate() -> pd.DataFrame:
+
+    OUTPUT_FILE = os.path.join(OUTPUT_PATH, "good_pe_roe_roce_altimate.csv")
+    if not os.path.exists(INPUT_CSV):
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
+    df = _coerce_numeric(df, NUM_COLS)
+
+    # Build boolean mask with your conditions
+
+    cond = (
+            (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
+            (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
+            (df["Promoter holding"] > 70) &
+            (df["Price to Earning"] < df["Industry PE"]) &
+            (df["EPS latest quarter"] > 0) &
+            (df["Market Capitalization"] > 1000) &
+            (df["Last result date"] == 202509) &
+            (df["Debt to equity"] < 1) &
+            (df["Return on equity"] > 20) &
+            (df["Return on capital employed"] > 20) &
+            (df["Price to book value"] < 10)
+    )
+
+    out = df.loc[cond].copy()
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+
+    print(f"✅ Saved {len(out)} rows to: {OUTPUT_FILE}")
+    return out
+
+def less_public_holding() -> pd.DataFrame:
+
+    OUTPUT_FILE = os.path.join(OUTPUT_PATH, "less_public_holding.csv")
+    if not os.path.exists(INPUT_CSV):
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
+    df = _coerce_numeric(df, NUM_COLS)
+
+    # Build boolean mask with your conditions
+
+    cond = (
+            (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
+            (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
+            (df["Public holding"] < 10) &
+            (df["Return on equity"] > 15) &
+            (df["Return on capital employed"] > 15) &
+            (df["Last result date"] == 202509) &
+            (df["Promoter holding"] > 50)
+
+    )
+
+    out = df.loc[cond].copy()
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+
+    print(f"✅ Saved {len(out)} rows to: {OUTPUT_FILE}")
+    return out
+
+def power_bi_query() -> pd.DataFrame:
+
+    OUTPUT_FILE = os.path.join(OUTPUT_PATH, "power_bi_query.csv")
+    if not os.path.exists(INPUT_CSV):
+        raise FileNotFoundError(f"Input file not found: {INPUT_CSV}")
+
+    df = pd.read_csv(INPUT_CSV, encoding="utf-8-sig")
+    df = _coerce_numeric(df, NUM_COLS)
+
+    # Build boolean mask with your conditions
+
+    cond = (
+            (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
+            (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
+            (df["Market Capitalization"] > 1000) &
+            (df["Return on equity"] > 15) &
+            (df["Return on capital employed"] > 15) &
+            (df["Last result date"] == 202509) &
+            (df["Promoter holding"] > 50)
+
+    )
+
+    out = df.loc[cond].copy()
+
+    os.makedirs(OUTPUT_PATH, exist_ok=True)
+    out.to_csv(OUTPUT_FILE, index=False, encoding="utf-8-sig")
+
+    print(f"✅ Saved {len(out)} rows to: {OUTPUT_FILE}")
+    return out
+
+def screeners_load():
+    eps_pe_mscaps()
+    good_roe_roce_more_pe()
+    good_pe_roe_roce_lcap()
+    good_pe_less_roe_roce()
+    good_pe_roe_roce_all_good()
+    good_pe_roe_roce_altimate()
+    less_public_holding()
+    power_bi_query()
+
+def main():
+    return None
+
+if __name__ == "__main__":
+
+    main()
+    screeners_load()
 
 
-# --- Put this right after you define SCREENERS, OPMAP, load df, and coerce numerics ---
 
-def condition_mask(df, left_col, op_str, val_spec):
-    import operator as op
-    OPMAP = {">":op.gt, ">=":op.ge, "<":op.lt, "<=":op.le, "=":op.eq, "!=":op.ne}
 
-    if left_col not in df.columns or op_str not in OPMAP:
-        return pd.Series(False, index=df.index)  # missing column or bad op
 
-    left = df[left_col]
-    if val_spec[0] == "col":
-        rhs = df[val_spec[1]] if val_spec[1] in df.columns else pd.Series(pd.NA, index=df.index)
-    elif val_spec[0] == "const":
-        rhs = val_spec[1]
-    else:
-        return pd.Series(False, index=df.index)
 
-    return OPMAP[op_str](left, rhs).fillna(False)
-
-# Build debug columns: one per condition + final ALL column per screener
-debug_cols = []
-for screener_name, conds in SCREENERS.items():
-    all_mask = pd.Series(True, index=df.index)
-    for i, (col, op_str, val_spec) in enumerate(conds, start=1):
-        dbg_col = f"{screener_name}__c{i}__{col} {op_str} {val_spec[0]}:{val_spec[1]}"
-        m = condition_mask(df, col, op_str, val_spec)
-        df[dbg_col] = m
-        debug_cols.append(dbg_col)
-        all_mask = all_mask & m
-    df[screener_name] = all_mask
-    debug_cols.append(screener_name)
-
-# Matched list
-match_cols = [s for s in SCREENERS.keys()]
-df["Matched_Screeners"] = df.apply(lambda r: ", ".join([s for s in match_cols if bool(r.get(s))]), axis=1)
-
-# Save a debug file with only useful columns up front
-front = ["Name", "NSE Code", "Industry", "Price to Earning", "Industry PE",
-         "Market Capitalization", "Return over 1month", "Return over 3months",
-         "Last result date", "Promoter holding", "EPS latest quarter",
-         "EPS preceding quarter", "EPS preceding year quarter", "Matched_Screeners"]
-keep = [c for c in front if c in df.columns] + debug_cols
-debug_out = os.path.join(BASE_DIR, "datafiles", "latestresults", "latest_results_tagged_debug.csv")
-df[keep].to_csv(debug_out, index=False)
-print(f"🔎 Debug file: {debug_out}")

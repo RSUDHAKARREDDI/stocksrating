@@ -12,6 +12,7 @@ import logging
 from app_auth_utils import login_required
 import json
 from pathlib import Path
+import screeners_load as sf
 
 
 # -------- Paths (robust & absolute) --------
@@ -46,13 +47,20 @@ def home():
 # ------------------------
 # Upload CSV/File
 # ------------------------
+# --- helper: decide if a moved file is latest-results.csv ---
+def _is_latest_results(path: str) -> bool:
+    try:
+        return os.path.basename(path).lower() == "latest-results.csv"
+    except Exception:
+        return False
+
 @app.route("/upload-files", methods=["GET", "POST"])
 @login_required
 def upload_file():
     if request.method == "POST":
         # Validate presence of file part
         if "file" not in request.files:
-             
+            flash("No file part in the request")
             return redirect(request.url)
 
         file = request.files["file"]
@@ -78,9 +86,23 @@ def upload_file():
             results = cf.move_files([save_path], target_dir=None, file_list_config=file_list_config)
 
             # Report move results
+            moved_any = False
+            triggered_screeners = False
+
             if results.get("moved"):
+                moved_any = True
                 dsts = ", ".join(sorted({d for _, d in results["moved"]}))
                 flash(f"Moved '{filename}' to: {dsts}")
+
+                # 🔔 If latest-results.csv was moved, run screeners_load()
+                if any(_is_latest_results(dest) for _, dest in results["moved"]):
+                    try:
+                        # screeners_load is already imported per your note
+                        sf.screeners_load()
+                        triggered_screeners = True
+                        flash("✅ latest-results.csv detected — ran screeners_load() successfully.")
+                    except Exception as e:
+                        flash(f"⚠️ latest-results.csv detected, but screeners_load() failed: {e}")
 
             if results.get("skipped_no_target"):
                 # Optional: remove the temp file if no mapping (so it doesn't linger)
@@ -94,6 +116,16 @@ def upload_file():
             if results.get("errors"):
                 for src, dest, err in results["errors"]:
                     flash(f"Move error to '{dest}': {err}")
+
+            # Edge: file moved but name differs (so screeners not run)
+            if moved_any and not triggered_screeners and _is_latest_results(filename):
+                # In rare cases if your mover renames; we already checked dest names above.
+                # This is just a fallback if you later change move behavior.
+                try:
+                    sf.screeners_load()
+                    flash("✅ Ran screeners_load() (fallback trigger).")
+                except Exception as e:
+                    flash(f"⚠️ Fallback run of screeners_load() failed: {e}")
 
         except Exception as e:
             flash(f"Failed to handle upload: {e}")
@@ -112,7 +144,6 @@ def upload_file():
 
             for fname in sorted(os.listdir(abs_folder_path)):
                 fpath = os.path.join(abs_folder_path, fname)
-
                 if os.path.isfile(fpath):
                     last_modified = os.path.getmtime(fpath)
                     files_info.append({
