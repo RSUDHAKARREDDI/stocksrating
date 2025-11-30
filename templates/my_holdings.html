@@ -2,97 +2,14 @@
 {% block title %}Holdings Dashboard{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/my_holdings.css') }}">
 <style>
-  /* Scoped styles for this page only */
-  .page-wrap {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    gap: 16px;
-    margin: 24px auto;
-    width: min(1400px, 96vw);
-  }
-
-  .sidebar {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,.06);
-    border: 1px solid #e5e7eb;
-    position: sticky;
-    top: 12px; /* sticks under your header/menu */
-    height: max-content;
-  }
-  .sidebar h3 {
-    margin: 0;
-    padding: 14px 14px 10px;
-    font-size: 16px;
-    color: #333;
-    border-bottom: 1px solid #f0f2f5;
-  }
-  .side-list {
-    list-style: none;
-    margin: 0;
-    padding: 8px;
-  }
-  .side-list li { margin: 4px 0; }
-  .side-link {
-    display: flex;
-    justify-content: space-between; /* text left, optional badge/right icon */
-    align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    text-decoration: none;
-    color: #333;
-    border: 1px solid transparent;
-  }
-  .side-link:hover { background: #f6f7fb; border-color: #eef0f4; }
-  .side-link.active { background: #eaf3ff; border-color: #cfe6ff; color: #0b63c0; font-weight: 600; }
-
-  .main {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,.06);
-    border: 1px solid #e5e7eb;
-    padding: 18px;
-  }
-
-  .kpis {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .kpi {
-    background: #f9fbff;
-    border: 1px solid #eef2ff;
-    border-radius: 12px;
-    padding: 12px;
-  }
-  .kpi .label { font-size: 12px; color: #6b7280; }
-  .kpi .value { font-size: 18px; font-weight: 700; margin-top: 4px; }
-
-  .table-wrap { overflow: auto; border: 1px solid #eef0f4; border-radius: 10px; }
-  table { width: 100%; min-width: 900px; border-collapse: collapse; }
-  thead th {
-    background: #f6f7fb;
-    color: #6b7280;
-    text-align: left;
-    font-size: 12px;
-    padding: 10px;
-    border-bottom: 1px solid #eaecef;
-  }
-  tbody td { padding: 10px; border-bottom: 1px solid #f0f2f5; }
-  tbody tr:hover { background: #fcfdff; }
-
-  /* Responsive: sidebar collapses on small screens */
-  @media (max-width: 900px) {
-    .page-wrap { grid-template-columns: 1fr; }
-    .sidebar { position: static; }
-  }
+  /* small per-page spacing so imported css remains authoritative */
+  .controls { margin-bottom: 12px; }
 </style>
 
 <div class="page-wrap">
-  <!-- LEFT SIDEBAR -->
+  <!-- LEFT SIDEBAR (keeps your original sidebar items) -->
   <aside class="sidebar">
     <h3>📊 Portfolio</h3>
     <ul class="side-list">
@@ -116,66 +33,114 @@
   <main class="main">
     <h2 style="margin:0 0 8px;">Holdings Dashboard</h2>
     <div style="color:#6b7280; margin-bottom:14px;">
-      Live summary of your equity holdings. Filter/Sort features can be added next.
+      Live summary of your equity holdings. Use filters to view Open / Closed positions.
     </div>
 
-    <!-- KPI CARDS (sample placeholders—bind to vw_portfolio_kpis in Flask) -->
-    <div class="kpis">
-      <div class="kpi">
-        <div class="label">Total Invested</div>
-        <div class="value">{{ kpis.total_invested if kpis else '—' }}</div>
+    <!-- CONTROLS: search, basket, basket id, position, load prices -->
+    <div class="controls">
+      <label for="filterCompany">Company</label>
+      <input id="filterCompany" type="text" placeholder="search company">
+
+      <label for="filterBasket">Basket</label>
+      <select id="filterBasket">
+        <option value="">All</option>
+        <!-- JS will populate extra options based on table data -->
+      </select>
+
+      <label for="filterBasketId">Basket ID</label>
+      <input id="filterBasketId" type="text" placeholder="basket id">
+
+      <label for="filterPosition">Position</label>
+      <select id="filterPosition">
+        <option value="both">Both</option>
+        <option value="open">Open</option>
+        <option value="closed">Closed</option>
+      </select>
+
+      <button id="btn_load_prices" class="btn live" style="margin-left:8px;">Load Prices</button>
+    </div>
+
+    <!-- SUMMARY CARDS (IDs used by the JS) -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="label">Rows</div>
+        <div id="card_total" class="value">0</div>
       </div>
-      <div class="kpi">
+      <div class="summary-card">
+        <div class="label">Companies</div>
+        <div id="card_companies" class="value">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Total Invested (Remaining)</div>
+        <div id="card_invested" class="value">₹0.00</div>
+      </div>
+      <div class="summary-card">
         <div class="label">Current Value</div>
-        <div class="value">{{ kpis.total_current if kpis else '—' }}</div>
+        <div id="card_current" class="value">₹0.00</div>
       </div>
-      <div class="kpi">
-        <div class="label">Net P&L</div>
-        <div class="value">{{ kpis.net_pnl_value if kpis else '—' }} ({{ kpis.net_pnl_pct if kpis else '—' }}%)</div>
+      <div class="summary-card">
+        <div class="label">Unrealised</div>
+        <div id="card_unrealised" class="value muted">₹0.00</div>
       </div>
-      <div class="kpi">
-        <div class="label">Today's P&L</div>
-        <div class="value">{{ kpis.day_pnl if kpis else '—' }}</div>
+      <div class="summary-card">
+        <div class="label">Sold Value</div>
+        <div id="card_sell" class="value">₹0.00</div>
+      </div>
+      <div class="summary-card">
+        <div class="label">Realised P&L</div>
+        <div id="card_realised" class="value muted">₹0.00</div>
       </div>
     </div>
 
-    <!-- HOLDINGS TABLE (bind to vw_positions_with_ltp) -->
+    <!-- HOLDINGS TABLE (table id expected by JS: holdingsTable) -->
     <div class="table-wrap">
-      <table>
+      <table id="holdingsTable">
         <thead>
           <tr>
             <th>Exchange</th>
             <th>Symbol</th>
             <th>Company</th>
-            <th class="right">Qty</th>
-            <th class="right">Avg Price</th>
+            <th class="right">Buy Qty</th>
+            <th class="right">Sell Qty</th>
+            <th class="right">Avg Buy Price</th>
             <th class="right">LTP</th>
             <th class="right">Invested</th>
             <th class="right">Current</th>
-            <th class="right">P&L</th>
-            <th class="right">P&L %</th>
-            <th class="right">Day P&L</th>
+            <th class="right">Unrealised</th>
+            <th class="right">Actions</th>
           </tr>
         </thead>
         <tbody>
+          {# Render rows from your view 'rows' variable. Each <tr> MUST expose required data-* attributes #}
           {% for r in rows %}
-          <tr>
+          <tr
+              data-holding_id="{{ r.holding_id }}"
+              data-company="{{ r.company_name | default('') }}"
+              data-basket="{{ r.basket | default('') }}"
+              data-basket_id="{{ r.basket_id | default('') }}"
+              data-buy_qty="{{ r.buy_qty | default(0) }}"
+              data-sell_qty="{{ r.sell_qty | default(0) }}"
+              data-buy_price="{{ ('%.6f'|format(r.avg_price or 0)) }}"
+              data-sell_value="{{ ('%.6f'|format(r.sell_value or 0)) }}"
+              data-instrument="{{ r.symbol | default('') }}"
+          >
             <td>{{ r.exchange }}</td>
             <td><a href="/symbol/{{ r.symbol_id }}">{{ r.symbol }}</a></td>
             <td>{{ r.company_name }}</td>
-            <td class="right">{{ r.net_qty }}</td>
+            <td class="right">{{ r.buy_qty }}</td>
+            <td class="right">{{ r.sell_qty }}</td>
             <td class="right">{{ '%.2f'|format(r.avg_price or 0) }}</td>
-            <td class="right">{{ '%.2f'|format(r.ltp or 0) }}</td>
-            <td class="right">{{ '%.2f'|format(r.invested_value or 0) }}</td>
-            <td class="right">{{ '%.2f'|format(r.current_value or 0) }}</td>
-            <td class="right" style="color: {{ 'green' if (r.pnl_value or 0) >= 0 else 'red' }};">
-              {{ '%.2f'|format(r.pnl_value or 0) }}
-            </td>
-            <td class="right" style="color: {{ 'green' if (r.pnl_pct or 0) >= 0 else 'red' }};">
-              {{ '%.2f'|format(r.pnl_pct or 0) }}%
-            </td>
-            <td class="right" style="color: {{ 'green' if (r.day_pnl or 0) >= 0 else 'red' }};">
-              {{ r.day_pnl is not none and ('%.2f'|format(r.day_pnl)) or '—' }}
+
+            <!-- LTP cell: has id used by JS lp-<holding_id> -->
+            <td class="right" id="lp-{{ r.holding_id }}">{{ '%.2f'|format(r.ltp or 0) }}</td>
+
+            <!-- Current value and unrealised (JS will update these elements after fetching live prices) -->
+            <td class="right" id="cv-{{ r.holding_id }}">{{ '%.2f'|format(r.current_value or 0) }}</td>
+            <td class="right" id="ug-{{ r.holding_id }}">{{ '%.2f'|format(r.unrealised or 0) }}</td>
+
+            <td class="actions-cell">
+              <a class="btn" href="/holdings/{{ r.holding_id }}">Details</a>
+              <a class="btn" href="/transactions/new?symbol={{ r.symbol }}">Trade</a>
             </td>
           </tr>
           {% else %}
@@ -186,4 +151,7 @@
     </div>
   </main>
 </div>
+
+<!-- include your js (ensure path matches your project) -->
+<script src="{{ url_for('static', filename='js/my_holdings.js') }}"></script>
 {% endblock %}

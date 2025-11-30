@@ -1,3 +1,5 @@
+// my_holdings.js (updated) — integrate Open/Closed filter and badge update
+// Based on your original file. See original for context. :contentReference[oaicite:3]{index=3}
 (function(){
   const table = document.getElementById('holdingsTable');
   if (!table) return;
@@ -8,6 +10,10 @@
   const filterCompany  = document.getElementById('filterCompany');
   const filterBasket   = document.getElementById('filterBasket');
   const filterBasketId = document.getElementById('filterBasketId');
+
+  // NEW: position filter (open/closed/both)
+  const filterPosition = document.getElementById('filterPosition');
+
   const btnLoadPrices  = document.getElementById('btn_load_prices');
 
   // Summary card elements (ids are stable)
@@ -38,6 +44,7 @@
       return String(a).localeCompare(String(b));
     });
     values.forEach(v=>{
+      if (v === '-') return;
       const opt = document.createElement('option');
       opt.value = v; opt.textContent = v;
       filterBasket.appendChild(opt);
@@ -60,73 +67,76 @@
     el.classList.add(v > 0 ? 'pos' : (v < 0 ? 'neg' : 'muted'));
   }
 
-function refreshSummaryFromVisible(){
-  const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
+  function refreshSummaryFromVisible(){
+    const rows = Array.from(tbody.querySelectorAll('tr')).filter(tr => tr.style.display !== 'none');
 
-  let totalRows = 0,
-      investedRemainingAll = 0,   // <-- show this on the "Total Invested" card
-      sellOnly = 0,
-      investedSoldOnly = 0,
-      currentAll = 0;
+    let totalRows = 0,
+        investedRemainingAll = 0,
+        sellOnly = 0,
+        investedSoldOnly = 0,
+        currentAll = 0;
 
-  const companySet = new Set();
+    const companySet = new Set();
 
-  rows.forEach(tr=>{
-    totalRows++;
-    const name = (tr.dataset.company || '').trim();
-    if (name) companySet.add(name);
+    rows.forEach(tr=>{
+      totalRows++;
+      const name = (tr.dataset.company || '').trim();
+      if (name) companySet.add(name);
 
-    const buyPrice  = toNum(tr.dataset.buy_price);
-    const buyQty    = toNum(tr.dataset.buy_qty);
-    const sellQty   = toNum(tr.dataset.sell_qty);
-    const sellValue = toNum(tr.dataset.sell_value);
+      const buyPrice  = toNum(tr.dataset.buy_price);
+      const buyQty    = toNum(tr.dataset.buy_qty);
+      const sellQty   = toNum(tr.dataset.sell_qty);
+      const sellValue = toNum(tr.dataset.sell_value);
 
-    // For realised P/L (sold-only)
-    if (sellQty > 0){
-      sellOnly += sellValue;
-      investedSoldOnly += sellQty * buyPrice;
+      // For realised P/L (sold-only)
+      if (sellQty > 0){
+        sellOnly += sellValue;
+        investedSoldOnly += sellQty * buyPrice;
+      }
+
+      // --- Invested (remaining only) ---
+      let invRem = tr.dataset.invested_remaining;
+      if (invRem === undefined || invRem === '' || invRem === null) {
+        // fallback compute if attribute missing
+        const remainingQty = Math.max(buyQty - sellQty, 0);
+        invRem = remainingQty * buyPrice;
+      } else {
+        invRem = toNum(invRem, 0);
+      }
+      investedRemainingAll += invRem;
+
+      // Current value is remainingQty * live (set after fetch); may be 0/NA before fetch
+      const cv = toNum(tr.dataset.current_value, null);
+      if (cv !== null) currentAll += cv;
+    });
+
+    const realised = sellOnly - investedSoldOnly;
+    const unrealised = currentAll - investedRemainingAll;
+
+    if (elTotal)     elTotal.textContent = totalRows;
+    if (elCompanies) elCompanies.textContent = companySet.size;
+    if (elInvested)  elInvested.textContent = '₹' + investedRemainingAll.toFixed(2);
+    if (elSell)      elSell.textContent = '₹' + sellOnly.toFixed(2);
+
+    if (elRealised) {
+      elRealised.textContent = '₹' + realised.toFixed(2);
+      setPLClass(elRealised, realised);
     }
 
-    // --- Invested (remaining only) ---
-    let invRem = tr.dataset.invested_remaining;
-    if (invRem === undefined || invRem === '' || invRem === null) {
-      // fallback compute if attribute missing
-      const remainingQty = Math.max(buyQty - sellQty, 0);
-      invRem = remainingQty * buyPrice;
-    } else {
-      invRem = toNum(invRem, 0);
+    if (elCurrent)   elCurrent.textContent = '₹' + currentAll.toFixed(2);
+    if (elUnrealised){
+      elUnrealised.textContent = '₹' + unrealised.toFixed(2);
+      setPLClass(elUnrealised, unrealised);
     }
-    investedRemainingAll += invRem;
-
-    // Current value is remainingQty * live (set after fetch); may be 0/NA before fetch
-    const cv = toNum(tr.dataset.current_value, null);
-    if (cv !== null) currentAll += cv;
-  });
-
-  const realised = sellOnly - investedSoldOnly;
-  const unrealised = currentAll - investedRemainingAll;
-
-  if (elTotal)     elTotal.textContent = totalRows;
-  if (elCompanies) elCompanies.textContent = companySet.size;
-  if (elInvested)  elInvested.textContent = '₹' + investedRemainingAll.toFixed(2);  // <-- changed
-  if (elSell)      elSell.textContent = '₹' + sellOnly.toFixed(2);
-
-  if (elRealised) {
-    elRealised.textContent = '₹' + realised.toFixed(2);
-    setPLClass(elRealised, realised);
   }
-
-  if (elCurrent)   elCurrent.textContent = '₹' + currentAll.toFixed(2);
-  if (elUnrealised){
-    elUnrealised.textContent = '₹' + unrealised.toFixed(2);
-    setPLClass(elUnrealised, unrealised);
-  }
-}
 
   function applyFilters(){
     const nameQ      = filterCompany.value.trim().toLowerCase();
     const basketSel  = filterBasket.value;
     const basketIdQ  = filterBasketId.value.trim();
+
+    // NEW: get position filter (open/closed/both)
+    const posSel     = filterPosition ? filterPosition.value : 'both'; // fallback 'both' if not present
 
     Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
       const name   = (tr.dataset.company || '').toLowerCase();
@@ -137,7 +147,20 @@ function refreshSummaryFromVisible(){
       const matchBasketDrop  = !basketSel || bask === basketSel;
       const matchBasketId    = !basketIdQ || baskId.includes(basketIdQ);
 
-      tr.style.display = (matchName && matchBasketDrop && matchBasketId) ? '' : 'none';
+      // Determine position state from sell_qty
+      const sellQty = toNum(tr.dataset.sell_qty, 0);
+      const positionState = (sellQty > 0) ? 'closed' : 'open';
+      const matchPosition = (posSel === 'both' || !posSel) ? true : (posSel === positionState);
+
+      tr.style.display = (matchName && matchBasketDrop && matchBasketId && matchPosition) ? '' : 'none';
+
+      // Update position badge text & classes
+      const badge = tr.querySelector('.position-chip');
+      if (badge) {
+        badge.textContent = (positionState === 'open') ? 'Open' : 'Closed';
+        badge.classList.toggle('open', positionState === 'open');
+        badge.classList.toggle('closed', positionState === 'closed');
+      }
     });
 
     refreshSummaryFromVisible();
@@ -181,49 +204,55 @@ function refreshSummaryFromVisible(){
     h.addEventListener('click', ()=> sortBy(h.dataset.key, h.dataset.type || 'text'));
   });
 
+  // Wire up filter inputs
   filterCompany.addEventListener('input', applyFilters);
   filterBasket.addEventListener('change', applyFilters);
   filterBasketId.addEventListener('input', applyFilters);
 
+  // NEW: wire position filter if present
+  if (filterPosition) {
+    filterPosition.addEventListener('change', applyFilters);
+  }
+
   // ===== On-demand Live Prices =====
   function fetchLivePrice(holdingId, elPrice, elCV, elUG, tr) {
-  fetch(`/my_holdings/${holdingId}/price`)
-    .then(r => r.json())
-    .then(data => {
-      if (data && !data.error && typeof data.price !== 'undefined') {
-        const live = Number(data.price);
-        elPrice.textContent = `₹ ${live.toFixed(2)}`;
-        elPrice.title = data.ticker ? `${data.ticker}${data.exchange ? ' | ' + data.exchange : ''}` : '';
+    fetch(`/my_holdings/${holdingId}/price`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && !data.error && typeof data.price !== 'undefined') {
+          const live = Number(data.price);
+          elPrice.textContent = `₹ ${live.toFixed(2)}`;
+          elPrice.title = data.ticker ? `${data.ticker}${data.exchange ? ' | ' + data.exchange : ''}` : '';
 
-        // === Correct unrealised logic: use remaining quantity only ===
-        const buyQty   = toNum(tr.dataset.buy_qty);
-        const sellQty  = toNum(tr.dataset.sell_qty);
-        const buyPrice = toNum(tr.dataset.buy_price);
+          // === Correct unrealised logic: use remaining quantity only ===
+          const buyQty   = toNum(tr.dataset.buy_qty);
+          const sellQty  = toNum(tr.dataset.sell_qty);
+          const buyPrice = toNum(tr.dataset.buy_price);
 
-        const remainingQty = Math.max(buyQty - sellQty, 0);
-        const investedRemaining = remainingQty * buyPrice;
-        const currentValue = remainingQty * live;
-        const unrealised = currentValue - investedRemaining;
+          const remainingQty = Math.max(buyQty - sellQty, 0);
+          const investedRemaining = remainingQty * buyPrice;
+          const currentValue = remainingQty * live;
+          const unrealised = currentValue - investedRemaining;
 
-        // Store for sorting/summary
-        tr.dataset.current_value = currentValue.toFixed(6);
-        tr.dataset.unrealised = unrealised.toFixed(6);
-        tr.dataset.invested_remaining = investedRemaining.toFixed(6);
+          // Store for sorting/summary
+          tr.dataset.current_value = currentValue.toFixed(6);
+          tr.dataset.unrealised = unrealised.toFixed(6);
+          tr.dataset.invested_remaining = investedRemaining.toFixed(6);
 
-        // UI (show 0 when fully sold)
-        elCV.textContent = currentValue.toFixed(2);
-        elUG.textContent = unrealised.toFixed(2);
-        setPLClass(elUG, unrealised);
-      } else {
-        elPrice.textContent = 'NA';
-        elPrice.title = data && data.error ? data.error : '';
-      }
-    })
-    .catch(() => { elPrice.textContent = 'NA'; })
-    .finally(()=> {
-      refreshSummaryFromVisible();
-    });
-}
+          // UI (show 0 when fully sold)
+          elCV.textContent = currentValue.toFixed(2);
+          elUG.textContent = unrealised.toFixed(2);
+          setPLClass(elUG, unrealised);
+        } else {
+          elPrice.textContent = 'NA';
+          elPrice.title = data && data.error ? data.error : '';
+        }
+      })
+      .catch(() => { elPrice.textContent = 'NA'; })
+      .finally(()=> {
+        refreshSummaryFromVisible();
+      });
+  }
 
   function hydrateLivePrices() {
     const rows = Array.from(tbody.querySelectorAll('tr'));

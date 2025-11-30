@@ -40,6 +40,9 @@
   height:28px; padding:4px 8px; border:1px solid var(--bd); border-radius:8px; font-size:12px; background:#fff;
 }
 
+/* Make the position filter more prominent (so it won't be visually hidden) */
+#filterPosition { border:2px solid rgba(37,99,235,0.08); padding:5px 8px; min-width:120px; }
+
 /* Increased from 5 -> 7 cards */
 .summary-cards{
   display:grid; grid-template-columns:repeat(7,minmax(120px,1fr));
@@ -74,8 +77,11 @@ th.sortable:hover { background:#f0f4ff; }
   font-size:11px;
 }
 
-.inline-delete { display:inline; }
+/* Position chip states */
+.position-chip.open { background:#ecfdf5; border-color:#c6f6d5; color:var(--pos); }
+.position-chip.closed { background:#fff1f2; border-color:#ffddd6; color:var(--neg); }
 
+.inline-delete { display:inline; }
 
 /* Keep the last column (actions) on a single line */
 .actions-cell { white-space: nowrap; }

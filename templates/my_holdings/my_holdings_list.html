@@ -5,8 +5,6 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/my_holdings.css') }}">
 <script defer src="{{ url_for('static', filename='js/my_holdings.js') }}"></script>
 
-
-
   <section class="content">
     <div class="content-head">
       <h2>My Holdings</h2>
@@ -63,6 +61,14 @@
 
       <label for="filterBasketId">Basket ID</label>
       <input id="filterBasketId" type="text" placeholder="e.g. 1, 12, 205…" inputmode="numeric">
+
+      <!-- NEW: Position filter -->
+      <label for="filterPosition">Position</label>
+      <select id="filterPosition">
+        <option value="both">Both</option>
+        <option value="open">Open</option>
+        <option value="closed">Closed</option>
+      </select>
     </div>
 
     <div class="table-wrap">
@@ -91,6 +97,10 @@
 
             <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
             <th class="num sortable" data-key="tscore" data-type="num">Total Score <span class="arrow"></span></th>
+
+            <!-- NEW: Position column -->
+            <th>Position</th>
+
             <th class="muted">Actions</th>
           </tr>
         </thead>
@@ -146,6 +156,9 @@
             <td><span class="chip">{{ r.Basket_ID or '-' }}</span></td>
             <td><span class="num">{{ tscore }}</span></td>
 
+            <!-- Position badge (server-side initial render) -->
+            <td><span class="chip position-chip {% if sq>0 %}closed{% else %}open{% endif %}">{{ 'Closed' if sq>0 else 'Open' }}</span></td>
+
 <td class="actions-cell">
   <a class="btn primary" href="{{ url_for('my_holdings_bp.my_holdings_sell', holding_id=r.holding_id) }}" title="Sell">💰</a>
   <a class="btn" href="{{ url_for('my_holdings_bp.my_holdings_edit', holding_id=r.holding_id) }}" title="Edit">✏️</a>
@@ -156,7 +169,7 @@
 </td>
           </tr>
           {% else %}
-          <tr><td colspan="14">No records.</td></tr>
+          <tr><td colspan="16">No records.</td></tr>
           {% endfor %}
         </tbody>
       </table>
