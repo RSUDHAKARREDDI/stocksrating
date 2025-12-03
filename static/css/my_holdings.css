@@ -43,6 +43,9 @@
 /* Make the position filter more prominent (so it won't be visually hidden) */
 #filterPosition { border:2px solid rgba(37,99,235,0.08); padding:5px 8px; min-width:120px; }
 
+ /* Avg Buy Price column emphasised slightly to separate from Buy Price */
+th[data-key="avg_buy_price"], td #avg- { min-width:110px; }
+
 /* Increased from 5 -> 7 cards */
 .summary-cards{
   display:grid; grid-template-columns:repeat(7,minmax(120px,1fr));
@@ -83,10 +86,10 @@ th.sortable:hover { background:#f0f4ff; }
 
 .inline-delete { display:inline; }
 
-/* Keep the last column (actions) on a single line */
+ /* Keep the last column (actions) on a single line */
 .actions-cell { white-space: nowrap; }
 
-/* Allow horizontal scroll rather than wrapping content */
+ /* Allow horizontal scroll rather than wrapping content */
 .table-wrap { overflow-x: auto; }
 
 /* Optional: prevent buttons from wrapping inside */

@@ -1,5 +1,4 @@
-// my_holdings.js (updated) — integrate Open/Closed filter and badge update
-// Based on your original file. See original for context. :contentReference[oaicite:3]{index=3}
+// my_holdings.js — reads server-provided data-avg_buy_price (preferred) and falls back to per-row totals
 (function(){
   const table = document.getElementById('holdingsTable');
   if (!table) return;
@@ -214,6 +213,65 @@
     filterPosition.addEventListener('change', applyFilters);
   }
 
+  // -----------------------
+  // Company-level average computation (prefers server-provided data-avg_buy_price)
+  // -----------------------
+  function computeCompanyAverages() {
+    const totals = {}; // company -> { qty: n, invested: n, providedAvg: n|null }
+    Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
+      const company = (tr.dataset.company || '').trim();
+      if (!company) return;
+
+      // check if server provided per-row company avg (data-avg_buy_price)
+      const providedAvgAttr = tr.dataset.avg_buy_price;
+      const providedAvg = (providedAvgAttr !== undefined && providedAvgAttr !== '') ? toNum(providedAvgAttr, null) : null;
+
+      if (!totals[company]) totals[company] = { qty: 0, invested: 0, providedAvg: null };
+
+      if (providedAvg !== null && totals[company].providedAvg === null) {
+        // mark the provided avg for this company (first found)
+        totals[company].providedAvg = providedAvg;
+      }
+
+      // still accumulate per-row values as a fallback if no provided avg exists
+      // prefer explicit per-row totals if present (buy_total_qty/buy_total_invested)
+      const rowQtyAttr = tr.dataset.buy_total_qty;
+      const rowInvAttr = tr.dataset.buy_total_invested;
+
+      if (rowQtyAttr !== undefined && rowQtyAttr !== '') {
+        const rowQty = toNum(rowQtyAttr, 0);
+        const rowInv = toNum(rowInvAttr, 0);
+        totals[company].qty += rowQty;
+        totals[company].invested += rowInv;
+      } else {
+        const bq = toNum(tr.dataset.buy_qty, 0);
+        const bp = toNum(tr.dataset.buy_price, 0);
+        totals[company].qty += bq;
+        totals[company].invested += (bq * bp);
+      }
+    });
+
+    // apply avg: if providedAvg exists for company use it, otherwise compute invested/qty
+    Object.keys(totals).forEach(company => {
+      const t = totals[company];
+      let avg;
+      if (t.providedAvg !== null) {
+        avg = t.providedAvg;
+      } else {
+        avg = t.qty > 0 ? (t.invested / t.qty) : 0;
+      }
+      // set dataset avg_buy_price on every row of that company and update UI cell
+      Array.from(tbody.querySelectorAll(`tr[data-company="${company.replace(/"/g,'&quot;')}"]`)).forEach(tr => {
+        tr.dataset.avg_buy_price = avg.toFixed(6);
+        const holdingId = tr.dataset.holding_id;
+        if (holdingId) {
+          const elAvg = document.getElementById(`avg-${holdingId}`);
+          if (elAvg) elAvg.textContent = avg.toFixed(2);
+        }
+      });
+    });
+  }
+
   // ===== On-demand Live Prices =====
   function fetchLivePrice(holdingId, elPrice, elCV, elUG, tr) {
     fetch(`/my_holdings/${holdingId}/price`)
@@ -230,11 +288,19 @@
           const buyPrice = toNum(tr.dataset.buy_price);
 
           const remainingQty = Math.max(buyQty - sellQty, 0);
-          const investedRemaining = remainingQty * buyPrice;
+
+          // invested_remaining may be present (server-side) or updated earlier; fallback compute
+          let investedRemaining = tr.dataset.invested_remaining;
+          if (investedRemaining === undefined || investedRemaining === '' || investedRemaining === null) {
+            investedRemaining = remainingQty * buyPrice;
+          } else {
+            investedRemaining = toNum(investedRemaining, 0);
+          }
+
           const currentValue = remainingQty * live;
           const unrealised = currentValue - investedRemaining;
 
-          // Store for sorting/summary
+          // Store for sorting/summary (these are per-row values)
           tr.dataset.current_value = currentValue.toFixed(6);
           tr.dataset.unrealised = unrealised.toFixed(6);
           tr.dataset.invested_remaining = investedRemaining.toFixed(6);
@@ -250,17 +316,33 @@
       })
       .catch(() => { elPrice.textContent = 'NA'; })
       .finally(()=> {
+        // After each price update, recompute company-level averages (in case any per-row totals changed)
+        computeCompanyAverages();
         refreshSummaryFromVisible();
       });
   }
 
   function hydrateLivePrices() {
+    // initial compute of company averages (prefers server-provided avg)
+    computeCompanyAverages();
+
     const rows = Array.from(tbody.querySelectorAll('tr'));
     rows.forEach((tr, idx) => {
       const id = tr.dataset.holding_id;
       const elLP = document.getElementById(`lp-${id}`);
       const elCV = document.getElementById(`cv-${id}`);
       const elUG = document.getElementById(`ug-${id}`);
+      // Ensure avg cell shows initial dataset value if present
+      const elAvg = document.getElementById(`avg-${id}`);
+      if (elAvg) {
+        if (tr.dataset.avg_buy_price) {
+          elAvg.textContent = Number(tr.dataset.avg_buy_price).toFixed(2);
+        } else {
+          const bp = toNum(tr.dataset.buy_price, 0);
+          elAvg.textContent = bp.toFixed(2);
+          tr.dataset.avg_buy_price = bp.toFixed(6);
+        }
+      }
       if (!elLP || !elCV || !elUG) return;
       setTimeout(() => fetchLivePrice(id, elLP, elCV, elUG, tr), idx * 120); // gentle staggering
     });
@@ -281,5 +363,6 @@
   }
 
   // Initial summary/filters only (no live-price calls)
+  computeCompanyAverages();
   applyFilters();
 })();

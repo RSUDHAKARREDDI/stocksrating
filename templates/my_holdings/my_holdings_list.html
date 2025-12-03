@@ -84,6 +84,10 @@
 
             <th class="num">Buy&nbsp;Qty</th>
             <th class="num">Buy&nbsp;Price</th>
+
+            <!-- NEW: Avg Buy Price column (sortable) -->
+            <th class="num sortable" data-key="avg_buy_price" data-type="num">Avg&nbsp;Buy&nbsp;Price <span class="arrow"></span></th>
+
             <th class="num sortable" data-key="invested" data-type="num">Invested <span class="arrow"></span></th>
 
             <!-- NEW: Current Value & Unrealised P/L -->
@@ -106,6 +110,7 @@
         </thead>
         <tbody>
           {% for r in rows %}
+          {# compute basic values #}
           {% set bq = (r.Buy_Qty or 0) | float %}
           {% set bp = (r.Buy_Price or 0) | float %}
           {% set invested = bq * bp %}
@@ -118,10 +123,22 @@
           {% set tscore = r['Total Score'] or '-' %}
           {% set profit_class = ('pos' if profit and profit>0 else ('neg' if profit and profit<0 else 'muted')) %}
 
+          {# remaining qty and invested_remaining for current/unrealised calc #}
+          {% set remaining_qty = ([ (r.Buy_Qty or 0) - (r.Sell_Qty or 0), 0 ] | max) %}
+          {% set invested_remaining = remaining_qty * bp %}
+
+          {# prefer server-provided buy_avg_price (from your SQL), otherwise fallback to per-row buy price #}
+          {% if r.buy_avg_price is defined and r.buy_avg_price is not none %}
+            {% set avg_stock_level = (r.buy_avg_price)|float %}
+          {% else %}
+            {% set avg_stock_level = bp %}
+          {% endif %}
+
           <tr
             data-company="{{ r.Company_Name|e }}"
             data-buy_qty="{{ bq|int }}"
             data-buy_price="{{ bp|round(6) }}"
+            data-avg_buy_price="{{ avg_stock_level|round(6) }}"
             data-invested="{{ invested|round(6) }}"
 
             data-current_value=""          {# filled after live price #}
@@ -134,7 +151,8 @@
             data-basket="{{ basket_id }}"
             data-basket_id="{{ basket_id }}"
             data-holding_id="{{ r.holding_id }}"
-            data-invested_remaining="{{ ([ (r.Buy_Qty or 0) - (r.Sell_Qty or 0), 0 ] | max * (r.Buy_Price or 0) ) | round(6) }}"
+
+            data-invested_remaining="{{ invested_remaining|round(6) }}"
           >
             <td>{{ r.Company_Name }}</td>
 
@@ -142,6 +160,10 @@
 
             <td class="num">{{ bq|int }}</td>
             <td class="num">{{ bp|round(2) }}</td>
+
+            <!-- NEW cell: Avg Buy Price (server-provided) -->
+            <td class="num"><span id="avg-{{ r.holding_id }}">{{ avg_stock_level|round(2) }}</span></td>
+
             <td class="num">{{ invested|round(2) }}</td>
 
             <!-- NEW cells: populated after price refresh -->
@@ -169,7 +191,7 @@
 </td>
           </tr>
           {% else %}
-          <tr><td colspan="16">No records.</td></tr>
+          <tr><td colspan="17">No records.</td></tr>
           {% endfor %}
         </tbody>
       </table>

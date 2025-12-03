@@ -55,10 +55,34 @@ def my_holdings_price(holding_id):
 @login_required
 def my_holdings_list():
     sql = text("""
-        SELECT holding_id, Company_Name, Buy_Qty, Buy_Price, Buy_Date,
-               Sell_Qty, Sell_Price, Sell_Date, Basket_ID,`Total Score`
-        FROM vw_my_holdings
-        ORDER BY holding_id DESC
+SELECT
+    m.holding_id,
+    m.Company_Name,
+    m.Buy_Qty,
+    m.Buy_Price,
+    COALESCE(ROUND(a.total_invested / NULLIF(a.total_buy_qty, 0), 2), m.Buy_Price) AS buy_avg_price,
+    m.Buy_Date,
+    m.Sell_Qty,
+    m.Sell_Price,
+    m.Sell_Date,
+    m.Basket_ID,
+    m.`Total Score`
+FROM
+    vw_my_holdings AS m
+LEFT JOIN
+    (
+      SELECT
+        Company_Name,
+        SUM(Buy_Qty) AS total_buy_qty,
+        SUM(Buy_Qty * Buy_Price) AS total_invested
+      FROM
+        vw_my_holdings
+      GROUP BY
+        Company_Name
+    ) AS a
+  ON a.Company_Name = m.Company_Name
+ORDER BY
+    m.holding_id DESC
     """)
     with engine.begin() as conn:
         rows = conn.execute(sql).mappings().all()
