@@ -60,29 +60,41 @@ SELECT
     m.Company_Name,
     m.Buy_Qty,
     m.Buy_Price,
-    COALESCE(ROUND(a.total_invested / NULLIF(a.total_buy_qty, 0), 2), m.Buy_Price) AS buy_avg_price,
+
+    CASE 
+        WHEN m.Sell_Qty > 0 
+            THEN m.Buy_Price   -- use original Buy Price for sold rows
+        ELSE 
+            COALESCE(
+                ROUND(a.total_invested / NULLIF(a.total_buy_qty, 0), 2),
+                m.Buy_Price
+            )                  
+    END AS buy_avg_price,
+
     m.Buy_Date,
     m.Sell_Qty,
     m.Sell_Price,
     m.Sell_Date,
     m.Basket_ID,
     m.`Total Score`
-FROM
-    vw_my_holdings AS m
-LEFT JOIN
-    (
+
+FROM vw_my_holdings AS m
+
+LEFT JOIN (
       SELECT
         Company_Name,
         SUM(Buy_Qty) AS total_buy_qty,
         SUM(Buy_Qty * Buy_Price) AS total_invested
       FROM
         vw_my_holdings
+      WHERE
+        Sell_Qty IS NULL   -- only open buys counted for avg
       GROUP BY
         Company_Name
-    ) AS a
-  ON a.Company_Name = m.Company_Name
-ORDER BY
-    m.holding_id DESC
+) AS a
+ON a.Company_Name = m.Company_Name
+
+ORDER BY m.holding_id DESC
     """)
     with engine.begin() as conn:
         rows = conn.execute(sql).mappings().all()

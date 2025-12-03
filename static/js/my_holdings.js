@@ -1,4 +1,6 @@
-// my_holdings.js — reads server-provided data-avg_buy_price (preferred) and falls back to per-row totals
+// my_holdings.js (server-preferred avg_buy_price, safe version)
+// Replace your existing my_holdings.js with this file.
+
 (function(){
   const table = document.getElementById('holdingsTable');
   if (!table) return;
@@ -9,13 +11,9 @@
   const filterCompany  = document.getElementById('filterCompany');
   const filterBasket   = document.getElementById('filterBasket');
   const filterBasketId = document.getElementById('filterBasketId');
-
-  // NEW: position filter (open/closed/both)
   const filterPosition = document.getElementById('filterPosition');
-
   const btnLoadPrices  = document.getElementById('btn_load_prices');
 
-  // Summary card elements (ids are stable)
   const elTotal       = document.getElementById('card_total');
   const elCompanies   = document.getElementById('card_companies');
   const elInvested    = document.getElementById('card_invested');
@@ -24,10 +22,14 @@
   const elSell        = document.getElementById('card_sell');
   const elRealised    = document.getElementById('card_realised');
 
-  let sortState = { key: null, dir: 'asc' }; // asc | desc
+  let sortState = { key: null, dir: 'asc' };
 
-  // Build Basket dropdown from unique Basket IDs in the table
+  // small helper to parse numbers
+  function toNum(x, d=0){ const n = parseFloat(x); return isNaN(n) ? d : n; }
+
+  // Build basket filter options
   (function populateBasketFilter(){
+    if (!filterBasket) return;
     const set = new Set();
     Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
       const v = tr.dataset.basket || '-';
@@ -49,17 +51,6 @@
       filterBasket.appendChild(opt);
     });
   })();
-
-  function toNum(x, d=0){ const n = parseFloat(x); return isNaN(n) ? d : n; }
-
-  function getRowValue(tr, key, type){
-    const val = tr.dataset[key] ?? '';
-    if (type === 'num') {
-      const n = parseFloat(val);
-      return isNaN(n) ? null : n;
-    }
-    return (val || '').toString().toLowerCase();
-  }
 
   function setPLClass(el, v){
     el.classList.remove('pos','neg','muted');
@@ -87,16 +78,13 @@
       const sellQty   = toNum(tr.dataset.sell_qty);
       const sellValue = toNum(tr.dataset.sell_value);
 
-      // For realised P/L (sold-only)
       if (sellQty > 0){
         sellOnly += sellValue;
         investedSoldOnly += sellQty * buyPrice;
       }
 
-      // --- Invested (remaining only) ---
       let invRem = tr.dataset.invested_remaining;
       if (invRem === undefined || invRem === '' || invRem === null) {
-        // fallback compute if attribute missing
         const remainingQty = Math.max(buyQty - sellQty, 0);
         invRem = remainingQty * buyPrice;
       } else {
@@ -104,7 +92,6 @@
       }
       investedRemainingAll += invRem;
 
-      // Current value is remainingQty * live (set after fetch); may be 0/NA before fetch
       const cv = toNum(tr.dataset.current_value, null);
       if (cv !== null) currentAll += cv;
     });
@@ -130,12 +117,10 @@
   }
 
   function applyFilters(){
-    const nameQ      = filterCompany.value.trim().toLowerCase();
-    const basketSel  = filterBasket.value;
-    const basketIdQ  = filterBasketId.value.trim();
-
-    // NEW: get position filter (open/closed/both)
-    const posSel     = filterPosition ? filterPosition.value : 'both'; // fallback 'both' if not present
+    const nameQ      = filterCompany ? filterCompany.value.trim().toLowerCase() : '';
+    const basketSel  = filterBasket ? filterBasket.value : '';
+    const basketIdQ  = filterBasketId ? filterBasketId.value.trim() : '';
+    const posSel     = filterPosition ? filterPosition.value : 'both';
 
     Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
       const name   = (tr.dataset.company || '').toLowerCase();
@@ -146,14 +131,12 @@
       const matchBasketDrop  = !basketSel || bask === basketSel;
       const matchBasketId    = !basketIdQ || baskId.includes(basketIdQ);
 
-      // Determine position state from sell_qty
       const sellQty = toNum(tr.dataset.sell_qty, 0);
       const positionState = (sellQty > 0) ? 'closed' : 'open';
       const matchPosition = (posSel === 'both' || !posSel) ? true : (posSel === positionState);
 
       tr.style.display = (matchName && matchBasketDrop && matchBasketId && matchPosition) ? '' : 'none';
 
-      // Update position badge text & classes
       const badge = tr.querySelector('.position-chip');
       if (badge) {
         badge.textContent = (positionState === 'open') ? 'Open' : 'Closed';
@@ -199,42 +182,49 @@
     refreshSummaryFromVisible();
   }
 
+  function getRowValue(tr, key, type){
+    // ensure numeric parsing returns null when not present
+    const val = tr.dataset[key] ?? '';
+    if (type === 'num') {
+      const n = parseFloat(val);
+      return isNaN(n) ? null : n;
+    }
+    return (val || '').toString().toLowerCase();
+  }
+
   headers.forEach(h=>{
     h.addEventListener('click', ()=> sortBy(h.dataset.key, h.dataset.type || 'text'));
   });
 
-  // Wire up filter inputs
-  filterCompany.addEventListener('input', applyFilters);
-  filterBasket.addEventListener('change', applyFilters);
-  filterBasketId.addEventListener('input', applyFilters);
-
-  // NEW: wire position filter if present
-  if (filterPosition) {
-    filterPosition.addEventListener('change', applyFilters);
-  }
+  if (filterCompany) filterCompany.addEventListener('input', applyFilters);
+  if (filterBasket) filterBasket.addEventListener('change', applyFilters);
+  if (filterBasketId) filterBasketId.addEventListener('input', applyFilters);
+  if (filterPosition) filterPosition.addEventListener('change', applyFilters);
 
   // -----------------------
-  // Company-level average computation (prefers server-provided data-avg_buy_price)
+  // Company-level average computation (server-preferred)
+  // - This function will NEVER overwrite a server-provided average.
+  // - It accepts both attribute names: data-avg_buy_price and data-buy_avg_price.
   // -----------------------
   function computeCompanyAverages() {
-    const totals = {}; // company -> { qty: n, invested: n, providedAvg: n|null }
+    const totals = {}; // company -> { qty: n, invested: n, serverAvg: n|null }
     Array.from(tbody.querySelectorAll('tr')).forEach(tr => {
       const company = (tr.dataset.company || '').trim();
       if (!company) return;
 
-      // check if server provided per-row company avg (data-avg_buy_price)
-      const providedAvgAttr = tr.dataset.avg_buy_price;
-      const providedAvg = (providedAvgAttr !== undefined && providedAvgAttr !== '') ? toNum(providedAvgAttr, null) : null;
+      // check server-provided avg under both possible names
+      const serverAvg1 = (tr.dataset.avg_buy_price !== undefined && tr.dataset.avg_buy_price !== '') ? toNum(tr.dataset.avg_buy_price, null) : null;
+      const serverAvg2 = (tr.dataset.buy_avg_price !== undefined && tr.dataset.buy_avg_price !== '') ? toNum(tr.dataset.buy_avg_price, null) : null;
+      const serverAvg = serverAvg1 !== null ? serverAvg1 : serverAvg2;
 
-      if (!totals[company]) totals[company] = { qty: 0, invested: 0, providedAvg: null };
+      if (!totals[company]) totals[company] = { qty: 0, invested: 0, serverAvg: null };
 
-      if (providedAvg !== null && totals[company].providedAvg === null) {
-        // mark the provided avg for this company (first found)
-        totals[company].providedAvg = providedAvg;
+      if (serverAvg !== null && totals[company].serverAvg === null) {
+        // Use first server-provided average found for the company (do not overwrite)
+        totals[company].serverAvg = serverAvg;
       }
 
-      // still accumulate per-row values as a fallback if no provided avg exists
-      // prefer explicit per-row totals if present (buy_total_qty/buy_total_invested)
+      // accumulate row-level totals as fallback if no serverAvg
       const rowQtyAttr = tr.dataset.buy_total_qty;
       const rowInvAttr = tr.dataset.buy_total_invested;
 
@@ -244,6 +234,7 @@
         totals[company].qty += rowQty;
         totals[company].invested += rowInv;
       } else {
+        // fallback: use buy_qty * buy_price (per-row)
         const bq = toNum(tr.dataset.buy_qty, 0);
         const bp = toNum(tr.dataset.buy_price, 0);
         totals[company].qty += bq;
@@ -251,28 +242,49 @@
       }
     });
 
-    // apply avg: if providedAvg exists for company use it, otherwise compute invested/qty
+    // Now compute effective avg for each company without overwriting server avg
     Object.keys(totals).forEach(company => {
       const t = totals[company];
       let avg;
-      if (t.providedAvg !== null) {
-        avg = t.providedAvg;
+      if (t.serverAvg !== null) {
+        avg = t.serverAvg;
       } else {
         avg = t.qty > 0 ? (t.invested / t.qty) : 0;
       }
-      // set dataset avg_buy_price on every row of that company and update UI cell
+
+      // write dataset attribute BUT only if not present server-side
+      // prefer to set both keys for compatibility, but do NOT clobber existing server-provided attr
       Array.from(tbody.querySelectorAll(`tr[data-company="${company.replace(/"/g,'&quot;')}"]`)).forEach(tr => {
-        tr.dataset.avg_buy_price = avg.toFixed(6);
+        // If server provided avg in either attr name, do not overwrite it.
+        const hasAvgAttr = (tr.dataset.avg_buy_price !== undefined && tr.dataset.avg_buy_price !== '') ||
+                           (tr.dataset.buy_avg_price !== undefined && tr.dataset.buy_avg_price !== '');
+
+        if (!hasAvgAttr) {
+          // set both dataset names so sorting and other code will find it
+          tr.dataset.avg_buy_price = avg.toFixed(6);
+          tr.dataset.buy_avg_price = avg.toFixed(6);
+        } else {
+          // ensure UI shows server-provided value
+          const provided = (tr.dataset.avg_buy_price !== undefined && tr.dataset.avg_buy_price !== '') ? tr.dataset.avg_buy_price : tr.dataset.buy_avg_price;
+          tr.dataset.avg_buy_price = provided; // keep as-is
+          tr.dataset.buy_avg_price = provided;
+        }
+
         const holdingId = tr.dataset.holding_id;
         if (holdingId) {
           const elAvg = document.getElementById(`avg-${holdingId}`);
-          if (elAvg) elAvg.textContent = avg.toFixed(2);
+          if (elAvg) {
+            // choose value from dataset (server preferred)
+            const displayVal = tr.dataset.avg_buy_price || tr.dataset.buy_avg_price || '0';
+            elAvg.textContent = Number(displayVal).toFixed(2);
+          }
         }
       });
     });
   }
 
   // ===== On-demand Live Prices =====
+  // Important: fetchLivePrice will NOT overwrite avg_buy_price.
   function fetchLivePrice(holdingId, elPrice, elCV, elUG, tr) {
     fetch(`/my_holdings/${holdingId}/price`)
       .then(r => r.json())
@@ -282,14 +294,12 @@
           elPrice.textContent = `₹ ${live.toFixed(2)}`;
           elPrice.title = data.ticker ? `${data.ticker}${data.exchange ? ' | ' + data.exchange : ''}` : '';
 
-          // === Correct unrealised logic: use remaining quantity only ===
           const buyQty   = toNum(tr.dataset.buy_qty);
           const sellQty  = toNum(tr.dataset.sell_qty);
           const buyPrice = toNum(tr.dataset.buy_price);
 
           const remainingQty = Math.max(buyQty - sellQty, 0);
 
-          // invested_remaining may be present (server-side) or updated earlier; fallback compute
           let investedRemaining = tr.dataset.invested_remaining;
           if (investedRemaining === undefined || investedRemaining === '' || investedRemaining === null) {
             investedRemaining = remainingQty * buyPrice;
@@ -300,12 +310,10 @@
           const currentValue = remainingQty * live;
           const unrealised = currentValue - investedRemaining;
 
-          // Store for sorting/summary (these are per-row values)
           tr.dataset.current_value = currentValue.toFixed(6);
           tr.dataset.unrealised = unrealised.toFixed(6);
           tr.dataset.invested_remaining = investedRemaining.toFixed(6);
 
-          // UI (show 0 when fully sold)
           elCV.textContent = currentValue.toFixed(2);
           elUG.textContent = unrealised.toFixed(2);
           setPLClass(elUG, unrealised);
@@ -316,14 +324,14 @@
       })
       .catch(() => { elPrice.textContent = 'NA'; })
       .finally(()=> {
-        // After each price update, recompute company-level averages (in case any per-row totals changed)
+        // Recompute only fallback company averages (will not clobber server-provided values)
         computeCompanyAverages();
         refreshSummaryFromVisible();
       });
   }
 
   function hydrateLivePrices() {
-    // initial compute of company averages (prefers server-provided avg)
+    // initial compute (server-preferred)
     computeCompanyAverages();
 
     const rows = Array.from(tbody.querySelectorAll('tr'));
@@ -332,23 +340,30 @@
       const elLP = document.getElementById(`lp-${id}`);
       const elCV = document.getElementById(`cv-${id}`);
       const elUG = document.getElementById(`ug-${id}`);
-      // Ensure avg cell shows initial dataset value if present
+
+      // ensure UI shows avg immediately (prefer server-provided)
       const elAvg = document.getElementById(`avg-${id}`);
       if (elAvg) {
-        if (tr.dataset.avg_buy_price) {
+        const serverVal = (tr.dataset.avg_buy_price && tr.dataset.avg_buy_price !== '') ? tr.dataset.avg_buy_price
+                         : (tr.dataset.buy_avg_price && tr.dataset.buy_avg_price !== '') ? tr.dataset.buy_avg_price
+                         : null;
+        if (serverVal !== null) {
+          elAvg.textContent = Number(serverVal).toFixed(2);
+        } else if (tr.dataset.avg_buy_price) {
           elAvg.textContent = Number(tr.dataset.avg_buy_price).toFixed(2);
         } else {
           const bp = toNum(tr.dataset.buy_price, 0);
           elAvg.textContent = bp.toFixed(2);
           tr.dataset.avg_buy_price = bp.toFixed(6);
+          tr.dataset.buy_avg_price = bp.toFixed(6);
         }
       }
+
       if (!elLP || !elCV || !elUG) return;
-      setTimeout(() => fetchLivePrice(id, elLP, elCV, elUG, tr), idx * 120); // gentle staggering
+      setTimeout(() => fetchLivePrice(id, elLP, elCV, elUG, tr), idx * 120);
     });
   }
 
-  // Button triggers fetching (no auto-run to respect API limits)
   if (btnLoadPrices) {
     btnLoadPrices.addEventListener('click', ()=>{
       btnLoadPrices.disabled = true;
@@ -362,7 +377,24 @@
     });
   }
 
-  // Initial summary/filters only (no live-price calls)
+  // initial
   computeCompanyAverages();
   applyFilters();
+
+  // -----------------------
+  // DEBUG helpers (remove or comment out in production)
+  // -----------------------
+  // Use these in console to inspect values:
+  window.__holdings_debug = {
+    getAllRows() { return Array.from(tbody.querySelectorAll('tr')).map(tr => ({
+      holding_id: tr.dataset.holding_id,
+      company: tr.dataset.company,
+      buy_qty: tr.dataset.buy_qty,
+      buy_price: tr.dataset.buy_price,
+      avg_buy_price_attr: tr.dataset.avg_buy_price,
+      buy_avg_price_attr: tr.dataset.buy_avg_price,
+      invested_remaining: tr.dataset.invested_remaining
+    })); }
+  };
+
 })();
