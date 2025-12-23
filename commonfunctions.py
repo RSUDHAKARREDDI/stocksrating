@@ -108,22 +108,18 @@ def move_files(file_list, target_dir=None, file_list_config=None):
     return results
 
 
-
-def load_csvs_to_mysql(
-    directory: str,
-    table_name: str,
-    connection_url=connection_url,
+def load_files_to_mysql(
+        file_paths: list,  # Changed from directory: str
+        table_name: str,
+        mode:str,
+        connection_url=connection_url,
 ) -> dict:
     """
-    Load ALL CSV files from a directory into a MySQL table.
-    Deletes existing rows, then appends rows from each CSV.
-    - Derives "Market Cap" ONLY if the table already has a "Market Cap" column
-      AND the CSV has "Market Capitalization".
-    - Adds "screener" ONLY if the table already has a "screener" column.
-    - DataFrame is trimmed to existing table columns before insert.
+    Load a SPECIFIC list of CSV files into a MySQL table.
+    Deletes existing rows, then appends rows from each file path provided.
     """
     result = {
-        "directory": directory,
+        "files_received": len(file_paths),
         "table": table_name,
         "processed_files": 0,
         "inserted_rows": 0,
@@ -131,12 +127,8 @@ def load_csvs_to_mysql(
         "errors": [],
     }
 
-    if not os.path.isdir(directory):
-        raise FileNotFoundError(f"Directory not found: {directory}")
-
-    files = [f for f in os.listdir(directory) if f.lower().endswith(".csv")]
-    if not files:
-        raise RuntimeError(f"No CSV files found in: {directory}")
+    if not file_paths:
+        raise ValueError("The list of file paths is empty.")
 
     engine = create_engine(connection_url, pool_pre_ping=True)
     insp = inspect(engine)
@@ -147,15 +139,28 @@ def load_csvs_to_mysql(
     # Reflect existing columns from the target table
     existing_cols = {c["name"] for c in insp.get_columns(table_name)}
     has_market_cap_col = "Market Cap" in existing_cols
-    has_screener_col   = "screener" in existing_cols
+    has_screener_col = "screener" in existing_cols
 
     try:
         with engine.begin() as conn:
-            # Empty the table first
-            conn.execute(text(f"DELETE FROM {table_name}"))
+            # 1. Empty the table first (Truncate/Delete)
+            if mode == "replace":
+                conn.execute(text(f"DELETE FROM {table_name}"))
+                logging.info(f"Table {table_name} cleared (mode='replace').")
+            else:
+                logging.info(f"Table {table_name} kept; appending new data (mode='append').")
 
-            for filename in files:
-                path = os.path.join(directory, filename)
+            for path in file_paths:
+                # Get just the filename for logging and screener naming
+                filename = os.path.basename(path)
+
+                if not os.path.exists(path):
+                    msg = f"File not found: {path}"
+                    logging.error(msg)
+                    result["errors"].append(msg)
+                    result["skipped_files"].append(filename)
+                    continue
+
                 try:
                     df = pd.read_csv(path, encoding="utf-8")
                 except Exception as e:
@@ -165,11 +170,11 @@ def load_csvs_to_mysql(
                     result["skipped_files"].append(filename)
                     continue
 
-                # Conditionally add screener only if column exists in table
+                # Conditionally add screener using the filename (minus extension)
                 if has_screener_col:
                     df["screener"] = os.path.splitext(filename)[0]
 
-                # Conditionally derive Market Cap ONLY if table has that column
+                # Market Cap logic
                 if has_market_cap_col and ("Market Capitalization" in df.columns):
                     cap_raw = (
                         df["Market Capitalization"]
@@ -180,8 +185,7 @@ def load_csvs_to_mysql(
                     cap_num = pd.to_numeric(cap_raw, errors="coerce")
 
                     def _cap_bucket(x):
-                        if pd.isna(x):
-                            return None
+                        if pd.isna(x): return None
                         if x < 1000:
                             return "MICRO CAP"
                         elif x < 5000:
@@ -191,15 +195,11 @@ def load_csvs_to_mysql(
                         else:
                             return "LARGE CAP"
 
-                    df["Market Cap"] = [ _cap_bucket(v) for v in cap_num ]
-                # Else: do NOT create/append "Market Cap" column at all
+                    df["Market Cap"] = [_cap_bucket(v) for v in cap_num]
 
-                # Keep only columns that already exist in the table
-                # (missing columns in df will default to NULL on insert)
+                # Align columns with database schema
                 cols_to_use = [c for c in df.columns if c in existing_cols]
                 df = df[cols_to_use]
-
-                # Normalize NaNs→NULL for SQL
                 df = df.where(pd.notnull(df), None)
 
                 try:
@@ -219,16 +219,11 @@ def load_csvs_to_mysql(
                     result["errors"].append(msg)
                     result["skipped_files"].append(filename)
 
-        if result["inserted_rows"] == 0:
-            raise RuntimeError(
-                "No rows inserted. (Files empty? Schema mismatch? Check logs for details.)"
-            )
+        if result["inserted_rows"] == 0 and result["processed_files"] > 0:
+            raise RuntimeError("Files were processed but no rows were inserted.")
 
         return result
 
     finally:
-        try:
-            engine.dispose()
-        except Exception:
-            pass
+        engine.dispose()
 

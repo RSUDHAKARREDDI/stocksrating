@@ -6,6 +6,7 @@ from sreeja_bp import sreeja_bp
 from sravani_bp import sravani_bp
 from baskets_bp import baskets_bp
 from my_holdings_bp import my_holdings_bp
+from app_file_upload import file_upload_bp
 import commonfunctions as cf
 from file_list_config import file_list_config
 import logging
@@ -19,7 +20,7 @@ import screeners_load as sf
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 DATAFILES_DIR = os.path.join(BASE_DIR, "datafiles")
-UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles")
+UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles","uploads")
 
 
 app = Flask(__name__)
@@ -32,6 +33,7 @@ app.register_blueprint(sreeja_bp)
 app.register_blueprint(sravani_bp)
 app.register_blueprint(baskets_bp)
 app.register_blueprint(my_holdings_bp)
+app.register_blueprint(file_upload_bp)
 
 # ------------------------
 # Home, Dashboard, Index
@@ -54,112 +56,6 @@ def _is_latest_results(path: str) -> bool:
     except Exception:
         return False
 
-@app.route("/upload-files", methods=["GET", "POST"])
-@login_required
-def upload_file():
-    if request.method == "POST":
-        # Validate presence of file part
-        if "file" not in request.files:
-            flash("No file part in the request")
-            return redirect(request.url)
-
-        file = request.files["file"]
-
-        # Validate a file was actually selected
-        if not file or file.filename.strip() == "":
-            flash("No file selected")
-            return redirect(request.url)
-
-        # Ensure temp upload folder exists
-        temp_dir = f'{UPLOAD_DIR}/temp'
-        os.makedirs(temp_dir, exist_ok=True)
-
-        # Normalize filename and save temporarily
-        filename = secure_filename(file.filename)
-        save_path = os.path.join(temp_dir, filename)
-
-        try:
-            file.save(save_path)
-            flash(f"File '{filename}' uploaded successfully!")
-
-            # ➜ Move to respective folder based on file_list_config (mapped by basename)
-            results = cf.move_files([save_path], target_dir=None, file_list_config=file_list_config)
-
-            # Report move results
-            moved_any = False
-            triggered_screeners = False
-
-            if results.get("moved"):
-                moved_any = True
-                dsts = ", ".join(sorted({d for _, d in results["moved"]}))
-                flash(f"Moved '{filename}' to: {dsts}")
-
-                # 🔔 If latest-results.csv was moved, run screeners_load()
-                if any(_is_latest_results(dest) for _, dest in results["moved"]):
-                    try:
-                        # screeners_load is already imported per your note
-                        sf.screeners_load()
-                        triggered_screeners = True
-                        flash("✅ latest-results.csv detected — ran screeners_load() successfully.")
-                    except Exception as e:
-                        flash(f"⚠️ latest-results.csv detected, but screeners_load() failed: {e}")
-
-            if results.get("skipped_no_target"):
-                # Optional: remove the temp file if no mapping (so it doesn't linger)
-                try:
-                    if os.path.exists(save_path):
-                        os.remove(save_path)
-                except Exception:
-                    pass
-                flash(f"No target mapping found for '{filename}' in file_list_config.")
-
-            if results.get("errors"):
-                for src, dest, err in results["errors"]:
-                    flash(f"Move error to '{dest}': {err}")
-
-            # Edge: file moved but name differs (so screeners not run)
-            if moved_any and not triggered_screeners and _is_latest_results(filename):
-                # In rare cases if your mover renames; we already checked dest names above.
-                # This is just a fallback if you later change move behavior.
-                try:
-                    sf.screeners_load()
-                    flash("✅ Ran screeners_load() (fallback trigger).")
-                except Exception as e:
-                    flash(f"⚠️ Fallback run of screeners_load() failed: {e}")
-
-        except Exception as e:
-            flash(f"Failed to handle upload: {e}")
-            return redirect(request.url)
-
-        return redirect(url_for("upload_file"))
-
-    # GET: list current files with last modified time (from target directories)
-    files_info = []
-    try:
-        for section, cfg in file_list_config.items():
-            folder = cfg.get("target_directory")
-            abs_folder_path = os.path.join(BASE_DIR, folder)
-            if not folder or not os.path.exists(abs_folder_path):
-                continue
-
-            for fname in sorted(os.listdir(abs_folder_path)):
-                fpath = os.path.join(abs_folder_path, fname)
-                if os.path.isfile(fpath):
-                    last_modified = os.path.getmtime(fpath)
-                    files_info.append({
-                        "section": section,  # latest_files, screeners, etc.
-                        "folder": folder,
-                        "name": fname,
-                        "last_modified": datetime.fromtimestamp(last_modified).strftime("%Y-%m-%d %H:%M:%S")
-                    })
-    except Exception as e:
-        flash(f"Error reading target directories: {e}")
-        files_info = []
-
-    if not files_info:
-        flash("No files found in target directories.")
-
-    return render_template("upload_files.html", files=files_info)
 
 
 @app.route("/data-load", methods=["GET"])
@@ -185,32 +81,46 @@ def data_load_ui():
 def data_load_run():
     data = request.get_json(silent=True) or {}
     key = data.get("config")
+
     if not key or key not in file_list_config:
         return jsonify({
             "status": "error",
-            "message": "Invalid or missing config key",
-            "available": list(file_list_config.keys())
+            "message": "Invalid or missing config key"
         }), 400
 
     cfg = file_list_config[key]
-    try:
-        res = cf.load_csvs_to_mysql(
-            directory=os.path.join(BASE_DIR, cfg["target_directory"]),
-            table_name=cfg["table_name"],
 
+    try:
+        # 1. Prepare the full paths for all files in this config's file_list
+        # We look for them in UPLOAD_DIR because your upload logic saves them there.
+        file_paths = []
+        for filename in cfg.get("file_list", []):
+            full_path = os.path.join(UPLOAD_DIR, filename)
+            file_paths.append(full_path)
+
+        if not file_paths:
+            return jsonify({"status": "error", "message": "No files defined in this config"}), 400
+
+        # 2. Call the function with the correct argument name: 'file_paths'
+        res = cf.load_files_to_mysql(
+            file_paths=file_paths,
+            mode=cfg["mode"],
+            table_name=cfg["table_name"]
         )
+
+        # 3. Return the response using the keys defined in your load_files_to_mysql function
         return jsonify({
             "status": "success",
             "config": key,
             "table": res["table"],
-            "directory": res["directory"],
             "processed_files": res["processed_files"],
             "inserted_rows": res["inserted_rows"],
             "skipped_files": res["skipped_files"],
             "errors": res["errors"],
         })
+
     except Exception as e:
-        logging.exception("Data load failed")
+        logging.exception(f"Data load failed for config: {key}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route("/login", methods=["GET", "POST"])

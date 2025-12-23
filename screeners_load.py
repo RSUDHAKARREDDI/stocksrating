@@ -4,7 +4,7 @@ import operator as op
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_CSV  = os.path.join(BASE_DIR, "datafiles", "latestresults", "latest-results.csv")
-OUTPUT_PATH  = os.path.join(BASE_DIR, "datafiles", "screeners")
+OUTPUT_PATH  = os.path.join(BASE_DIR, "datafiles", "uploads")
 
 # ---- Config: column names used in filters ----
 NUM_COLS = [
