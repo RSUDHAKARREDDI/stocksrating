@@ -63,7 +63,7 @@ file_list_config = {
     '52_wk_High_low': {
         'file_list': ['52_wk_High_low.csv'],
         'target_directory': 'datafiles/uploads',
-        'table_name': '52_wk_High_low',
+        'table_name': '52_wk_high_low',
         'mode':'append',
         'file_pattern': 'CM_52_wk_High_low_',
         'rename_to': '52_wk_High_low.csv' # Added .csv

@@ -4,14 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v17.0 scroll bars removed reverted">
-      <change afterPath="$PROJECT_DIR$/app_file_upload.py" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v18.0 dev pct is added to my holdings">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commonfunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/commonfunctions.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/file_list_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/file_list_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screeners_load.py" beforeDir="false" afterPath="$PROJECT_DIR$/screeners_load.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/upload_files.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/upload_files.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -548,11 +543,18 @@
       <option name="project" value="LOCAL" />
       <updated>1764755365326</updated>
     </task>
-    <option name="localTasksCounter" value="43" />
+    <task id="LOCAL-00043" summary="v18.0 dev pct is added to my holdings">
+      <option name="closed" value="true" />
+      <created>1766540527687</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1766540527687</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v3.0 fixes all issue" />
     <MESSAGE value="v4.0 Database pointing issue fixes" />
     <MESSAGE value="screener population issue fix" />
     <MESSAGE value="v5.0 Popup added" />
@@ -577,6 +579,7 @@
     <MESSAGE value="v17.0 buying avg price is added" />
     <MESSAGE value="v17.0 scroll bars removed" />
     <MESSAGE value="v17.0 scroll bars removed reverted" />
-    <option name="LAST_COMMIT_MESSAGE" value="v17.0 scroll bars removed reverted" />
+    <MESSAGE value="v18.0 dev pct is added to my holdings" />
+    <option name="LAST_COMMIT_MESSAGE" value="v18.0 dev pct is added to my holdings" />
   </component>
 </project>
