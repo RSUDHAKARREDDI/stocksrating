@@ -40,7 +40,7 @@ file_list_config = {
         'file_list': ['company_list.csv'],
         'target_directory': 'datafiles/others',
         'table_name': 'company_list',
-'mode':'replace',
+    'mode':'append',
         'file_pattern': None,
         'rename_to': None
     },

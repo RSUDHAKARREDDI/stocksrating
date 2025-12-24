@@ -101,6 +101,7 @@
 
             <th class="sortable" data-key="basket" data-type="text">Basket <span class="arrow"></span></th>
             <th class="num sortable" data-key="tscore" data-type="num">Total Score <span class="arrow"></span></th>
+            <th class="num sortable" data-key="delvrypct" data-type="num">Delivery % <span class="arrow"></span></th>
 
             <!-- NEW: Position column -->
             <th>Position</th>
@@ -121,6 +122,7 @@
           {% set profit = (sq * (sp - bp)) if has_sell else None %}
           {% set basket_id = r.Basket_ID or '-' %}
           {% set tscore = r['Total Score'] or '-' %}
+          {% set delvrypct = r['DELIV_PER'] or '-' %}
           {% set profit_class = ('pos' if profit and profit>0 else ('neg' if profit and profit<0 else 'muted')) %}
 
           {# remaining qty and invested_remaining for current/unrealised calc #}
@@ -177,6 +179,7 @@
 
             <td><span class="chip">{{ r.Basket_ID or '-' }}</span></td>
             <td><span class="num">{{ tscore }}</span></td>
+            <td><span class="num">{{ delvrypct }}</span></td>
 
             <!-- Position badge (server-side initial render) -->
             <td><span class="chip position-chip {% if sq>0 %}closed{% else %}open{% endif %}">{{ 'Closed' if sq>0 else 'Open' }}</span></td>

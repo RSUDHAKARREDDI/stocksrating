@@ -76,7 +76,8 @@ SELECT
     m.Sell_Price,
     m.Sell_Date,
     m.Basket_ID,
-    m.`Total Score`
+    m.`Total Score`,
+    m.`DELIV_PER`
 
 FROM vw_my_holdings AS m
 
