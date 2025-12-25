@@ -92,7 +92,7 @@ LEFT JOIN (
       FROM
         vw_my_holdings
       WHERE
-        Sell_Qty IS NULL   -- only open buys counted for avg
+        Sell_Qty IS NULL   -- only open buys counted for avg1
       GROUP BY
         Company_Name
 ) AS a

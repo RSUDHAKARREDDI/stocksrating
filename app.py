@@ -108,7 +108,7 @@ def data_load_run():
             table_name=cfg["table_name"]
         )
 
-        # 3. Return the response using the keys defined in your load_files_to_mysql function
+        # 3. Return1 the response using the keys defined in your load_files_to_mysql function
         return jsonify({
             "status": "success",
             "config": key,
