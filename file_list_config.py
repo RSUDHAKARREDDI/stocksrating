@@ -40,7 +40,7 @@ file_list_config = {
         'file_list': ['company_list.csv'],
         'target_directory': 'datafiles/others',
         'table_name': 'company_list',
-    'mode':'append',
+    'mode':'replace',
         'file_pattern': None,
         'rename_to': None
     },
@@ -64,7 +64,7 @@ file_list_config = {
         'file_list': ['52_wk_High_low.csv'],
         'target_directory': 'datafiles/uploads',
         'table_name': '52_wk_high_low',
-        'mode':'append',
+        'mode':'replace',
         'file_pattern': 'CM_52_wk_High_low_',
         'rename_to': '52_wk_High_low.csv' # Added .csv
     }

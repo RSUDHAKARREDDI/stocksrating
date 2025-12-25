@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v20.0 code update fixes">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v21.0 round issue fix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/file_list_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/file_list_config.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -568,11 +568,26 @@
       <option name="project" value="LOCAL" />
       <updated>1766629024936</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="v21.0 round issue fix">
+      <option name="closed" value="true" />
+      <created>1766629549412</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1766629549412</updated>
+    </task>
+    <task id="LOCAL-00047" summary="v21.0 round issue fix">
+      <option name="closed" value="true" />
+      <created>1766630030845</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1766630030845</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v5.0 Popup added" />
     <MESSAGE value="Upload files page centered" />
     <MESSAGE value="PEG Ration and Debt to Equity added" />
     <MESSAGE value="v1.0 My holdings initial" />
@@ -597,6 +612,7 @@
     <MESSAGE value="v18.0 dev pct is added to my holdings" />
     <MESSAGE value="v19.0 52wk high low added" />
     <MESSAGE value="v20.0 code update fixes" />
-    <option name="LAST_COMMIT_MESSAGE" value="v20.0 code update fixes" />
+    <MESSAGE value="v21.0 round issue fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="v21.0 round issue fix" />
   </component>
 </project>
