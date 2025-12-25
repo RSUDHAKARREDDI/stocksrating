@@ -185,7 +185,7 @@
 
             <td><span class="chip">{{ r.Basket_ID or '-' }}</span></td>
             <td><span class="num">{{ tscore }}</span></td>
-            <td><span class="num">{{ delvrypct|round(2)}}</span></td>
+            <td><span class="num">{{ delvrypct | float | round(2) if delvrypct not in ['-', '', None] else '-' }}</span></td>
             <td><span class="num">{{ series }}</span></td>
             <td><span class="num">{{ wk52_high|round(2)}}</span></td>
             <td><span class="num">{{ wk52_low|round(2)}}</span></td>
