@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v18.0 dev pct is added to my holdings">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v20.0 code update fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_file_upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_file_upload.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/files_data_cleanup.py" beforeDir="false" afterPath="$PROJECT_DIR$/files_data_cleanup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/my_holdings_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_my_holdings_bp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -556,12 +552,26 @@
       <option name="project" value="LOCAL" />
       <updated>1766540527687</updated>
     </task>
-    <option name="localTasksCounter" value="44" />
+    <task id="LOCAL-00044" summary="v19.0 52wk high low added">
+      <option name="closed" value="true" />
+      <created>1766627658573</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1766627658573</updated>
+    </task>
+    <task id="LOCAL-00045" summary="v20.0 code update fixes">
+      <option name="closed" value="true" />
+      <created>1766629024936</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1766629024936</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v4.0 Database pointing issue fixes" />
-    <MESSAGE value="screener population issue fix" />
     <MESSAGE value="v5.0 Popup added" />
     <MESSAGE value="Upload files page centered" />
     <MESSAGE value="PEG Ration and Debt to Equity added" />
@@ -585,6 +595,8 @@
     <MESSAGE value="v17.0 scroll bars removed" />
     <MESSAGE value="v17.0 scroll bars removed reverted" />
     <MESSAGE value="v18.0 dev pct is added to my holdings" />
-    <option name="LAST_COMMIT_MESSAGE" value="v18.0 dev pct is added to my holdings" />
+    <MESSAGE value="v19.0 52wk high low added" />
+    <MESSAGE value="v20.0 code update fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="v20.0 code update fixes" />
   </component>
 </project>
