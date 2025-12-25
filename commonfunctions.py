@@ -1,4 +1,5 @@
-import os
+import pandas as pd
+import glob
 import os, shutil, time
 from sqlalchemy import create_engine, text,inspect
 import logging
@@ -227,3 +228,34 @@ def load_files_to_mysql(
     finally:
         engine.dispose()
 
+
+def merge_csv_files(directory="datafiles/temp", output_name="merged_output.csv"):
+    # Create the search pattern for all csv files in the dir
+    search_path = os.path.join(directory, "*.csv")
+    files = glob.glob(search_path)
+
+    # Exclude the output file if it already exists to avoid infinite loops
+    files = [f for f in files if os.path.basename(f) != output_name]
+
+    if not files:
+        print("No CSV files found to merge.")
+        return
+
+    print(f"Merging {len(files)} files...")
+
+    # List comprehension to read all CSVs into a list of DataFrames
+    df_list = [pd.read_csv(f) for f in files]
+
+    # Concatenate all DataFrames in the list
+    merged_df = pd.concat(df_list, ignore_index=True)
+
+    # Save the merged DataFrame back to the same directory
+    output_path = os.path.join(directory, output_name)
+    merged_df.to_csv(output_path, index=False)
+
+    print(f"Success! Merged file saved at: {output_path}")
+
+
+# Run the function
+if __name__ == "__main__":
+    merge_csv_files()

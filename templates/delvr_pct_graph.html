@@ -1,0 +1,155 @@
+{% extends "layout.html" %}
+{% block title %}Delivery Percentage Graph{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 20px;">
+    <h2>Delivery Percentage Analysis</h2>
+    
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+        <label for="symbolInput"><strong>Stock Symbol:</strong></label>
+        <input
+            type="text"
+            id="symbolInput"
+            list="symbolList"
+            placeholder="Type Symbol (e.g. HYUNDAI)"
+            style="padding: 8px; border-radius: 8px; border: 1px solid #ddd; text-transform: uppercase; width: 250px;"
+            autocomplete="off"
+        >
+        <datalist id="symbolList"></datalist>
+
+        <button id="btnSubmit" style="padding: 8px 16px; border-radius: 8px; border: none; background: #007bff; color: white; cursor: pointer; font-weight: bold;">
+            Show Graph
+        </button>
+    </div>
+
+    <div id="graphSummary" style="margin-bottom: 10px; font-size: 14px; display: flex; gap: 20px; font-weight: 500;">
+        <span id="summaryHigh" style="color: #28a745;"></span>
+        <span id="summaryLow" style="color: #dc3545;"></span>
+    </div>
+
+    <div class="results" style="background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.06); padding:20px;">
+        <canvas id="delivChart" style="width: 100%; height: 400px;"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rawData = {{ rows | tojson }};
+
+    const symbolInput = document.getElementById('symbolInput');
+    const symbolList = document.getElementById('symbolList');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const summaryHigh = document.getElementById('summaryHigh');
+    const summaryLow = document.getElementById('summaryLow');
+
+    const uniqueSymbols = [...new Set(rawData.map(d => (d.SYMBOL || d.symbol || '').toString().toUpperCase()))].filter(Boolean).sort();
+    uniqueSymbols.forEach(sym => {
+        const option = document.createElement('option');
+        option.value = sym;
+        symbolList.appendChild(option);
+    });
+
+    const ctx = document.getElementById('delivChart').getContext('2d');
+    let delivChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: [], datasets: [{
+            label: 'Delivery %',
+            data: [],
+            borderColor: '#007bff',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true,
+            // These will be updated dynamically
+            pointBackgroundColor: [],
+            pointBorderColor: [],
+            pointRadius: [],
+            pointHoverRadius: []
+        }]},
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'Date (DD/MM)' }, ticks: { autoSkip: true, maxTicksLimit: 12, maxRotation: 0 } },
+                y: { title: { display: true, text: 'Percentage (%)' }, min: 0, max: 100 }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        // Custom tooltip to identify High/Low points
+                        afterLabel: function(context) {
+                            const val = context.parsed.y;
+                            const dataset = context.dataset.data;
+                            const maxVal = Math.max(...dataset);
+                            const minVal = Math.min(...dataset);
+                            if (val === maxVal) return " (Period High ★)";
+                            if (val === minVal) return " (Period Low ⚠)";
+                            return "";
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    function updateChart() {
+        const selectedSymbol = symbolInput.value.trim().toUpperCase();
+        if (!selectedSymbol) return;
+
+        const filtered = rawData.filter(d => (d.SYMBOL || d.symbol || '').toString().toUpperCase() === selectedSymbol);
+        if (filtered.length === 0) return;
+
+        filtered.sort((a, b) => new Date(a.DATE1 || a.date1) - new Date(b.DATE1 || b.date1));
+
+        const labels = [];
+        const values = [];
+
+        filtered.forEach(d => {
+            const dateStr = d.DATE1 || d.date1;
+            if (!dateStr) return;
+            const parts = dateStr.split(/[- :]/);
+            labels.push(`${parts[2]}/${parts[1]}`);
+            values.push(parseFloat(d.DELIV_PER || d.deliv_per || 0));
+        });
+
+        // --- Logic to find High and Low values ---
+        const maxVal = Math.max(...values);
+        const minVal = Math.min(...values);
+
+        // Update Text Summary
+        summaryHigh.textContent = `High: ${maxVal}%`;
+        summaryLow.textContent = `Low: ${minVal}%`;
+
+        // Create arrays for point styling
+        const pointColors = values.map(v => {
+            if (v === maxVal) return '#28a745'; // Green for High
+            if (v === minVal) return '#dc3545'; // Red for Low
+            return '#007bff'; // Default Blue
+        });
+
+        const pointSizes = values.map(v => (v === maxVal || v === minVal) ? 7 : 4);
+
+        // Apply to chart
+        delivChart.data.labels = labels;
+        delivChart.data.datasets[0].data = values;
+        delivChart.data.datasets[0].pointBackgroundColor = pointColors;
+        delivChart.data.datasets[0].pointBorderColor = pointColors;
+        delivChart.data.datasets[0].pointRadius = pointSizes;
+        delivChart.data.datasets[0].pointHoverRadius = pointSizes.map(s => s + 2);
+        delivChart.data.datasets[0].label = `Delivery % for ${selectedSymbol}`;
+
+        delivChart.update();
+    }
+
+    btnSubmit.addEventListener('click', updateChart);
+    symbolInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') updateChart(); });
+
+    if (uniqueSymbols.length > 0) {
+        symbolInput.value = uniqueSymbols[0];
+        updateChart();
+    }
+});
+</script>
+{% endblock %}

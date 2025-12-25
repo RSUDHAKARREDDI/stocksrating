@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from sreeja_bp import sreeja_bp
 from sravani_bp import sravani_bp
 from baskets_bp import baskets_bp
+from app_delvr_pct_graph import delvr_pct_graph_bp
 from app_my_holdings_bp import my_holdings_bp
 from app_file_upload import file_upload_bp
 import commonfunctions as cf
@@ -34,6 +35,7 @@ app.register_blueprint(sravani_bp)
 app.register_blueprint(baskets_bp)
 app.register_blueprint(my_holdings_bp)
 app.register_blueprint(file_upload_bp)
+app.register_blueprint(delvr_pct_graph_bp)
 
 # ------------------------
 # Home, Dashboard, Index
