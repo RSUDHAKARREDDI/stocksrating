@@ -130,6 +130,11 @@
               <th data-type="text">mc technicals</th>
               <th data-type="num"  class="num">margin</th>
               <th data-type="num"  class="num">Total Score</th>
+              <th data-type="num" class="num">Delivery % </th>
+            <th data-type="text">Series</th>
+            <th data-type="num" class="num">52 WK High </th>
+            <th data-type="num" class="num">52 WK Low </th>
+
             </tr>
           </thead>
           <tbody>
@@ -139,7 +144,16 @@
               <td>{{ r['BSE Code'] }}</td>
               <td>{{ r['NSE Code'] }}</td>
               <td>{{ r['Industry'] }}</td>
-              <td class="num">{{ r['Current Price'] }}</td>
+              <td class="num">
+  <div class="price-val">{{ r['Current Price'] }}</div>
+  <div class="dist-container"
+       data-price="{{ r['Current Price'] }}"
+       data-high="{{ r['52_Week_High'] }}"
+       data-low="{{ r['52_Week_Low'] }}">
+    <span class="dist-high"></span>
+    <span class="dist-low"></span>
+  </div>
+</td>
               <td class="num">{{ r['Market Capitalization'] }}</td>
               <td>{{ r['Market Cap'] }}</td>
 
@@ -172,6 +186,11 @@
               <td>{{ r['mc technicals'] }}</td>
               <td class="num">{{ r['margin'] }}</td>
               <td class="num">{{ r['Total Score'] }}</td>
+              <td class="num">{{ r['DELIV_PER'] }}</td>
+              <td class="num">{{ r['SERIES'] }}</td>
+              <td class="num">{{ r['52_Week_High'] }}</td>
+              <td class="num">{{ r['52_Week_Low'] }}</td>
+
             </tr>
           {% endfor %}
           </tbody>

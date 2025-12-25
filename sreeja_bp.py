@@ -91,7 +91,11 @@ SELECT `vw_quality_stocks`.`Name`,
     `vw_quality_stocks`.`mc essentials`,
     `vw_quality_stocks`.`mc technicals`,
     `vw_quality_stocks`.`Margin`,
-    `vw_quality_stocks`.`Total Score`
+    `vw_quality_stocks`.`Total Score`,
+    `vw_quality_stocks`.`DELIV_PER`,
+    `vw_quality_stocks`.`SERIES` ,
+    `vw_quality_stocks`.`52_Week_High`,
+    `vw_quality_stocks`.`52_Week_Low`   
 FROM `vw_quality_stocks`;
 """
     with engine.connect() as conn:

@@ -145,26 +145,35 @@
           <tr
             data-company="{{ r.Company_Name|e }}"
             data-buy_qty="{{ bq|int }}"
-            data-buy_price="{{ bp|round(6) }}"
-            data-avg_buy_price="{{ avg_stock_level|round(6) }}"
-            data-invested="{{ invested|round(6) }}"
+            data-buy_price="{{ bp|round(2) }}"
+            data-avg_buy_price="{{ avg_stock_level|round(2) }}"
+            data-invested="{{ invested|round(2) }}"
 
             data-current_value=""          {# filled after live price #}
             data-unrealised=""             {# filled after live price #}
 
             data-sell_qty="{{ sq|int }}"
-            data-sell_price="{{ sp|round(6) }}"
-            data-sell_value="{{ (sell_value|round(6)) if has_sell else '' }}"
-            data-profit="{{ (profit|round(6)) if has_sell else '' }}"
+            data-sell_price="{{ sp|round(2) }}"
+            data-sell_value="{{ (sell_value|round(2)) if has_sell else '' }}"
+            data-profit="{{ (profit|round(2)) if has_sell else '' }}"
             data-basket="{{ basket_id }}"
             data-basket_id="{{ basket_id }}"
             data-holding_id="{{ r.holding_id }}"
 
-            data-invested_remaining="{{ invested_remaining|round(6) }}"
+            data-invested_remaining="{{ invested_remaining|round(2) }}"
           >
             <td>{{ r.Company_Name }}</td>
 
-            <td class="num"><span id="lp-{{ r.holding_id }}">—</span></td>
+            <td class="num">
+  <div id="lp-{{ r.holding_id }}"><span>—</span></div>
+  <div class="dist-container"
+       id="dist-{{ r.holding_id }}"
+       data-high="{{ wk52_high }}"
+       data-low="{{ wk52_low }}">
+    <small class="dist-high" style="display:block; color:#d32f2f; font-size:10px;"></small>
+    <small class="dist-low" style="display:block; color:#2e7d32; font-size:10px;"></small>
+  </div>
+</td>
 
             <td class="num">{{ bq|int }}</td>
             <td class="num">{{ bp|round(2) }}</td>

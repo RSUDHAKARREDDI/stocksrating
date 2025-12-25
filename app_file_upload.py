@@ -89,7 +89,7 @@ def upload_file():
             if target_name =="52_wk_High_low.csv":
                 fclean.clean_and_filter_52wk(wk_high_low)
             elif target_name =="bhav_copy.csv":
-                fclean.process_and_overwrite_bhavcopy(bhav_copy_file)
+                fclean.clean_and_filter_bhavcopy(bhav_copy_file)
             else:
                 pass
 

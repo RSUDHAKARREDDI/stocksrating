@@ -46,7 +46,11 @@ SELECT `vw_screeners`.`Name`,
     `vw_screeners`.`mc essentials`,
     `vw_screeners`.`mc technicals`,
     `vw_screeners`.`margin` ,
-     `vw_screeners`.`Total Score`   
+     `vw_screeners`.`Total Score`,
+     `vw_screeners`.`DELIV_PER`,
+    `vw_screeners`.`SERIES` ,
+    `vw_screeners`.`52_Week_High`,
+    `vw_screeners`.`52_Week_Low`   
 FROM `vw_screeners`;
 """
     with engine.connect() as conn:

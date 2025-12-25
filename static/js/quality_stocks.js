@@ -82,6 +82,26 @@
     date:25, scr:26, ess:27, tech:28, margin:29,tscore:30
   };
 
+function updateDistances() {
+  document.querySelectorAll('.dist-container').forEach(container => {
+    const price = parseFloat(container.dataset.price);
+    const high = parseFloat(container.dataset.high);
+    const low = parseFloat(container.dataset.low);
+
+    if (!isNaN(price) && !isNaN(high) && high !== 0) {
+      // How far below the high we are (usually a negative % or % off high)
+      const offHigh = ((price - high) / high * 100).toFixed(1);
+      container.querySelector('.dist-high').textContent = `${offHigh}% from High`;
+    }
+
+    if (!isNaN(price) && !isNaN(low) && low !== 0) {
+      // How far above the low we are
+      const upFromLow = ((price - low) / low * 100).toFixed(1);
+      container.querySelector('.dist-low').textContent = `+${upFromLow}% from Low`;
+    }
+  });
+}
+
   function applyHighlights(){
     const rows = $$("#resultsTable tbody tr");
     rows.forEach(tr=>{
@@ -282,7 +302,7 @@
   }
 
   // initial
-  applyFilters(); applyHighlights();
+  applyFilters(); applyHighlights();updateDistances();
 
   // Pie modal
   const modal = $("#modal_backdrop");

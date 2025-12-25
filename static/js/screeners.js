@@ -302,6 +302,8 @@
   // Initial render
   applyFilters();
   applyHighlights();
+  updateDistances();
+
 
   // ====== Industry Pie Modal ======
   const modal = $("#modal_backdrop");
@@ -434,6 +436,24 @@
   });
 
 })();
+
+function updateDistances() {
+  document.querySelectorAll('.dist-container').forEach(container => {
+    const price = parseFloat(container.dataset.price);
+    const high = parseFloat(container.dataset.high);
+    const low = parseFloat(container.dataset.low);
+
+    if (!isNaN(price) && !isNaN(high) && high !== 0) {
+      const offHigh = ((price - high) / high * 100).toFixed(1);
+      container.querySelector('.dist-high').textContent = `${offHigh}% from High`;
+    }
+
+    if (!isNaN(price) && !isNaN(low) && low !== 0) {
+      const upFromLow = ((price - low) / low * 100).toFixed(1);
+      container.querySelector('.dist-low').textContent = `+${upFromLow}% from Low`;
+    }
+  });
+}
 
 // ===== Off-canvas filters: slide entire panel left/right =====
 (function(){

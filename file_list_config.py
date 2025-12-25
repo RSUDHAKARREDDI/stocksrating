@@ -32,7 +32,7 @@ file_list_config = {
         'file_list': ['mstock_margin.csv'],
         'target_directory': 'datafiles/uploads',
         'table_name': 'mstock_margin',
-'mode':'replace',
+        'mode':'replace',
         'file_pattern': None,
         'rename_to': None
     },
@@ -40,7 +40,7 @@ file_list_config = {
         'file_list': ['company_list.csv'],
         'target_directory': 'datafiles/others',
         'table_name': 'company_list',
-    'mode':'replace',
+        'mode':'replace',
         'file_pattern': None,
         'rename_to': None
     },
@@ -48,7 +48,7 @@ file_list_config = {
         'file_list': ['score_refactor.csv'],
         'target_directory': 'datafiles/score_refactor',
         'table_name': 'score_refactor',
-'mode':'replace',
+        'mode':'replace',
         'file_pattern': None,
         'rename_to': None
     },
@@ -56,7 +56,7 @@ file_list_config = {
         'file_list': ['bhav_copy.csv'],
         'target_directory': 'datafiles/uploads',
         'table_name': 'bhav_copy',
-        'mode':'replace',
+        'mode':'append',
         'file_pattern': 'sec_bhavdata_full_',
         'rename_to': 'bhav_copy.csv'
     },

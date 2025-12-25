@@ -284,7 +284,6 @@
   }
 
   // ===== On-demand Live Prices =====
-  // Important: fetchLivePrice will NOT overwrite avg_buy_price.
   function fetchLivePrice(holdingId, elPrice, elCV, elUG, tr) {
     fetch(`/my_holdings/${holdingId}/price`)
       .then(r => r.json())
@@ -294,10 +293,27 @@
           elPrice.textContent = `₹ ${live.toFixed(2)}`;
           elPrice.title = data.ticker ? `${data.ticker}${data.exchange ? ' | ' + data.exchange : ''}` : '';
 
+          // --- 52 Week Distance Calculation ---
+          const elDist = document.getElementById(`dist-${holdingId}`);
+          if (elDist) {
+            const high = parseFloat(elDist.dataset.high);
+            const low = parseFloat(elDist.dataset.low);
+            const elHigh = elDist.querySelector('.dist-high');
+            const elLow = elDist.querySelector('.dist-low');
+
+            if (!isNaN(high) && high > 0) {
+              const diffHigh = ((live - high) / high * 100).toFixed(1);
+              elHigh.textContent = `${diffHigh}% from High`;
+            }
+            if (!isNaN(low) && low > 0) {
+              const diffLow = ((live - low) / low * 100).toFixed(1);
+              elLow.textContent = `+${((live - low) / low * 100).toFixed(1)}% from Low`;
+            }
+          }
+
           const buyQty   = toNum(tr.dataset.buy_qty);
           const sellQty  = toNum(tr.dataset.sell_qty);
           const buyPrice = toNum(tr.dataset.buy_price);
-
           const remainingQty = Math.max(buyQty - sellQty, 0);
 
           let investedRemaining = tr.dataset.invested_remaining;
@@ -324,7 +340,6 @@
       })
       .catch(() => { elPrice.textContent = 'NA'; })
       .finally(()=> {
-        // Recompute only fallback company averages (will not clobber server-provided values)
         computeCompanyAverages();
         refreshSummaryFromVisible();
       });

@@ -11,37 +11,47 @@ bhav_copy_file = os.path.join(BASE_DIR, "datafiles","uploads","bhav_copy.csv")
 wk_high_low=os.path.join(BASE_DIR, "datafiles","uploads","52_wk_High_low.csv")
 
 
-def process_and_overwrite_bhavcopy(file_path):
+def clean_and_filter_bhavcopy(file_path):
     """
     Reads the file, cleans headers, filters specific series,
+    converts DATE1 to MySQL format,
     and overwrites the original file.
     """
+
     # 1. Read the file
     df = pd.read_csv(file_path, skipinitialspace=True)
 
-    # 2. Clean Headers (Removes leading spaces like ' SERIES')
+    # 2. Clean Headers
     df.columns = [col.strip() for col in df.columns]
 
     # 3. Clean String Data
     df = df.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
 
-    # 4. Apply Series Filter (Exclude E1, GB, GS, IV)
+    # 3.5 Convert DATE1 to MySQL format
+    if 'DATE1' in df.columns:
+        df['DATE1'] = pd.to_datetime(
+            df['DATE1'],
+            format='%d-%b-%Y',
+            errors='coerce'
+        ).dt.strftime('%Y-%m-%d')
+
+    # 4. Apply Series Filter
     exclude_series = ['E1', 'GB', 'GS', 'IV']
     if 'SERIES' in df.columns:
-        # Keep records NOT IN the exclude list
         df = df[~df['SERIES'].isin(exclude_series)].copy()
 
-    # 5. Handle Numeric Conversions for MySQL compatibility
+    # 5. Handle Numeric Conversions
     cols_to_fix = ['DELIV_QTY', 'DELIV_PER']
     for col in cols_to_fix:
         if col in df.columns:
-            # Replace hyphens with NaN then fill with 0
-            df[col] = pd.to_numeric(df[col].replace('-', np.nan), errors='coerce').fillna(0)
+            df[col] = pd.to_numeric(
+                df[col].replace('-', np.nan),
+                errors='coerce'
+            ).fillna(0)
 
     # 6. Overwrite the file
     df.to_csv(file_path, index=False)
 
-    # 7. Return the DataFrame for inspection (Prevents AttributeError)
     return df
 
 
@@ -89,6 +99,6 @@ def clean_and_filter_52wk(file_path):
     print(f"✅ Success: {file_path} cleaned and saved.")
     return df
 
-
+clean_and_filter_bhavcopy(bhav_copy_file)
 
 
