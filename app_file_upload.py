@@ -5,6 +5,7 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 import screeners_load as sf
 from file_list_config import file_list_config
+import files_data_cleanup as fclean
 
 
 # -------- Paths (robust & absolute) --------
@@ -12,6 +13,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 DATAFILES_DIR = os.path.join(BASE_DIR, "datafiles")
 UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles","uploads")
+
+bhav_copy_file = os.path.join(BASE_DIR, "datafiles","uploads","bhav_copy.csv")
+wk_high_low=os.path.join(BASE_DIR, "datafiles","uploads","52_wk_High_low.csv")
 
 
 file_upload_bp = Blueprint("file_upload_bp", __name__)
@@ -81,6 +85,13 @@ def upload_file():
                     flash("✅ Screeners processed successfully.")
                 except Exception as e:
                     flash(f"⚠️ Screeners failed: {e}")
+
+            if target_name =="52_wk_High_low.csv":
+                fclean.clean_and_filter_52wk(wk_high_low)
+            elif target_name =="bhav_copy.csv":
+                fclean.process_and_overwrite_bhavcopy(bhav_copy_file)
+            else:
+                pass
 
         except Exception as e:
             flash(f"Upload failed: {e}")

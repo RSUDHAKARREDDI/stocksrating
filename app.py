@@ -5,7 +5,7 @@ from werkzeug.utils import secure_filename
 from sreeja_bp import sreeja_bp
 from sravani_bp import sravani_bp
 from baskets_bp import baskets_bp
-from my_holdings_bp import my_holdings_bp
+from app_my_holdings_bp import my_holdings_bp
 from app_file_upload import file_upload_bp
 import commonfunctions as cf
 from file_list_config import file_list_config

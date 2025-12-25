@@ -77,7 +77,10 @@ SELECT
     m.Sell_Date,
     m.Basket_ID,
     m.`Total Score`,
-    m.`DELIV_PER`
+    m.`DELIV_PER`,
+    m.`SERIES` ,
+    m.`52_Week_High`,
+    m.`52_Week_Low`
 
 FROM vw_my_holdings AS m
 

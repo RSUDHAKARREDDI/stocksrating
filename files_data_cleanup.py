@@ -74,7 +74,11 @@ def clean_and_filter_52wk(file_path):
     # Handles '12-FEB-2025' -> '2025-02-12'
     for col in date_cols:
         if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors='coerce').dt.strftime('%Y-%m-%d')
+            df[col] = pd.to_datetime(
+                df[col],
+                format='%d-%b-%Y',
+                errors='coerce'
+            ).dt.strftime('%Y-%m-%d')
 
     # 6. Now drop rows where date conversion failed (if any)
     # This won't throw a KeyError now because we checked columns in step 4
@@ -85,10 +89,6 @@ def clean_and_filter_52wk(file_path):
     print(f"✅ Success: {file_path} cleaned and saved.")
     return df
 
-# --- Execution ---
-process_and_overwrite_bhavcopy(bhav_copy_file)
-
-clean_and_filter_52wk(wk_high_low)
 
 
 
