@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v22.0 more functionality added with high/low % added">
-      <change afterPath="$PROJECT_DIR$/app_delvr_pct_graph.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/delvr_pct_graph.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commonfunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/commonfunctions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/screeners_load.py" beforeDir="false" afterPath="$PROJECT_DIR$/screeners_load.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,22 +45,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Python.api_ninja.executor": "Run",
-    "Python.commonfunctions.executor": "Run",
-    "Python.files_data_cleanup.executor": "Run",
-    "Python.latestresults_to_mysql.executor": "Run",
-    "Python.score_recfactor.executor": "Run",
-    "Python.screeners_load.executor": "Run",
-    "Python.test.executor": "Run",
-    "Python.test1.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/T490/PycharmProjects/stocksrating/static"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Python.api_ninja.executor&quot;: &quot;Run&quot;,
+    &quot;Python.commonfunctions.executor&quot;: &quot;Run&quot;,
+    &quot;Python.files_data_cleanup.executor&quot;: &quot;Run&quot;,
+    &quot;Python.latestresults_to_mysql.executor&quot;: &quot;Run&quot;,
+    &quot;Python.score_recfactor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.screeners_load.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test1.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/T490/PycharmProjects/stocksrating/static&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\static" />
