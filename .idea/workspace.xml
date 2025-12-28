@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v22.0 more functionality added with high/low % added">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v23.0 screeners load isue fix due to file path">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screeners_load.py" beforeDir="false" afterPath="$PROJECT_DIR$/screeners_load.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_delvr_pct_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_delvr_pct_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/delvr_pct_graph.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/delvr_pct_graph.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -207,14 +208,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00001" summary="v1.0 initial commit">
-      <option name="closed" value="true" />
-      <created>1758947768806</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1758947768806</updated>
     </task>
     <task id="LOCAL-00002" summary="v1.0 initial commit">
       <option name="closed" value="true" />
@@ -600,11 +593,18 @@
       <option name="project" value="LOCAL" />
       <updated>1766659174669</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="v23.0 screeners load isue fix due to file path">
+      <option name="closed" value="true" />
+      <created>1766710025968</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1766710025973</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v1.0 My holdings initial" />
     <MESSAGE value="v2.0 My holdings enhancements with filters" />
     <MESSAGE value="v3.0 My holdings holding view page enhanced" />
     <MESSAGE value="v4.0 My holdings emojis added" />
@@ -629,6 +629,7 @@
     <MESSAGE value="v21.0 round issue fix" />
     <MESSAGE value="v21.0 table load issue fix" />
     <MESSAGE value="v22.0 more functionality added with high/low % added" />
-    <option name="LAST_COMMIT_MESSAGE" value="v22.0 more functionality added with high/low % added" />
+    <MESSAGE value="v23.0 screeners load isue fix due to file path" />
+    <option name="LAST_COMMIT_MESSAGE" value="v23.0 screeners load isue fix due to file path" />
   </component>
 </project>

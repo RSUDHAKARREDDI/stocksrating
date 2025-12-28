@@ -14,8 +14,8 @@ delvr_pct_graph_bp = Blueprint("delvr_pct_graph_bp", __name__)
 @delvr_pct_graph_bp.route("/delvr-pct-graph")
 def delvr_pct_graph():
     sql = """
-    SELECT SYMBOL, SERIES, DATE1, CLOSE_PRICE, DELIV_PER 
-    FROM bhav_copy;
+    SELECT SYMBOL, SERIES, DATE1, CLOSE_PRICE, DELIV_PER,TTL_TRD_QNTY,TURNOVER_LACS,NO_OF_TRADES,DELIV_QTY 
+    FROM bhav_copy ;
     """
     with engine.connect() as conn:
         result = conn.execute(text(sql)).mappings().all()
@@ -29,7 +29,7 @@ def delvr_pct_graph():
 def delvr_pct_graph_symbol(symbol):
     # Filter the SQL query by the specific symbol
     sql = """
-    SELECT SYMBOL, SERIES, DATE1, CLOSE_PRICE, DELIV_PER 
+    SELECT SYMBOL, SERIES, DATE1, CLOSE_PRICE, DELIV_PER,TTL_TRD_QNTY,TURNOVER_LACS,NO_OF_TRADES,DELIV_QTY 
     FROM bhav_copy 
     WHERE SYMBOL = :symbol 
     ORDER BY DATE1 ASC;

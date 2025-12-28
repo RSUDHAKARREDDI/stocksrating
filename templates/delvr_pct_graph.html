@@ -54,20 +54,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('delivChart').getContext('2d');
     let delivChart = new Chart(ctx, {
         type: 'line',
-        data: { labels: [], datasets: [{
-            label: 'Delivery %',
-            data: [],
-            borderColor: '#007bff',
-            backgroundColor: 'rgba(0, 123, 255, 0.1)',
-            borderWidth: 2,
-            tension: 0.3,
-            fill: true,
-            // These will be updated dynamically
-            pointBackgroundColor: [],
-            pointBorderColor: [],
-            pointRadius: [],
-            pointHoverRadius: []
-        }]},
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Delivery %',
+                data: [],
+                metadata: [], // Custom array to store extra tooltip fields
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                borderWidth: 2,
+                tension: 0.3,
+                fill: true,
+                pointBackgroundColor: [],
+                pointBorderColor: [],
+                pointRadius: [],
+                pointHoverRadius: []
+            }]
+        },
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -77,8 +80,23 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             plugins: {
                 tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
                     callbacks: {
-                        // Custom tooltip to identify High/Low points
+                        // Display the additional metrics in the tooltip body
+                        afterBody: function(context) {
+                            const index = context[0].dataIndex;
+                            const meta = context[0].dataset.metadata[index];
+                            if (!meta) return "";
+
+                            return [
+                                `Traded Qty: ${meta.ttlTrdQty.toLocaleString()}`,
+                                `Deliv Qty: ${meta.delivQty.toLocaleString()}`,
+                                `Trades: ${meta.noOfTrades.toLocaleString()}`,
+                                `Turnover: ₹${meta.turnoverCr} Cr`
+                            ];
+                        },
+                        // Identify High/Low points
                         afterLabel: function(context) {
                             const val = context.parsed.y;
                             const dataset = context.dataset.data;
@@ -101,39 +119,50 @@ document.addEventListener('DOMContentLoaded', function() {
         const filtered = rawData.filter(d => (d.SYMBOL || d.symbol || '').toString().toUpperCase() === selectedSymbol);
         if (filtered.length === 0) return;
 
+        // Sort by date
         filtered.sort((a, b) => new Date(a.DATE1 || a.date1) - new Date(b.DATE1 || b.date1));
 
         const labels = [];
         const values = [];
+        const metadata = [];
 
         filtered.forEach(d => {
             const dateStr = d.DATE1 || d.date1;
             if (!dateStr) return;
             const parts = dateStr.split(/[- :]/);
             labels.push(`${parts[2]}/${parts[1]}`);
-            values.push(parseFloat(d.DELIV_PER || d.deliv_per || 0));
+
+            const delivPer = parseFloat(d.DELIV_PER || d.deliv_per || 0);
+            values.push(delivPer);
+
+            // Calculate Turnover in Crores and store other values
+            const turnoverLacs = parseFloat(d.TURNOVER_LACS || d.turnover_lacs || 0);
+            metadata.push({
+                ttlTrdQty: d.TTL_TRD_QNTY || d.ttl_trd_qnty || 0,
+                noOfTrades: d.NO_OF_TRADES || d.no_of_trades || 0,
+                delivQty: d.DELIV_QTY || d.deliv_qty || 0,
+                turnoverCr: (turnoverLacs / 100).toFixed(2)
+            });
         });
 
-        // --- Logic to find High and Low values ---
         const maxVal = Math.max(...values);
         const minVal = Math.min(...values);
 
-        // Update Text Summary
         summaryHigh.textContent = `High: ${maxVal}%`;
         summaryLow.textContent = `Low: ${minVal}%`;
 
-        // Create arrays for point styling
         const pointColors = values.map(v => {
-            if (v === maxVal) return '#28a745'; // Green for High
-            if (v === minVal) return '#dc3545'; // Red for Low
-            return '#007bff'; // Default Blue
+            if (v === maxVal) return '#28a745';
+            if (v === minVal) return '#dc3545';
+            return '#007bff';
         });
 
         const pointSizes = values.map(v => (v === maxVal || v === minVal) ? 7 : 4);
 
-        // Apply to chart
+        // Update Dataset
         delivChart.data.labels = labels;
         delivChart.data.datasets[0].data = values;
+        delivChart.data.datasets[0].metadata = metadata; // Injecting the new metadata
         delivChart.data.datasets[0].pointBackgroundColor = pointColors;
         delivChart.data.datasets[0].pointBorderColor = pointColors;
         delivChart.data.datasets[0].pointRadius = pointSizes;
