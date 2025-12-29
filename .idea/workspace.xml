@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v23.0 screeners load isue fix due to file path">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v24.0 graph enhanced">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_delvr_pct_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_delvr_pct_graph.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/delvr_pct_graph.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/delvr_pct_graph.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sreeja_bp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/latest_results.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/latest_results.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/latest_results.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/latest_results.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -208,14 +210,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00002" summary="v1.0 initial commit">
-      <option name="closed" value="true" />
-      <created>1758956406311</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1758956406311</updated>
     </task>
     <task id="LOCAL-00003" summary="path issue corrected">
       <option name="closed" value="true" />
@@ -601,11 +595,18 @@
       <option name="project" value="LOCAL" />
       <updated>1766710025973</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="v24.0 graph enhanced">
+      <option name="closed" value="true" />
+      <created>1766889898007</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1766889898009</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v2.0 My holdings enhancements with filters" />
     <MESSAGE value="v3.0 My holdings holding view page enhanced" />
     <MESSAGE value="v4.0 My holdings emojis added" />
     <MESSAGE value="v5.0 My holdings dynamic summary" />
@@ -630,6 +631,7 @@
     <MESSAGE value="v21.0 table load issue fix" />
     <MESSAGE value="v22.0 more functionality added with high/low % added" />
     <MESSAGE value="v23.0 screeners load isue fix due to file path" />
-    <option name="LAST_COMMIT_MESSAGE" value="v23.0 screeners load isue fix due to file path" />
+    <MESSAGE value="v24.0 graph enhanced" />
+    <option name="LAST_COMMIT_MESSAGE" value="v24.0 graph enhanced" />
   </component>
 </project>

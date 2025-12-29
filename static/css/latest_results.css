@@ -70,3 +70,30 @@ th.sort-desc::after{ content:" ▼"; font-size:11px; color:#777; }
 .modal .close{ position:absolute; right:10px; top:10px; border:1px solid #ddd; background:#f7f7f7; border-radius:8px; padding:6px 10px; cursor:pointer; }
 body.modal-open{ overflow:hidden; }
 .modal-body{ max-height:60vh; overflow:auto; } .modal-actions{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; }
+
+
+/* High-density formatting */
+.dist-container {
+  display: flex;
+  flex-direction: column;
+  font-size: 10px;
+  line-height: 1;
+  margin-top: 2px;
+}
+.dist-high { color: #d32f2f; } /* Red for distance from high */
+.dist-low { color: #2e7d32; }  /* Green for distance from low */
+
+/* Alignment and Colors */
+td.num { text-align: right; font-family: 'Courier New', monospace; font-weight: 600; }
+.bg-good { background-color: #e8f5e9 !important; color: #2e7d32; }
+.bg-bad { background-color: #ffebee !important; color: #c62828; }
+
+/* Sticky Header */
+thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 2;
+  border-bottom: 2px solid #dee2e6;
+  white-space: nowrap;
+}

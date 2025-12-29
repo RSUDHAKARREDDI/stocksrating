@@ -47,7 +47,11 @@ SELECT `vw_latest_results`.`Name`,
     `vw_latest_results`.`mc essentials`,
     `vw_latest_results`.`mc technicals`,
     `vw_latest_results`.`Margin`,
-    `vw_latest_results`.`Total Score`
+    `vw_latest_results`.`Total Score`,
+    `vw_latest_results`.`DELIV_PER`,
+    `vw_latest_results`.`SERIES` ,
+    `vw_latest_results`.`52_Week_High` ,
+    `vw_latest_results`.`52_Week_Low`
 FROM `vw_latest_results`;
 """
     with engine.connect() as conn:

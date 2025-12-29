@@ -11,14 +11,7 @@
     <div class="filters" id="filters">
       <div class="filters-header">
         <h3>Filters</h3>
-        <button
-          type="button"
-          id="btn_toggle_filters"
-          class="filters-toggle"
-          aria-pressed="false"
-          aria-expanded="true"
-          title="Show/Hide filters"
-        >🪄 Hide</button>
+        <button type="button" id="btn_toggle_filters" class="filters-toggle" aria-pressed="false" aria-expanded="true" title="Show/Hide filters">🪄 Hide</button>
       </div>
 
       <div id="filters_content">
@@ -118,6 +111,10 @@
               <th data-type="text">mc technicals</th>
               <th data-type="num"  class="num">Margin</th>
               <th data-type="num"  class="num">Total Score</th>
+              <th data-type="num"  class="num">Deliv %</th>
+              <th data-type="text">Series</th>
+              <th data-type="num"  class="num">52W High</th>
+              <th data-type="num"  class="num">52W Low</th>
             </tr>
           </thead>
           <tbody>
@@ -127,7 +124,16 @@
               <td>{{ r['BSE Code'] }}</td>
               <td>{{ r['NSE Code'] }}</td>
               <td>{{ r['Industry'] }}</td>
-              <td class="num">{{ r['Current Price'] }}</td>
+              <td class="num">
+                {{ r['Current Price'] }}
+                <div class="dist-container"
+                     data-price="{{ r['Current Price'] }}"
+                     data-high="{{ r['52_Week_High'] }}"
+                     data-low="{{ r['52_Week_Low'] }}">
+                  <span class="dist-high"></span>
+                  <span class="dist-low"></span>
+                </div>
+              </td>
               <td class="num">{{ r['Market Capitalization'] }}</td>
               <td>{{ r['Market Cap'] }}</td>
 
@@ -161,6 +167,10 @@
               <td>{{ r['mc technicals'] }}</td>
               <td class="num">{{ r['Margin'] }}</td>
               <td class="num">{{ r['Total Score'] }}</td>
+              <td class="num">{{ r['DELIV_PER'] }}</td>
+              <td>{{ r['SERIES'] }}</td>
+              <td class="num">{{ r['52_Week_High'] }}</td>
+              <td class="num">{{ r['52_Week_Low'] }}</td>
             </tr>
           {% endfor %}
           </tbody>
@@ -171,25 +181,6 @@
   </div>
 </div>
 
-<!-- Pie Modal -->
-<div class="modal-backdrop" id="modal_backdrop">
-  <div class="modal">
-    <button class="close" id="modal_close">Close</button>
-    <h3>Industry Distribution (Current View)</h3>
-    <canvas id="industry_pie" width="640" height="360"></canvas>
-    <div class="legend" id="industry_legend"></div>
-  </div>
-</div>
-
-<!-- Row Modal -->
-<div class="modal-backdrop" id="row_modal_backdrop">
-  <div class="modal">
-    <button class="close" id="row_modal_close">Close</button>
-    <h3 id="row_modal_title">Record Details</h3>
-    <div id="row_modal_body" class="modal-body"></div>
-    <div class="modal-actions">
-      <button type="button" id="btn_copy_json" title="Copy this record as JSON">Copy JSON</button>
-    </div>
-  </div>
-</div>
+<div class="modal-backdrop" id="modal_backdrop"><div class="modal"><button class="close" id="modal_close">Close</button><h3>Industry Distribution</h3><canvas id="industry_pie" width="640" height="360"></canvas><div class="legend" id="industry_legend"></div></div></div>
+<div class="modal-backdrop" id="row_modal_backdrop"><div class="modal"><button class="close" id="row_modal_close">Close</button><h3 id="row_modal_title">Record Details</h3><div id="row_modal_body" class="modal-body"></div><div class="modal-actions"><button type="button" id="btn_copy_json">Copy JSON</button></div></div></div>
 {% endblock %}
