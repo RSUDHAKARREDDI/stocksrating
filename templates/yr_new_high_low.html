@@ -2,20 +2,20 @@
 {% block title %}52 Week High/Low Analysis{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 20px; font-family: 'Segoe UI', sans-serif;">
-    <h2 style="margin-bottom: 20px;">52 Week High / Low Report</h2>
+<div class="container" style="margin-top: 20px; font-family: 'Segoe UI', sans-serif; max-width: 1200px; margin-left: auto; margin-right: auto;">
+    <h2 style="margin-bottom: 20px; color: #333;">52 Week High / Low Report</h2>
 
     <div style="background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.06); padding:20px; overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <table id="reportTable" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
             <thead>
-                <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
-                    <th style="padding: 12px;">Symbol</th>
-                    <th style="padding: 12px;">Date</th>
-                    <th style="padding: 12px;">Current Price</th>
-                    <th style="padding: 12px;">52W High</th>
-                    <th style="padding: 12px;">Distance from High</th>
-                    <th style="padding: 12px;">52W Low</th>
-                    <th style="padding: 12px;">Distance from Low</th>
+                <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6; cursor: pointer;">
+                    <th onclick="sortTable(0)" style="padding: 12px;">Symbol ↕</th>
+                    <th onclick="sortTable(1)" style="padding: 12px;">Date ↕</th>
+                    <th onclick="sortTable(2)" style="padding: 12px;">Current Price ↕</th>
+                    <th onclick="sortTable(3)" style="padding: 12px;">52W High ↕</th>
+                    <th onclick="sortTable(4)" style="padding: 12px; color: #007bff; background: #eef6ff;">Dist. High % ↕</th>
+                    <th onclick="sortTable(5)" style="padding: 12px;">52W Low ↕</th>
+                    <th onclick="sortTable(6)" style="padding: 12px; color: #007bff; background: #eef6ff;">Dist. Low % ↕</th>
                 </tr>
             </thead>
             <tbody>
@@ -25,11 +25,11 @@
                     <td style="padding: 12px;">{{ row.DATE1_STR }}</td>
                     <td style="padding: 12px;">{{ row.LAST_PRICE }}</td>
                     <td style="padding: 12px; color: #28a745;">{{ row.Adjusted_52_Week_High }}</td>
-                    <td style="padding: 12px; color: #dc3545; font-weight: bold;">
+                    <td style="padding: 12px; color: #dc3545; font-weight: bold;" data-value="{{ row.pct_from_high }}">
                         {{ row.pct_from_high }}%
                     </td>
                     <td style="padding: 12px; color: #dc3545;">{{ row.Adjusted_52_Week_Low }}</td>
-                    <td style="padding: 12px; color: #28a745; font-weight: bold;">
+                    <td style="padding: 12px; color: #28a745; font-weight: bold;" data-value="{{ row.pct_from_low }}">
                         +{{ row.pct_from_low }}%
                     </td>
                 </tr>
@@ -38,4 +38,57 @@
         </table>
     </div>
 </div>
+
+<script>
+/**
+ * Simple Table Sort Logic
+ * @param {number} n - The index of the column to sort by
+ */
+function sortTable(n) {
+    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+    table = document.getElementById("reportTable");
+    switching = true;
+    dir = "asc";
+
+    while (switching) {
+        switching = false;
+        rows = table.rows;
+
+        for (i = 1; i < (rows.length - 1); i++) {
+            shouldSwitch = false;
+            x = rows[i].getElementsByTagName("TD")[n];
+            y = rows[i + 1].getElementsByTagName("TD")[n];
+
+            // Use data-value attribute for numeric sorting, otherwise innerText
+            var xVal = x.getAttribute("data-value") ? parseFloat(x.getAttribute("data-value")) : x.innerText.toLowerCase();
+            var yVal = y.getAttribute("data-value") ? parseFloat(y.getAttribute("data-value")) : y.innerText.toLowerCase();
+
+            // Check if values are numeric
+            var isNum = !isNaN(xVal) && !isNaN(yVal);
+
+            if (dir == "asc") {
+                if (isNum ? (xVal > yVal) : (xVal > yVal)) {
+                    shouldSwitch = true;
+                    break;
+                }
+            } else if (dir == "desc") {
+                if (isNum ? (xVal < yVal) : (xVal < yVal)) {
+                    shouldSwitch = true;
+                    break;
+                }
+            }
+        }
+        if (shouldSwitch) {
+            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+            switching = true;
+            switchcount ++;
+        } else {
+            if (switchcount == 0 && dir == "asc") {
+                dir = "desc";
+                switching = true;
+            }
+        }
+    }
+}
+</script>
 {% endblock %}
