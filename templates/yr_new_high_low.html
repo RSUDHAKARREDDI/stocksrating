@@ -1,83 +1,94 @@
 {% extends "layout.html" %}
-{% block title %}52 Week High/Low Analysis{% endblock %}
+{% block title %}52 Week High/Low Cards{% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 20px; font-family: 'Segoe UI', sans-serif; max-width: 1200px; margin-left: auto; margin-right: auto;">
-    <h2 style="margin-bottom: 20px; color: #333;">52 Week High / Low Report</h2>
+<div class="container" style="margin-top: 20px; font-family: 'Segoe UI', sans-serif; max-width: 1400px; margin-left: auto; margin-right: auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="color: #333;">Market Watch: 52W High/Low</h2>
+        <select id="sortSelect" onchange="sortCards()" style="padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+            <option value="symbol">Sort by Symbol</option>
+            <option value="high">Sort by % from High</option>
+            <option value="low">Sort by % from Low</option>
+        </select>
+    </div>
 
-    <div style="background:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.06); padding:20px; overflow-x: auto;">
-        <table id="reportTable" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
-            <thead>
-                <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6; cursor: pointer;">
-                    <th onclick="sortTable(0, 'string')" style="padding: 12px;">Symbol ↕</th>
-                    <th onclick="sortTable(1, 'string')" style="padding: 12px;">Date ↕</th>
-                    <th onclick="sortTable(2, 'number')" style="padding: 12px;">Current Price ↕</th>
-                    <th onclick="sortTable(3, 'number')" style="padding: 12px;">52W High ↕</th>
-                    <th onclick="sortTable(4, 'number')" style="padding: 12px; color: #007bff; background: #eef6ff;">Dist. High % ↕</th>
-                    <th onclick="sortTable(5, 'number')" style="padding: 12px;">52W Low ↕</th>
-                    <th onclick="sortTable(6, 'number')" style="padding: 12px; color: #007bff; background: #eef6ff;">Dist. Low % ↕</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in rows %}
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px; font-weight: bold;">{{ row.SYMBOL }}</td>
-                    <td style="padding: 12px;">{{ row.DATE1_STR }}</td>
-                    <td style="padding: 12px;" data-value="{{ row.LAST_PRICE }}">{{ row.LAST_PRICE }}</td>
-                    <td style="padding: 12px; color: #28a745;" data-value="{{ row.Adjusted_52_Week_High }}">{{ row.Adjusted_52_Week_High }}</td>
-                    <td style="padding: 12px; color: #dc3545; font-weight: bold;" data-value="{{ row.pct_from_high }}">
-                        {{ row.pct_from_high }}%
-                    </td>
-                    <td style="padding: 12px; color: #dc3545;" data-value="{{ row.Adjusted_52_Week_Low }}">{{ row.Adjusted_52_Week_Low }}</td>
-                    <td style="padding: 12px; color: #28a745; font-weight: bold;" data-value="{{ row.pct_from_low }}">
-                        +{{ row.pct_from_low }}%
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <div id="cardGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 15px;">
+        {% for row in rows %}
+        <div class="stock-card"
+             data-symbol="{{ row.SYMBOL }}"
+             data-high="{{ row.pct_from_high }}"
+             data-low="{{ row.pct_from_low }}"
+             style="background: #fff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eee;">
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <span style="font-weight: 800; color: #1a73e8; font-size: 1.1rem;">{{ row.SYMBOL }}</span>
+                <span style="font-size: 0.75rem; color: #888;">{{ row.SERIES or 'EQ' }}</span>
+            </div>
+
+            <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 15px;">
+                ₹{{ row.LAST_PRICE }}
+            </div>
+
+            <div style="margin-bottom: 10px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.7rem; color: #666; margin-bottom: 4px;">
+                    <span>L: {{ row.Adjusted_52_Week_Low }}</span>
+                    <span>H: {{ row.Adjusted_52_Week_High }}</span>
+                </div>
+                <div style="height: 6px; background: #e0e0e0; border-radius: 3px; position: relative;">
+                    {% set range = row.Adjusted_52_Week_High|float - row.Adjusted_52_Week_Low|float %}
+                    {% set pos = ((row.LAST_PRICE|float - row.Adjusted_52_Week_Low|float) / range * 100) if range > 0 else 0 %}
+                    <div style="position: absolute; left: {{ pos }}%; top: 50%; transform: translate(-50%, -50%); width: 12px; height: 12px; background: #1a73e8; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+                <div style="color: #dc3545;">
+                    <small>From High</small><br>
+                    <strong>{{ row.pct_from_high }}%</strong>
+                </div>
+                <div style="color: #28a745; text-align: right;">
+                    <small>From Low</small><br>
+                    <strong>+{{ row.pct_from_low }}%</strong>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </div>
 
+<style>
+    /* Ensure exactly 5 columns on large screens */
+    @media (min-width: 1200px) {
+        #cardGrid {
+            grid-template-columns: repeat(5, 1fr) !important;
+        }
+    }
+    .stock-card:hover {
+        transform: translateY(-3px);
+        transition: all 0.2s ease;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+    }
+</style>
+
 <script>
-/**
- * Efficient Array-based Table Sort
- * @param {number} colIndex - Index of the column
- * @param {string} type - 'number' or 'string'
- */
-function sortTable(colIndex, type) {
-    const table = document.getElementById("reportTable");
-    const tbody = table.querySelector("tbody");
-    const rows = Array.from(tbody.querySelectorAll("tr"));
+function sortCards() {
+    const grid = document.getElementById("cardGrid");
+    const cards = Array.from(grid.getElementsByClassName("stock-card"));
+    const sortBy = document.getElementById("sortSelect").value;
 
-    // Check current sort direction (stored on the table element)
-    const currentDir = table.getAttribute("data-sort-dir") === "asc" ? "desc" : "asc";
-    table.setAttribute("data-sort-dir", currentDir);
-
-    const sortedRows = rows.sort((a, b) => {
-        const aCell = a.cells[colIndex];
-        const bCell = b.cells[colIndex];
-
-        // Get value from data-value attribute, or fallback to textContent
-        let aVal = aCell.getAttribute("data-value") || aCell.textContent.trim();
-        let bVal = bCell.getAttribute("data-value") || bCell.textContent.trim();
-
-        if (type === 'number') {
-            return currentDir === "asc"
-                ? parseFloat(aVal) - parseFloat(bVal)
-                : parseFloat(bVal) - parseFloat(aVal);
-        } else {
-            return currentDir === "asc"
-                ? aVal.localeCompare(bVal)
-                : bVal.localeCompare(aVal);
+    cards.sort((a, b) => {
+        if (sortBy === 'symbol') {
+            return a.dataset.symbol.localeCompare(b.dataset.symbol);
+        } else if (sortBy === 'high') {
+            return parseFloat(a.dataset.high) - parseFloat(b.dataset.high);
+        } else if (sortBy === 'low') {
+            return parseFloat(b.dataset.low) - parseFloat(a.dataset.low);
         }
     });
 
-    // Remove existing rows and append sorted rows
-    while (tbody.firstChild) {
-        tbody.removeChild(tbody.firstChild);
-    }
-    tbody.append(...sortedRows);
+    // Re-append to grid
+    grid.innerHTML = "";
+    cards.forEach(card => grid.appendChild(card));
 }
 </script>
 {% endblock %}
