@@ -9,13 +9,13 @@
         <table id="reportTable" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
             <thead>
                 <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6; cursor: pointer;">
-                    <th onclick="sortTable(0)" style="padding: 12px;">Symbol ↕</th>
-                    <th onclick="sortTable(1)" style="padding: 12px;">Date ↕</th>
-                    <th onclick="sortTable(2)" style="padding: 12px;">Current Price ↕</th>
-                    <th onclick="sortTable(3)" style="padding: 12px;">52W High ↕</th>
-                    <th onclick="sortTable(4)" style="padding: 12px; color: #007bff; background: #eef6ff;">Dist. High % ↕</th>
-                    <th onclick="sortTable(5)" style="padding: 12px;">52W Low ↕</th>
-                    <th onclick="sortTable(6)" style="padding: 12px; color: #007bff; background: #eef6ff;">Dist. Low % ↕</th>
+                    <th onclick="sortTable(0, 'string')" style="padding: 12px;">Symbol ↕</th>
+                    <th onclick="sortTable(1, 'string')" style="padding: 12px;">Date ↕</th>
+                    <th onclick="sortTable(2, 'number')" style="padding: 12px;">Current Price ↕</th>
+                    <th onclick="sortTable(3, 'number')" style="padding: 12px;">52W High ↕</th>
+                    <th onclick="sortTable(4, 'number')" style="padding: 12px; color: #007bff; background: #eef6ff;">Dist. High % ↕</th>
+                    <th onclick="sortTable(5, 'number')" style="padding: 12px;">52W Low ↕</th>
+                    <th onclick="sortTable(6, 'number')" style="padding: 12px; color: #007bff; background: #eef6ff;">Dist. Low % ↕</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,12 +23,12 @@
                 <tr style="border-bottom: 1px solid #eee;">
                     <td style="padding: 12px; font-weight: bold;">{{ row.SYMBOL }}</td>
                     <td style="padding: 12px;">{{ row.DATE1_STR }}</td>
-                    <td style="padding: 12px;">{{ row.LAST_PRICE }}</td>
-                    <td style="padding: 12px; color: #28a745;">{{ row.Adjusted_52_Week_High }}</td>
+                    <td style="padding: 12px;" data-value="{{ row.LAST_PRICE }}">{{ row.LAST_PRICE }}</td>
+                    <td style="padding: 12px; color: #28a745;" data-value="{{ row.Adjusted_52_Week_High }}">{{ row.Adjusted_52_Week_High }}</td>
                     <td style="padding: 12px; color: #dc3545; font-weight: bold;" data-value="{{ row.pct_from_high }}">
                         {{ row.pct_from_high }}%
                     </td>
-                    <td style="padding: 12px; color: #dc3545;">{{ row.Adjusted_52_Week_Low }}</td>
+                    <td style="padding: 12px; color: #dc3545;" data-value="{{ row.Adjusted_52_Week_Low }}">{{ row.Adjusted_52_Week_Low }}</td>
                     <td style="padding: 12px; color: #28a745; font-weight: bold;" data-value="{{ row.pct_from_low }}">
                         +{{ row.pct_from_low }}%
                     </td>
@@ -41,54 +41,43 @@
 
 <script>
 /**
- * Simple Table Sort Logic
- * @param {number} n - The index of the column to sort by
+ * Efficient Array-based Table Sort
+ * @param {number} colIndex - Index of the column
+ * @param {string} type - 'number' or 'string'
  */
-function sortTable(n) {
-    var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-    table = document.getElementById("reportTable");
-    switching = true;
-    dir = "asc";
+function sortTable(colIndex, type) {
+    const table = document.getElementById("reportTable");
+    const tbody = table.querySelector("tbody");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
 
-    while (switching) {
-        switching = false;
-        rows = table.rows;
+    // Check current sort direction (stored on the table element)
+    const currentDir = table.getAttribute("data-sort-dir") === "asc" ? "desc" : "asc";
+    table.setAttribute("data-sort-dir", currentDir);
 
-        for (i = 1; i < (rows.length - 1); i++) {
-            shouldSwitch = false;
-            x = rows[i].getElementsByTagName("TD")[n];
-            y = rows[i + 1].getElementsByTagName("TD")[n];
+    const sortedRows = rows.sort((a, b) => {
+        const aCell = a.cells[colIndex];
+        const bCell = b.cells[colIndex];
 
-            // Use data-value attribute for numeric sorting, otherwise innerText
-            var xVal = x.getAttribute("data-value") ? parseFloat(x.getAttribute("data-value")) : x.innerText.toLowerCase();
-            var yVal = y.getAttribute("data-value") ? parseFloat(y.getAttribute("data-value")) : y.innerText.toLowerCase();
+        // Get value from data-value attribute, or fallback to textContent
+        let aVal = aCell.getAttribute("data-value") || aCell.textContent.trim();
+        let bVal = bCell.getAttribute("data-value") || bCell.textContent.trim();
 
-            // Check if values are numeric
-            var isNum = !isNaN(xVal) && !isNaN(yVal);
-
-            if (dir == "asc") {
-                if (isNum ? (xVal > yVal) : (xVal > yVal)) {
-                    shouldSwitch = true;
-                    break;
-                }
-            } else if (dir == "desc") {
-                if (isNum ? (xVal < yVal) : (xVal < yVal)) {
-                    shouldSwitch = true;
-                    break;
-                }
-            }
-        }
-        if (shouldSwitch) {
-            rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-            switching = true;
-            switchcount ++;
+        if (type === 'number') {
+            return currentDir === "asc"
+                ? parseFloat(aVal) - parseFloat(bVal)
+                : parseFloat(bVal) - parseFloat(aVal);
         } else {
-            if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
-                switching = true;
-            }
+            return currentDir === "asc"
+                ? aVal.localeCompare(bVal)
+                : bVal.localeCompare(aVal);
         }
+    });
+
+    // Remove existing rows and append sorted rows
+    while (tbody.firstChild) {
+        tbody.removeChild(tbody.firstChild);
     }
+    tbody.append(...sortedRows);
 }
 </script>
 {% endblock %}
