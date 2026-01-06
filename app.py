@@ -8,6 +8,7 @@ from baskets_bp import baskets_bp
 from app_delvr_pct_graph import delvr_pct_graph_bp
 from app_my_holdings_bp import my_holdings_bp
 from app_file_upload import file_upload_bp
+from app_yr_new_high_low import yr_new_high_low_bp
 import commonfunctions as cf
 from file_list_config import file_list_config
 import logging
@@ -36,6 +37,7 @@ app.register_blueprint(baskets_bp)
 app.register_blueprint(my_holdings_bp)
 app.register_blueprint(file_upload_bp)
 app.register_blueprint(delvr_pct_graph_bp)
+app.register_blueprint(yr_new_high_low_bp)
 
 # ------------------------
 # Home, Dashboard, Index

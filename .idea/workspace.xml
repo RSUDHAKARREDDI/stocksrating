@@ -5,11 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v24.0 graph enhanced">
+      <change afterPath="$PROJECT_DIR$/app_yr_new_high_low.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/yr_new_high_low.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sreeja_bp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/latest_results.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/latest_results.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/latest_results.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/latest_results.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
