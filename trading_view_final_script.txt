@@ -1,0 +1,160 @@
+//@version=6
+indicator("Enhanced Supertrend + MTF + All HTF Levels", overlay=true)
+
+// ==========================================
+// --- 1. Inputs ---
+// ==========================================
+group_st = "Supertrend Settings"
+atrPeriod = input.int(10, "ATR Length", group=group_st)
+factor = input.float(3.0, "Factor", group=group_st)
+
+group_filters = "Accuracy Filters"
+useEmaFilter = input.bool(true, "Filter with 200 EMA?", group=group_filters)
+emaColor = input.color(color.yellow, "200 EMA Color", group=group_filters)
+useRsiFilter = input.bool(true, "Filter with RSI?", group=group_filters)
+useAdxFilter = input.bool(true, "Filter Low ADX (Chop)?", group=group_filters)
+adxThresh = input.int(20, "Min ADX Threshold", group=group_filters)
+
+group_ma = "Additional Moving Averages"
+show20 = input.bool(true, "Show 20 SMA?", group=group_ma)
+col20  = input.color(color.blue, "20 SMA Color", group=group_ma)
+show50 = input.bool(true, "Show 50 SMA?", group=group_ma)
+col50  = input.color(color.orange, "50 SMA Color", group=group_ma)
+
+group_htf = "HTF Horizontal Lines"
+showMonthly = input.bool(true, "Show Monthly Levels?", group=group_htf)
+showYearly  = input.bool(true, "Show Yearly Levels?", group=group_htf)
+show30Day   = input.bool(true, "Show Rolling 30D High/Low?", group=group_htf)
+show52Week  = input.bool(true, "Show Rolling 52W High/Low?", group=group_htf)
+lineWidth   = input.int(2, "HTF Line Width", minval=1, group=group_htf)
+
+group_tbl = "Dashboard Settings"
+showTable = input.bool(true, "Show MTF Table?", group=group_tbl)
+tblSize   = input.string("small", "Table Size", options=["tiny", "small", "normal", "large"], group=group_tbl)
+
+// ==========================================
+// --- 2. Calculations (Current Chart) ---
+// ==========================================
+[supertrend, direction] = ta.supertrend(factor, atrPeriod)
+ema200 = ta.ema(close, 200)
+sma20  = ta.sma(close, 20)
+sma50  = ta.sma(close, 50)
+rsi    = ta.rsi(close, 14)
+[diplus, diminus, adx] = ta.dmi(14, 14)
+
+// Trading Logic
+isBullishTrend = direction < 0
+isBearishTrend = direction > 0
+
+emaBuy  = useEmaFilter ? (close > ema200) : true
+emaSell = useEmaFilter ? (close < ema200) : true
+rsiBuy  = useRsiFilter ? (rsi > 50) : true
+rsiSell = useRsiFilter ? (rsi < 50) : true
+adxCondition = useAdxFilter ? (adx > adxThresh) : true
+
+stBuy  = ta.change(direction) < 0
+stSell = ta.change(direction) > 0
+
+buySignal  = stBuy and emaBuy and rsiBuy and adxCondition
+sellSignal = stSell and emaSell and rsiSell and adxCondition
+
+// ==========================================
+// --- 3. HTF Data Fetching ---
+// ==========================================
+
+// Monthly & Yearly Levels (Fixed starts)
+[mOpen, mHigh, mLow] = request.security(syminfo.tickerid, "1M", [open, high, low], lookahead=barmerge.lookahead_on)
+[yOpen, yHigh, yLow] = request.security(syminfo.tickerid, "12M", [open, high, low], lookahead=barmerge.lookahead_on)
+
+// Rolling 30-Day High/Low (from Daily timeframe)
+[d30High, d30Low] = request.security(syminfo.tickerid, "D", [ta.highest(high, 30), ta.lowest(low, 30)], lookahead=barmerge.lookahead_on)
+
+// Rolling 52-Week High/Low (from Weekly timeframe)
+[w52High, w52Low] = request.security(syminfo.tickerid, "W", [ta.highest(high, 52), ta.lowest(low, 52)], lookahead=barmerge.lookahead_on)
+
+// ==========================================
+// --- 4. Drawing Logic (Fixed for Overlap) ---
+// ==========================================
+
+// Updated Reusable Global Drawing Function with Offset
+draw_level(price, col, txt, isBold, labelOffset) =>
+    var line l = line.new(bar_index, price, bar_index + 1, price, xloc=xloc.bar_index, extend=extend.both, color=col, width=isBold ? lineWidth + 2 : lineWidth, style=isBold ? line.style_solid : line.style_dashed)
+    line.set_xy1(l, bar_index, price)
+    line.set_xy2(l, bar_index + 1, price)
+
+    // Create label with a specific horizontal offset to avoid stacking
+    var label lbl = label.new(bar_index + labelOffset, price, txt, color=color.new(col, 100), textcolor=col, style=label.style_none, size=size.normal)
+    label.set_xy(lbl, bar_index + labelOffset, price)
+
+if barstate.islast
+    // Labels are staggered: Monthly (Off 5), Yearly (Off 20), 30D (Off 35), 52W (Off 50)
+
+    // Monthly (Fuchsia) - Offset 5
+    if showMonthly
+        draw_level(mHigh, color.new(color.fuchsia, 30), "MTD HIGH", false, 5)
+        draw_level(mOpen, color.new(color.fuchsia, 0),  "MONTH OPEN", true, 5)
+        draw_level(mLow,  color.new(color.fuchsia, 30), "MTD LOW",  false, 5)
+
+    // Yearly (White/Yellow) - Offset 20
+    if showYearly
+        draw_level(yHigh, color.new(color.yellow, 30), "YTD HIGH", false, 20)
+        draw_level(yOpen, color.new(#06f54a, 0),   "YEAR OPEN",  true, 20)
+        draw_level(yLow,  color.new(color.yellow, 30), "YTD LOW",   false, 20)
+
+    // Rolling 30 Day (Orange) - Offset 35
+    if show30Day
+        draw_level(d30High, color.new(#5d06f4, 20), "30D HIGH", false, 35)
+        draw_level(d30Low,  color.new(#3806eb, 20), "30D LOW",  false, 35)
+
+    // Rolling 52 Week (Aqua/Teal) - Offset 50
+    if show52Week
+        draw_level(w52High, color.new(color.aqua, 10), "52W HIGH", true, 50)
+        draw_level(w52Low,  color.new(color.aqua, 10), "52W LOW",  true, 50)
+
+// ==========================================
+// --- 5. MTF Dashboard ---
+// ==========================================
+
+getTrendState() =>
+    [st, dir] = ta.supertrend(factor, atrPeriod)
+    e200 = ta.ema(close, 200)
+    bull = dir < 0 and close > e200
+    bear = dir > 0 and close < e200
+    bull ? 1 : bear ? -1 : 0
+
+update_row(tbl, row, tf_name, tf_val, tSize) =>
+    c   = tf_val == 1 ? color.green : tf_val == -1 ? color.red : color.gray
+    txt = tf_val == 1 ? "BULLISH" : tf_val == -1 ? "BEARISH" : "NEUTRAL"
+    table.cell(tbl, 0, row, tf_name, text_color=color.white, text_size=tSize)
+    table.cell(tbl, 1, row, txt, text_color=color.white, bgcolor=c, text_size=tSize)
+
+t_5m  = request.security(syminfo.tickerid, "5", getTrendState())
+t_15m = request.security(syminfo.tickerid, "15", getTrendState())
+t_60m = request.security(syminfo.tickerid, "60", getTrendState())
+
+if showTable
+    var tbl = table.new(position.top_right, 2, 4, bgcolor=color.new(color.black, 50), frame_color=color.white, frame_width=1)
+    table.cell(tbl, 0, 0, "Timeframe", text_color=color.white, text_size=tblSize, bgcolor=color.gray)
+    table.cell(tbl, 1, 0, "Trend", text_color=color.white, text_size=tblSize, bgcolor=color.gray)
+    update_row(tbl, 1, "5 Min", t_5m, tblSize)
+    update_row(tbl, 2, "15 Min", t_15m, tblSize)
+    update_row(tbl, 3, "1 Hour", t_60m, tblSize)
+
+// ==========================================
+// --- 6. Visuals (Signals & Plots) ---
+// ==========================================
+plot(useEmaFilter ? ema200 : na, color=emaColor, linewidth=3, title="200 EMA")
+plot(show20 ? sma20 : na, color=col20, linewidth=2, title="20 SMA")
+plot(show50 ? sma50 : na, color=col50, linewidth=2, title="50 SMA")
+
+bodyMiddle = plot((open + close) / 2, display=display.none)
+upTrend    = plot(isBullishTrend ? supertrend : na, "Up Trend", color=color.green, style=plot.style_linebr, linewidth=2)
+downTrend  = plot(isBearishTrend ? supertrend : na, "Down Trend", color=color.red, style=plot.style_linebr, linewidth=2)
+fill(bodyMiddle, upTrend, color.new(color.green, 90), fillgaps=false)
+fill(bodyMiddle, downTrend, color.new(color.red, 90), fillgaps=false)
+
+plotshape(buySignal, title="Buy", text="CONFIRMED\nBUY", style=shape.labelup, location=location.belowbar, color=color.green, textcolor=color.white, size=size.small)
+plotshape(sellSignal, title="Sell", text="CONFIRMED\nSELL", style=shape.labeldown, location=location.abovebar, color=color.red, textcolor=color.white, size=size.small)
+
+alertcondition(buySignal, title="Enhanced Buy", message="Buy Signal Detected")
+alertcondition(sellSignal, title="Enhanced Sell", message="Sell Signal Detected")

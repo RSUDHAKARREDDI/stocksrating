@@ -18,7 +18,7 @@ NUM_COLS = [
 	"Return over 1month",
     "Return over 3months",
 	"Return over 6months",
-    "Last result date",
+
     "Current Price",
     "PEG Ratio",
     "Debt to equity",
@@ -58,7 +58,7 @@ def eps_pe_mscaps() -> pd.DataFrame:
       Market Capitalization > 1000
       Return over 1month > 0
       Return over 3months > 5
-      Last result date == 202509
+
       Promoter holding > 70
       Market Capitalization < 20000
 
@@ -81,7 +81,7 @@ def eps_pe_mscaps() -> pd.DataFrame:
         (df["Market Capitalization"] > 1000) &
         (df["Return over 1month"] > 0) &
         (df["Return over 3months"] > 5) &
-        (df["Last result date"] == 202509) &
+
         (df["Promoter holding"] > 70) &
         (df["Market Capitalization"] < 20000)
     )
@@ -111,7 +111,7 @@ def good_roe_roce_more_pe() -> pd.DataFrame:
             (df["Promoter holding"] > 50) &
             (df["EPS latest quarter"] > 2) &
             (df["Market Capitalization"] > 1000) &
-            (df["Last result date"] == 202509) &
+
             (df["Return on equity"] > 20) &
             (df["Return on capital employed"] > 20)
     )
@@ -142,7 +142,7 @@ def good_pe_roe_roce_lcap() -> pd.DataFrame:
             (df["Debt to equity"] < 1) &
             (df["EPS latest quarter"] > 0) &
             (df["Market Capitalization"] > 20000) &
-            (df["Last result date"] == 202509) &
+
             (df["Return on equity"] > 15) &
             (df["Return on capital employed"] > 15)
     )
@@ -172,7 +172,7 @@ def good_pe_less_roe_roce() -> pd.DataFrame:
             (df["Price to Earning"] < df["Industry PE"]) &
             (df["EPS latest quarter"] > 2) &
             (df["Market Capitalization"] > 1000) &
-            (df["Last result date"] == 202509) &
+
             (df["Debt to equity"] < 1) &
             (df["OPM latest quarter"] > 10) &
             (df["Return on equity"] < 15) &
@@ -205,7 +205,7 @@ def good_pe_roe_roce_all_good() -> pd.DataFrame:
             (df["EPS latest quarter"] > 0) &
             (df["Market Capitalization"] < 20000) &
             (df["Market Capitalization"] > 1000) &
-            (df["Last result date"] == 202509) &
+
             (df["Debt to equity"] < 1) &
             (df["Return on equity"] > 15) &
             (df["Return on capital employed"] > 15)
@@ -237,7 +237,7 @@ def good_pe_roe_roce_altimate() -> pd.DataFrame:
             (df["Price to Earning"] < df["Industry PE"]) &
             (df["EPS latest quarter"] > 0) &
             (df["Market Capitalization"] > 1000) &
-            (df["Last result date"] == 202509) &
+
             (df["Debt to equity"] < 1) &
             (df["Return on equity"] > 20) &
             (df["Return on capital employed"] > 20) &
@@ -269,7 +269,7 @@ def less_public_holding() -> pd.DataFrame:
             (df["Public holding"] < 10) &
             (df["Return on equity"] > 15) &
             (df["Return on capital employed"] > 15) &
-            (df["Last result date"] == 202509) &
+
             (df["Promoter holding"] > 50)
 
     )
@@ -299,7 +299,7 @@ def power_bi_query() -> pd.DataFrame:
             (df["Market Capitalization"] > 1000) &
             (df["Return on equity"] > 15) &
             (df["Return on capital employed"] > 15) &
-            (df["Last result date"] == 202509) &
+
             (df["Promoter holding"] > 50)
 
     )

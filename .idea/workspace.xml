@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v24.0 graph enhanced">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v24.0 52 week high low sorting enhanced">
+      <change afterPath="$PROJECT_DIR$/trading_view_final_script.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/yr_new_high_low.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/yr_new_high_low.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/screeners_load.py" beforeDir="false" afterPath="$PROJECT_DIR$/screeners_load.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,7 +72,7 @@
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.files_data_cleanup">
+  <component name="RunManager" selected="Python.screeners_load">
     <configuration name="api_ninja" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
@@ -184,9 +185,9 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.screeners_load" />
         <item itemvalue="Python.files_data_cleanup" />
         <item itemvalue="Python.commonfunctions" />
-        <item itemvalue="Python.screeners_load" />
         <item itemvalue="Python.score_recfactor" />
         <item itemvalue="Python.api_ninja" />
       </list>
@@ -207,14 +208,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00003" summary="path issue corrected">
-      <option name="closed" value="true" />
-      <created>1759640260254</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1759640260254</updated>
     </task>
     <task id="LOCAL-00004" summary="path issue corrected">
       <option name="closed" value="true" />
@@ -600,11 +593,18 @@
       <option name="project" value="LOCAL" />
       <updated>1766889898009</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="v24.0 52 week high low sorting enhanced">
+      <option name="closed" value="true" />
+      <created>1767738417881</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1767738417881</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v3.0 My holdings holding view page enhanced" />
     <MESSAGE value="v4.0 My holdings emojis added" />
     <MESSAGE value="v5.0 My holdings dynamic summary" />
     <MESSAGE value="v6.0 Live price added to my holdings" />
@@ -629,6 +629,7 @@
     <MESSAGE value="v22.0 more functionality added with high/low % added" />
     <MESSAGE value="v23.0 screeners load isue fix due to file path" />
     <MESSAGE value="v24.0 graph enhanced" />
-    <option name="LAST_COMMIT_MESSAGE" value="v24.0 graph enhanced" />
+    <MESSAGE value="v24.0 52 week high low sorting enhanced" />
+    <option name="LAST_COMMIT_MESSAGE" value="v24.0 52 week high low sorting enhanced" />
   </component>
 </project>
