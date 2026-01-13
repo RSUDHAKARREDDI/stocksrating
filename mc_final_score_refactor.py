@@ -15,13 +15,29 @@ scoring_file_name = os.path.join(UPLOAD_DIR, "score_refactor.csv")
 essentials_df = pd.read_csv(essentials_file)
 technicals_df = pd.read_csv(technicals_file)
 
-# Clean column names
+# 1. Clean column names and data
 essentials_df.columns = essentials_df.columns.str.strip()
 technicals_df.columns = technicals_df.columns.str.strip()
 
-# Take only necessary columns from technicals
-technical_subset = technicals_df[["Name", "mc essentials", "mc technicals"]].copy()
-merged_df = pd.merge(essentials_df, technical_subset, how='left', on='Name')
+# Convert codes to strings to avoid float/int comparison issues and strip whitespace
+for df in [essentials_df, technicals_df]:
+    for col in ["BSE Code", "NSE Code"]:
+        if col in df.columns:
+            df[col] = df[col].astype(str).str.strip().replace(['nan', 'None', ''], pd.NA)
+# 2. Select columns from technicals (including the keys for joining)
+tech_cols = ["BSE Code", "NSE Code", "mc essentials", "mc technicals"]
+
+# Filter tech_cols to only those that actually exist in technicals_df
+tech_cols = [c for c in tech_cols if c in technicals_df.columns]
+technical_subset = technicals_df[tech_cols].copy()
+
+merged_df = pd.merge(
+    essentials_df,
+    technical_subset,
+    how='left',
+    on=["BSE Code", "NSE Code"]
+)
+
 
 # --- Refactored Weightage Rules ---
 def score_public_holding(row):
@@ -84,6 +100,11 @@ def score_pe(row):
 
 def score_mc(row):
     try:
+        # Check if the join actually found a value
+        if pd.isna(row["mc essentials"]):
+            return 0
+
+
         essentials = float(row["mc essentials"])
         technicals = str(row["mc technicals"]).strip().lower()
         if essentials > 80 and technicals in ["bullish", "very bullish"]:

@@ -4,8 +4,8 @@ file_list_config = {
         'target_directory': 'datafiles/uploads',
         'table_name': 'latest_results',
         'mode':'replace',
-        'file_pattern': None,
-        'rename_to': None  # Added for consistency
+        'file_pattern': 'latest-results',
+        'rename_to': 'latest-results.csv'  # Added for consistency
     },
     'screeners': {
         'file_list': [
