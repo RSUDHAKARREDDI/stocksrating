@@ -2,9 +2,9 @@ import os
 import pandas as pd
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LATEST_RESULTS  = os.path.join(BASE_DIR, "datafiles", "latestresults", "latest-results.csv")
-MC_TECHNICALS   = os.path.join(BASE_DIR, "datafiles", "mctechnicals", "mc_technicals.csv")
-SCORE_REFACTOR  = os.path.join(BASE_DIR, "datafiles", "score_refactor", "score_refactor.csv")
+LATEST_RESULTS  = os.path.join(BASE_DIR, "datafiles", "uploads", "latest-results.csv")
+MC_TECHNICALS   = os.path.join(BASE_DIR, "datafiles", "uploads", "mc_technicals.csv")
+SCORE_REFACTOR  = os.path.join(BASE_DIR, "datafiles", "uploads", "score_refactor.csv")
 
 def build_score_refactor(latest_results_path=LATEST_RESULTS, mc_technicals_path=MC_TECHNICALS, output_path=SCORE_REFACTOR):
     # -------- load --------

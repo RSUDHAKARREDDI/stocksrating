@@ -6,6 +6,7 @@ from datetime import datetime
 import screeners_load as sf
 from file_list_config import file_list_config
 import files_data_cleanup as fclean
+import mc_final_score_refactor as fsr
 
 
 # -------- Paths (robust & absolute) --------
@@ -81,6 +82,7 @@ def upload_file():
             # --- LOGIC: Specific Post-Processing ---
             if target_name == "latest-results.csv":
                 try:
+                    fsr.process_and_score_stocks()
                     sf.screeners_load()
                     flash("✅ Screeners processed successfully.")
                 except Exception as e:
