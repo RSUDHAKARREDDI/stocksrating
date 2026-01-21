@@ -196,8 +196,8 @@
             <td><span class="num">{{ tscore }}</span></td>
             <td><span class="num">{{ delvrypct | float | round(2) if delvrypct not in ['-', '', None] else '-' }}</span></td>
             <td><span class="num">{{ series }}</span></td>
-            <td><span class="num">{{ wk52_high|round(2)}}</span></td>
-            <td><span class="num">{{ wk52_low|round(2)}}</span></td>
+            <td><span class="num">{{ wk52_high | float | round(2) if wk52_high not in ['-', '', None] else '-' }}</span></td>
+            <td><span class="num">{{ wk52_low | float | round(2) if wk52_low not in ['-', '', None] else '-' }}</span></td>
 
 
             <!-- Position badge (server-side initial render) -->

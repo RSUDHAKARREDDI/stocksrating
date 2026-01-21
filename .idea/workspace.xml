@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v24.0 auto score refactor">
-      <change afterPath="$PROJECT_DIR$/mysql_table_export_import.py" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v25.0 mysql import export">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -217,22 +217,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00006" summary="path issue corrected">
-      <option name="closed" value="true" />
-      <created>1759641815718</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1759641815718</updated>
-    </task>
-    <task id="LOCAL-00007" summary="path issue corrected">
-      <option name="closed" value="true" />
-      <created>1759714754066</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1759714754066</updated>
     </task>
     <task id="LOCAL-00008" summary="path issue corrected">
       <option name="closed" value="true" />
@@ -610,11 +594,26 @@
       <option name="project" value="LOCAL" />
       <updated>1768393352471</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="v25.0 mysql import export">
+      <option name="closed" value="true" />
+      <created>1768981836629</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1768981836631</updated>
+    </task>
+    <task id="LOCAL-00056" summary="v25.0 mysql import export">
+      <option name="closed" value="true" />
+      <created>1768982277754</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1768982277754</updated>
+    </task>
+    <option name="localTasksCounter" value="57" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v6.0 Live price added to my holdings" />
     <MESSAGE value="v7.0 my holdings update fix" />
     <MESSAGE value="v8.0 all KPI columns ordered" />
     <MESSAGE value="v9.0 filters hide and show" />
@@ -639,6 +638,7 @@
     <MESSAGE value="v24.0 52 week high low sorting enhanced" />
     <MESSAGE value="v24.0 screener filter issue fixed" />
     <MESSAGE value="v24.0 auto score refactor" />
-    <option name="LAST_COMMIT_MESSAGE" value="v24.0 auto score refactor" />
+    <MESSAGE value="v25.0 mysql import export" />
+    <option name="LAST_COMMIT_MESSAGE" value="v25.0 mysql import export" />
   </component>
 </project>
