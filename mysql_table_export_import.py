@@ -56,8 +56,9 @@ def import_csv_to_table(table_name, if_exists='append'):
 # -------- Examples of Usage --------
 if __name__ == "__main__":
     # Example 1: Export 'basket' table
-    export_table_to_csv("basket")
-    export_table_to_csv("my_holdings")
+    #export_table_to_csv("basket")
+    #export_table_to_csv("my_holdings")
 
     # Example 2: Import 'basket.csv' back into the database
-    #import_csv_to_table("backup_my_holdings", if_exists="append")
+    import_csv_to_table("basket", if_exists="append")
+    import_csv_to_table("my_holdings", if_exists="append")
