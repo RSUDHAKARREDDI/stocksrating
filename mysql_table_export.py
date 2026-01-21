@@ -33,32 +33,9 @@ def export_table_to_csv(table_name):
         print(f"❌ Export Error for {table_name}: {e}")
 
 
-def import_csv_to_table(table_name, if_exists='append'):
-    """
-    Imports a CSV file named 'table_name.csv' into the MySQL table.
-    if_exists options: 'fail', 'replace', 'append'
-    """
-    try:
-        input_file = os.path.join(DATAFILES_DIR, f"{table_name}.csv")
-
-        if not os.path.exists(input_file):
-            print(f"⚠️ File not found: {input_file}")
-            return
-
-        df = pd.read_csv(input_file)
-        df.to_sql(table_name, con=engine, if_exists=if_exists, index=False)
-
-        print(f"✅ Import Successful: {input_file} -> MySQL table '{table_name}'")
-    except Exception as e:
-        print(f"❌ Import Error for {table_name}: {e}")
-
 
 # -------- Examples of Usage --------
 if __name__ == "__main__":
-    # Example 1: Export 'basket' table
+    print("Export Started...........")
     #export_table_to_csv("basket")
     #export_table_to_csv("my_holdings")
-
-    # Example 2: Import 'basket.csv' back into the database
-    import_csv_to_table("basket", if_exists="append")
-    import_csv_to_table("my_holdings", if_exists="append")
