@@ -60,8 +60,18 @@
     mcap_multi:     $("#f_mcap_multi"),
     mc_tech_multi:  $("#f_mc_tech_multi"),
 
+    r1w_min_r:  $("#f_r1w_min_r"),
+    r1w_hint:   $("#f_r1w_hint"),
+    r1m_min_r:  $("#f_r1m_min_r"),
+    r1m_hint:   $("#f_r1m_hint"),
+    r3m_min_r:  $("#f_r3m_min_r"),
+    r3m_hint:   $("#f_r3m_hint"),
+    r6m_min_r:  $("#f_r6m_min_r"),
+    r6m_hint:   $("#f_r6m_hint"),
+    tscore_min_r: $("#f_tscore_min_r"),
+    tscore_hint:  $("#f_tscore_hint"),
     btn_reset: $("#btn_reset"),
-  };
+};
 
   // Indices (match THEAD order)
   const idx = {
@@ -79,8 +89,10 @@
 
     r1w:21, r1m:22, r3m:23, r6m:24,
 
-    date:25, scr:26, ess:27, tech:28, margin:29,tscore:30
-  };
+    date:25, scr:26, ess:27, tech:28, margin:29,tscore:30,r1w:21, r1m:22, r3m:23, r6m:24,
+    tscore:30
+};
+
 
 function updateDistances() {
   document.querySelectorAll('.dist-container').forEach(container => {
@@ -221,6 +233,11 @@ function updateDistances() {
   setupMinSlider(F.roe_min_r,  F.roe_hint,  idx.roe);
   setupMinSlider(F.roce_min_r, F.roce_hint, idx.roce);
   setupMinSlider(F.ess_min_r,  F.ess_hint,  idx.ess);
+  setupMinSlider(F.r1w_min_r,    F.r1w_hint,    idx.r1w);
+setupMinSlider(F.r1m_min_r,    F.r1m_hint,    idx.r1m);
+setupMinSlider(F.r3m_min_r,    F.r3m_hint,    idx.r3m);
+setupMinSlider(F.r6m_min_r,    F.r6m_hint,    idx.r6m);
+setupMinSlider(F.tscore_min_r, F.tscore_hint, idx.tscore);
 
   // helpers
   function debounce(fn, ms){ let t; return (...args)=>{ clearTimeout(t); t=setTimeout(()=>fn.apply(this,args), ms); }; }
@@ -281,12 +298,20 @@ function updateDistances() {
       const techVal = c[idx.tech].textContent.trim().toLowerCase();
       const techOk  = techSel.size === 0 || techSel.has(techVal);
 
-      const ok = nameOk && industryOk && peOk && roeOk && roceOk && essOk && mcapOk && techOk;
+      const r1wOk = gteIfActive(F.r1w_min_r, c[idx.r1w].textContent);
+      const r1mOk = gteIfActive(F.r1m_min_r, c[idx.r1m].textContent);
+      const r3mOk = gteIfActive(F.r3m_min_r, c[idx.r3m].textContent);
+      const r6mOk = gteIfActive(F.r6m_min_r, c[idx.r6m].textContent);
+      const tscoreOk = gteIfActive(F.tscore_min_r, c[idx.tscore].textContent);
+
+      const ok = nameOk && industryOk && peOk && roeOk && roceOk &&
+                 essOk && mcapOk && techOk &&
+                 r1wOk && r1mOk && r3mOk && r6mOk && tscoreOk;
+
       tr.style.display = ok ? "" : "none";
     });
-
     applyHighlights();
-  }
+}
 
   function resetFilters(){
     [F.name, F.pe_min, F.pe_max].forEach(el => { if(el) el.value = ""; });
@@ -296,10 +321,13 @@ function updateDistances() {
 
     setupMinSlider(F.roe_min_r,  F.roe_hint,  idx.roe);
     setupMinSlider(F.roce_min_r, F.roce_hint, idx.roce);
-    setupMinSlider(F.ess_min_r,  F.ess_hint,  idx.ess);
-
+    setupMinSlider(F.ess_min_r,  F.ess_hint,  idx.ess);setupMinSlider(F.r1w_min_r,    F.r1w_hint,    idx.r1w);
+    setupMinSlider(F.r1m_min_r,    F.r1m_hint,    idx.r1m);
+    setupMinSlider(F.r3m_min_r,    F.r3m_hint,    idx.r3m);
+    setupMinSlider(F.r6m_min_r,    F.r6m_hint,    idx.r6m);
+    setupMinSlider(F.tscore_min_r, F.tscore_hint, idx.tscore);
     applyFilters();
-  }
+}
 
   // initial
   applyFilters(); applyHighlights();updateDistances();

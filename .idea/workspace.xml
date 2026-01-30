@@ -4,9 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v25.0 mysql import export">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v25.0 import export file names renamed">
+      <change afterPath="$PROJECT_DIR$/app_quality_stocks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_latest_results.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/latest_results.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/latest_results.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/quality_stocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/quality_stocks.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/quality_stocks.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/quality_stocks.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,43 +51,65 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Python.api_ninja.executor": "Run",
-    "Python.commonfunctions.executor": "Run",
-    "Python.files_data_cleanup.executor": "Run",
-    "Python.latestresults_to_mysql.executor": "Run",
-    "Python.mc_download_essential_pages.executor": "Run",
-    "Python.mc_download_technical_pages.executor": "Run",
-    "Python.mc_final_score_refactor.executor": "Run",
-    "Python.mc_qualified_companies_filter (1).executor": "Run",
-    "Python.mc_qualified_companies_filter.executor": "Run",
-    "Python.mc_score_refactor.executor": "Run",
-    "Python.mc_trend_score_extract.executor": "Run",
-    "Python.mc_url_genarate.executor": "Run",
-    "Python.mysql_table_export.executor": "Run",
-    "Python.mysql_table_export_import.executor": "Run",
-    "Python.score_recfactor.executor": "Run",
-    "Python.screeners_load.executor": "Run",
-    "Python.test.executor": "Run",
-    "Python.test1.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/T490/PycharmProjects/stocksrating/static"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Python.api_ninja.executor&quot;: &quot;Run&quot;,
+    &quot;Python.commonfunctions.executor&quot;: &quot;Run&quot;,
+    &quot;Python.files_data_cleanup.executor&quot;: &quot;Run&quot;,
+    &quot;Python.latestresults_to_mysql.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mc_download_essential_pages.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mc_download_technical_pages.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mc_final_score_refactor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mc_qualified_companies_filter (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.mc_qualified_companies_filter.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mc_score_refactor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mc_trend_score_extract.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mc_url_genarate.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mysql_table_export.executor&quot;: &quot;Run&quot;,
+    &quot;Python.mysql_table_export_import.executor&quot;: &quot;Run&quot;,
+    &quot;Python.score_recfactor.executor&quot;: &quot;Run&quot;,
+    &quot;Python.screeners_load.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test1.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/T490/PycharmProjects/stocksrating&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\T490\PycharmProjects\stocksrating\static" />
       <recent name="C:\Users\T490\PycharmProjects\stocksrating" />
+      <recent name="C:\Users\T490\PycharmProjects\stocksrating\static" />
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.mysql_table_export_import">
+  <component name="RunManager" selected="Python.mc_final_score_refactor">
+    <configuration name="mc_download_essential_pages" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="stocksrating" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mc_download_essential_pages.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="mc_download_technical_pages" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
@@ -148,6 +176,28 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="mc_url_genarate" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="stocksrating" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mc_url_genarate.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="mysql_table_export" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
@@ -161,29 +211,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mysql_table_export.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="mysql_table_export_import" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="stocksrating" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mysql_table_export_import.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\T490\PycharmProjects\stocksrating\mysql_table_export.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -194,11 +222,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.mysql_table_export_import" />
-        <item itemvalue="Python.mysql_table_export" />
         <item itemvalue="Python.mc_final_score_refactor" />
         <item itemvalue="Python.mc_trend_score_extract" />
         <item itemvalue="Python.mc_download_technical_pages" />
+        <item itemvalue="Python.mc_download_essential_pages" />
+        <item itemvalue="Python.mc_url_genarate" />
       </list>
     </recent_temporary>
   </component>
@@ -217,22 +245,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00008" summary="path issue corrected">
-      <option name="closed" value="true" />
-      <created>1759716061401</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1759716061401</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Path print added">
-      <option name="closed" value="true" />
-      <created>1759741911884</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1759741911885</updated>
     </task>
     <task id="LOCAL-00010" summary="Path print added">
       <option name="closed" value="true" />
@@ -610,12 +622,26 @@
       <option name="project" value="LOCAL" />
       <updated>1768982277754</updated>
     </task>
-    <option name="localTasksCounter" value="57" />
+    <task id="LOCAL-00057" summary="v25.0 my holding rounding issue">
+      <option name="closed" value="true" />
+      <created>1768984762111</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1768984762111</updated>
+    </task>
+    <task id="LOCAL-00058" summary="v25.0 import export file names renamed">
+      <option name="closed" value="true" />
+      <created>1768986555864</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1768986555864</updated>
+    </task>
+    <option name="localTasksCounter" value="59" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v7.0 my holdings update fix" />
-    <MESSAGE value="v8.0 all KPI columns ordered" />
     <MESSAGE value="v9.0 filters hide and show" />
     <MESSAGE value="v10.0 live price pull on demand" />
     <MESSAGE value="v11.0 Security added" />
@@ -639,6 +665,8 @@
     <MESSAGE value="v24.0 screener filter issue fixed" />
     <MESSAGE value="v24.0 auto score refactor" />
     <MESSAGE value="v25.0 mysql import export" />
-    <option name="LAST_COMMIT_MESSAGE" value="v25.0 mysql import export" />
+    <MESSAGE value="v25.0 my holding rounding issue" />
+    <MESSAGE value="v25.0 import export file names renamed" />
+    <option name="LAST_COMMIT_MESSAGE" value="v25.0 import export file names renamed" />
   </component>
 </project>

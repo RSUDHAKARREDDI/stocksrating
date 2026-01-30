@@ -2,9 +2,10 @@ import os
 from datetime import datetime
 from flask import Flask, request, redirect, url_for, flash, render_template,jsonify,session
 from werkzeug.utils import secure_filename
-from sreeja_bp import sreeja_bp
+from app_latest_results import latest_results_bp
 from sravani_bp import sravani_bp
 from baskets_bp import baskets_bp
+from app_quality_stocks import quality_stocks_bp
 from app_delvr_pct_graph import delvr_pct_graph_bp
 from app_my_holdings_bp import my_holdings_bp
 from app_file_upload import file_upload_bp
@@ -31,13 +32,14 @@ app.secret_key = "dev"  # for flashing messages
 
 
 # Register Blueprint
-app.register_blueprint(sreeja_bp)
+app.register_blueprint(latest_results_bp)
 app.register_blueprint(sravani_bp)
 app.register_blueprint(baskets_bp)
 app.register_blueprint(my_holdings_bp)
 app.register_blueprint(file_upload_bp)
 app.register_blueprint(delvr_pct_graph_bp)
 app.register_blueprint(yr_new_high_low_bp)
+app.register_blueprint(quality_stocks_bp)
 
 # ------------------------
 # Home, Dashboard, Index
