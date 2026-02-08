@@ -1,0 +1,173 @@
+(function() {
+  const $ = (s, p = document) => p.querySelector(s);
+  const $$ = (s, p = document) => Array.from(p.querySelectorAll(s));
+
+  const table = $("#resultsTable");
+  if (!table) return;
+  const tbody = table.tBodies[0];
+
+  // Dynamically map column indices based on header text to ensure reuse works even if order changes
+  const headers = $$("#resultsTable thead th").map(th => th.textContent.trim().toLowerCase());
+  const idx = {
+    name: headers.indexOf("name"),
+    industry: headers.indexOf("industry"),
+    price: headers.indexOf("current price"),
+    eps_lq: headers.indexOf("eps latest quarter"),
+    eps_pq: headers.indexOf("eps preceding quarter"),
+    eps_pyq: headers.indexOf("eps preceding year quarter"),
+    roe: headers.indexOf("return on equity"),
+    roce: headers.indexOf("return on capital employed"),
+    pe: headers.indexOf("price to earning"),
+    indpe: headers.indexOf("industry pe"),
+    tscore: headers.indexOf("total score"),
+    deliv: headers.indexOf("delivery %"),
+    tech: headers.indexOf("mc technicals"),
+    ess: headers.indexOf("mc essentials"),
+    scr: headers.indexOf("screener"),
+    mcap_type: headers.indexOf("market cap") // Text version for filtering
+  };
+
+  function toNum(v) {
+    if (!v) return NaN;
+    const s = v.toString().replace(/[^\d.+\-eE]/g, '');
+    return (s === '' || s === '+' || s === '-' || s === '.') ? NaN : parseFloat(s);
+  }
+
+  // ----- UI: Filter Menu Hide/Show -----
+  const pageWrap = $('.page-wrap');
+  const toggleBtn = $('#btn_toggle_filters');
+  const handleBtn = $('#btn_filters_handle');
+  if (toggleBtn && handleBtn && pageWrap) {
+    toggleBtn.addEventListener('click', () => pageWrap.classList.add('filters-offcanvas'));
+    handleBtn.addEventListener('click', () => pageWrap.classList.remove('filters-offcanvas'));
+  }
+
+  // ----- Sorting Logic -----
+  let sortState = { col: null, dir: 1 };
+  $$("#resultsTable thead th").forEach((th, i) => {
+    th.addEventListener("click", () => {
+      const type = th.dataset.type || "text";
+      sortState.dir = (sortState.col === i) ? -sortState.dir : 1;
+      sortState.col = i;
+      $$("#resultsTable thead th").forEach(h => h.classList.remove("sort-asc", "sort-desc"));
+      th.classList.add(sortState.dir === 1 ? "sort-asc" : "sort-desc");
+
+      const rows = $$("#resultsTable tbody tr");
+      rows.sort((a, b) => {
+        const valA = a.children[i].textContent.trim();
+        const valB = b.children[i].textContent.trim();
+        if (type === "num") {
+          const nA = toNum(valA), nB = toNum(valB);
+          return (isNaN(nA) && isNaN(nB)) ? 0 : isNaN(nA) ? 1 : isNaN(nB) ? -1 : (nA - nB) * sortState.dir;
+        }
+        return valA.localeCompare(valB) * sortState.dir;
+      });
+      rows.forEach(r => tbody.appendChild(r));
+    });
+  });
+
+  // ----- Highlights -----
+  function applyHighlights() {
+    $$("#resultsTable tbody tr").forEach(tr => {
+      if (tr.style.display === "none") return;
+      const c = tr.children;
+      [...c].forEach(td => td.classList.remove("bg-good", "bg-bad"));
+
+      const lq = toNum(c[idx.eps_lq].textContent), pq = toNum(c[idx.eps_pq].textContent), pyq = toNum(c[idx.eps_pyq].textContent);
+      if ([lq, pq, pyq].every(isFinite)) {
+        const ok = lq > pq && lq > pyq;
+        [c[idx.eps_lq], c[idx.eps_pq], c[idx.eps_pyq]].forEach(td => td.classList.add(ok ? "bg-good" : "bg-bad"));
+      }
+
+      const pe = toNum(c[idx.pe].textContent), ind = toNum(c[idx.indpe].textContent);
+      if ([pe, ind].every(isFinite)) c[idx.pe].classList.add(pe < ind ? "bg-good" : "bg-bad");
+
+      const sc = toNum(c[idx.tscore].textContent);
+      if (isFinite(sc)) c[idx.tscore].classList.add(sc >= 70 ? "bg-good" : "bg-bad");
+    });
+  }
+
+  // ----- Filter Logic -----
+  function applyFilters() {
+    const f = {
+      name: $("#f_name")?.value.toLowerCase() || "",
+      inds: new Set(Array.from($("#f_industry_multi")?.selectedOptions || []).map(o => o.value.toLowerCase())),
+      techs: new Set(Array.from($("#f_mc_tech_multi")?.selectedOptions || []).map(o => o.value.toLowerCase())),
+      mcaps: new Set(Array.from($("#f_mcap_multi")?.selectedOptions || []).map(o => o.value.toLowerCase())),
+      scrs: new Set(Array.from($("#f_scr_multi")?.selectedOptions || []).map(o => o.value.toLowerCase())),
+      peRel: $("#f_pe_rel")?.value || "all",
+      ranges: {
+        tscore: [parseFloat($("#f_tscore_min")?.value), parseFloat($("#f_tscore_max")?.value)],
+        ess: [parseFloat($("#f_ess_min")?.value), parseFloat($("#f_ess_max")?.value)],
+        roe: [parseFloat($("#f_roe_min")?.value), parseFloat($("#f_roe_max")?.value)],
+        roce: [parseFloat($("#f_roce_min")?.value), parseFloat($("#f_roce_max")?.value)],
+        r1w: [parseFloat($("#f_r1w_min")?.value), parseFloat($("#f_r1w_max")?.value)],
+        r1m: [parseFloat($("#f_r1m_min")?.value), parseFloat($("#f_r1m_max")?.value)]
+      }
+    };
+
+    $$("#resultsTable tbody tr").forEach(tr => {
+      const c = tr.children;
+      const pe = toNum(c[idx.pe].textContent), ind = toNum(c[idx.indpe].textContent);
+      const inRange = (val, r) => {
+        const n = toNum(val);
+        if (isNaN(n)) return true;
+        if (!isNaN(r[0]) && n < r[0]) return false;
+        if (!isNaN(r[1]) && n > r[1]) return false;
+        return true;
+      };
+
+      const ok =
+        (!f.name || c[idx.name].textContent.toLowerCase().includes(f.name)) &&
+        (f.inds.size === 0 || f.inds.has(c[idx.industry].textContent.toLowerCase())) &&
+        (f.techs.size === 0 || f.techs.has(c[idx.tech].textContent.toLowerCase())) &&
+        (f.mcaps.size === 0 || f.mcaps.has(c[idx.mcap_type].textContent.toLowerCase())) &&
+        (f.scrs.size === 0 || f.scrs.has(c[idx.scr].textContent.toLowerCase())) &&
+        inRange(c[idx.tscore].textContent, f.ranges.tscore) &&
+        inRange(c[idx.roe].textContent, f.ranges.roe) &&
+        (f.peRel === 'all' || (f.peRel === 'under' ? pe < ind : pe > ind));
+
+      tr.style.display = ok ? "" : "none";
+    });
+    applyHighlights();
+  }
+
+  // ----- CSV Download -----
+  const downloadBtn = $('#btn_download_csv');
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      const rows = $$("#resultsTable tr");
+      const visibleIndices = Array.from(rows[0].children).map((th, i) => window.getComputedStyle(th).display !== 'none' ? i : null).filter(i => i !== null);
+      const csv = rows.filter(tr => tr.style.display !== 'none').map(tr => visibleIndices.map(i => `"${tr.children[i].innerText.split('\n')[0].trim().replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Stock_Data_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+    });
+  }
+
+  // ----- Initialization -----
+  const fillMulti = (id, col) => {
+    const sel = $(id); if (!sel || col === -1) return;
+    const vals = new Set(); $$("#resultsTable tbody tr").forEach(tr => vals.add(tr.children[col].textContent.trim()));
+    Array.from(vals).filter(v => v).sort().forEach(v => sel.add(new Option(v, v)));
+  };
+
+  const debounce = (fn, ms) => { let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); }; };
+  $$(".filters input, .filters select").forEach(el => el.addEventListener("input", debounce(applyFilters, 150)));
+  $("#btn_reset").onclick = () => location.reload();
+
+  fillMulti("#f_industry_multi", idx.industry);
+  fillMulti("#f_mc_tech_multi", idx.tech);
+  fillMulti("#f_mcap_multi", idx.mcap_type);
+  fillMulti("#f_scr_multi", idx.scr);
+
+  applyFilters();
+  // 52-week distances
+  $$('.dist-container').forEach(cnt => {
+    const p = parseFloat(cnt.dataset.price), h = parseFloat(cnt.dataset.high), l = parseFloat(cnt.dataset.low);
+    if (p && h) cnt.querySelector('.dist-high').textContent = `${((p - h) / h * 100).toFixed(1)}% off High`;
+    if (p && l) cnt.querySelector('.dist-low').textContent = `+${((p - l) / l * 100).toFixed(1)}% from Low`;
+  });
+})();

@@ -4,15 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v25.0 import export file names renamed">
-      <change afterPath="$PROJECT_DIR$/app_quality_stocks.py" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v26.0 added return over period filters">
+      <change afterPath="$PROJECT_DIR$/static/js/dashboard_shared" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sreeja_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_latest_results.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_latest_results.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_latest_results.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_quality_stocks.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_quality_stocks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sravani_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/sravani_bp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/js/latest_results.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/latest_results.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/js/quality_stocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/quality_stocks.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/screeners.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/screeners.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/quality_stocks.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/quality_stocks.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/screeners.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/screeners.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +90,7 @@
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.mc_final_score_refactor">
+  <component name="RunManager" selected="Python.mc_download_technical_pages">
     <configuration name="mc_download_essential_pages" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
@@ -154,7 +157,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="mc_trend_score_extract" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="mc_qualified_companies_filter" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -167,7 +170,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mc_trend_score_extract.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mc_qualified_companies_filter.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -198,35 +201,13 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="mysql_table_export" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="stocksrating" />
-      <option name="ENV_FILES" value="" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="C:\Users\T490\PycharmProjects\stocksrating\mysql_table_export.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.mc_final_score_refactor" />
-        <item itemvalue="Python.mc_trend_score_extract" />
         <item itemvalue="Python.mc_download_technical_pages" />
         <item itemvalue="Python.mc_download_essential_pages" />
         <item itemvalue="Python.mc_url_genarate" />
+        <item itemvalue="Python.mc_qualified_companies_filter" />
+        <item itemvalue="Python.mc_final_score_refactor" />
       </list>
     </recent_temporary>
   </component>
@@ -245,14 +226,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00010" summary="Path print added">
-      <option name="closed" value="true" />
-      <created>1759742379946</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1759742379946</updated>
     </task>
     <task id="LOCAL-00011" summary="Path print added">
       <option name="closed" value="true" />
@@ -638,11 +611,18 @@
       <option name="project" value="LOCAL" />
       <updated>1768986555864</updated>
     </task>
-    <option name="localTasksCounter" value="59" />
+    <task id="LOCAL-00059" summary="v26.0 added return over period filters">
+      <option name="closed" value="true" />
+      <created>1769817372892</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1769817372892</updated>
+    </task>
+    <option name="localTasksCounter" value="60" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v9.0 filters hide and show" />
     <MESSAGE value="v10.0 live price pull on demand" />
     <MESSAGE value="v11.0 Security added" />
     <MESSAGE value="v12.0 Total score included in all reports" />
@@ -667,6 +647,7 @@
     <MESSAGE value="v25.0 mysql import export" />
     <MESSAGE value="v25.0 my holding rounding issue" />
     <MESSAGE value="v25.0 import export file names renamed" />
-    <option name="LAST_COMMIT_MESSAGE" value="v25.0 import export file names renamed" />
+    <MESSAGE value="v26.0 added return over period filters" />
+    <option name="LAST_COMMIT_MESSAGE" value="v26.0 added return over period filters" />
   </component>
 </project>

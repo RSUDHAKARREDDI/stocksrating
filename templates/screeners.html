@@ -1,25 +1,17 @@
 {% extends "layout.html" %}
-{% block title %}Screeners{% endblock %}
+{% block title %}Quality Stocks{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/screeners.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/quality_stocks.css') }}">
 <script defer src="{{ url_for('static', filename='js/screeners.js') }}"></script>
 
 <div class="container">
   <div class="page-wrap">
 
-    <!-- Left panel (filters) -->
     <div class="filters" id="filters">
       <div class="filters-header">
         <h3>Filters</h3>
-        <button
-          type="button"
-          id="btn_toggle_filters"
-          class="filters-toggle"
-          aria-pressed="false"
-          aria-expanded="true"
-          title="Show/Hide filters"
-        >🪄 Hide</button>
+        <button type="button" id="btn_toggle_filters" class="filters-toggle">🪄 Hide</button>
       </div>
 
       <div id="filters_content">
@@ -27,65 +19,84 @@
         <input type="text" id="f_name" placeholder="e.g., TCS">
 
         <label class="label-split">
-          <span>Industry (multi-select)</span>
-          <button type="button" id="btn_industry_pie" title="Show Industry pie chart">📊 Pie</button>
+          <span>Industry (multi)</span>
+          <button type="button" id="btn_industry_pie">📊 Pie</button>
         </label>
         <select id="f_industry_multi" multiple></select>
 
-        <div class="row-flex">
-          <div class="col">
-            <label>P/E ≥</label>
-            <input type="number" step="0.01" id="f_pe_min">
-          </div>
-          <div class="col">
-            <label>P/E ≤</label>
-            <input type="number" step="0.01" id="f_pe_max">
+        <div class="filter-group">
+          <label>Total Score</label>
+          <div class="row-flex">
+            <input type="number" id="f_tscore_min" placeholder="Min">
+            <input type="number" id="f_tscore_max" placeholder="Max">
           </div>
         </div>
 
-        <div class="range-box">
-          <label>ROE ≥</label>
-          <input type="range" id="f_roe_min_r">
-          <small id="f_roe_hint" class="hint">All</small>
+        <div class="filter-group">
+          <label>MC Essentials</label>
+          <div class="row-flex">
+            <input type="number" id="f_ess_min" placeholder="Min">
+            <input type="number" id="f_ess_max" placeholder="Max">
+          </div>
         </div>
 
-        <div class="range-box">
-          <label>ROCE ≥</label>
-          <input type="range" id="f_roce_min_r">
-          <small id="f_roce_hint" class="hint">All</small>
-        </div>
+        <label>MC Technicals (multi)</label>
+        <select id="f_mc_tech_multi" multiple></select>
 
-        <div class="range-box">
-          <label>MC Essentials ≥</label>
-          <input type="range" id="f_ess_min_r">
-          <small id="f_ess_hint" class="hint">All</small>
-        </div>
-
-        <label>Market Cap (multi-select)</label>
+        <label>Market Cap (multi)</label>
         <select id="f_mcap_multi" multiple></select>
 
-        <label>Screener (multi-select)</label>
+        <div class="filter-group">
+          <label>ROE (%)</label>
+          <div class="row-flex">
+            <input type="number" step="0.01" id="f_roe_min" placeholder="Min">
+            <input type="number" step="0.01" id="f_roe_max" placeholder="Max">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>ROCE (%)</label>
+          <div class="row-flex">
+            <input type="number" step="0.01" id="f_roce_min" placeholder="Min">
+            <input type="number" step="0.01" id="f_roce_max" placeholder="Max">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>1 Week Return (%)</label>
+          <div class="row-flex">
+            <input type="number" step="0.01" id="f_r1w_min" placeholder="Min">
+            <input type="number" step="0.01" id="f_r1w_max" placeholder="Max">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label>1 Month Return (%)</label>
+          <div class="row-flex">
+            <input type="number" step="0.01" id="f_r1m_min" placeholder="Min">
+            <input type="number" step="0.01" id="f_r1m_max" placeholder="Max">
+          </div>
+        </div>
+
+        <label>Screener (multi)</label>
         <select id="f_scr_multi" multiple></select>
 
-        <label>MC Technicals (multi-select)</label>
-        <select id="f_mc_tech_multi" multiple></select>
+        <label>P/E vs Industry P/E</label>
+        <select id="f_pe_rel">
+          <option value="all">All</option>
+          <option value="under">P/E < Industry P/E</option>
+          <option value="over">P/E > Industry P/E</option>
+        </select>
 
         <div class="btn-row">
           <button type="button" id="btn_reset">Reset</button>
+            <button type="button" id="btn_download_csv" style="background: #e8f5e9; border: 1px solid #2e7d32; color: #2e7d32; font-weight: bold;">📥 Download CSV</button>
         </div>
       </div>
     </div>
 
-    <!-- Floating handle (shows only when filters are hidden) -->
-    <button
-      type="button"
-      id="btn_filters_handle"
-      class="filters-handle"
-      aria-label="Show filters"
-      title="Show filters"
-    >👉 Filters</button>
+    <button type="button" id="btn_filters_handle" class="filters-handle">👉 Filters</button>
 
-    <!-- Right: Results -->
     <div class="results">
       <h2>Screeners</h2>
       <div class="table-wrap">
@@ -96,45 +107,37 @@
               <th data-type="text">BSE Code</th>
               <th data-type="text">NSE Code</th>
               <th data-type="text">Industry</th>
-              <th data-type="num"  class="num">Current Price</th>
-              <th data-type="num"  class="num">Market Capitalization</th>
+              <th data-type="num" class="num">Current Price</th>
+              <th data-type="num" class="num">Market Capitalization</th>
               <th data-type="text">Market Cap</th>
-
-              <!-- KPI order -->
-              <th data-type="num"  class="num">EPS latest quarter</th>
-              <th data-type="num"  class="num">EPS preceding quarter</th>
-              <th data-type="num"  class="num">EPS preceding year quarter</th>
-
-              <th data-type="num"  class="num">Return on equity</th>
-              <th data-type="num"  class="num">Return on capital employed</th>
-
-              <th data-type="num"  class="num">Price to Earning</th>
-              <th data-type="num"  class="num">Industry PE</th>
-              <th data-type="num"  class="num">PEG Ratio</th>
-
-              <th data-type="num"  class="num">Debt</th>
-              <th data-type="num"  class="num">Debt to equity</th>
-
-              <th data-type="num"  class="num">Promoter holding</th>
-              <th data-type="num"  class="num">FII holding</th>
-              <th data-type="num"  class="num">DII holding</th>
-              <th data-type="num"  class="num">Public holding</th>
-
-              <th data-type="num"  class="num">Return over 1week</th>
-              <th data-type="num"  class="num">Return over 1month</th>
-              <th data-type="num"  class="num">Return over 3months</th>
-              <th data-type="num"  class="num">Return over 6months</th>
-
-              <th data-type="text">Screener</th>
-              <th data-type="num"  class="num">mc essentials</th>
+              <th data-type="num" class="num">EPS latest quarter</th>
+              <th data-type="num" class="num">EPS preceding quarter</th>
+              <th data-type="num" class="num">EPS preceding year quarter</th>
+              <th data-type="num" class="num">Return on equity</th>
+              <th data-type="num" class="num">Return on capital employed</th>
+              <th data-type="num" class="num">Price to Earning</th>
+              <th data-type="num" class="num">Industry PE</th>
+              <th data-type="num" class="num">PEG Ratio</th>
+              <th data-type="num" class="num">Debt</th>
+              <th data-type="num" class="num">Debt to equity</th>
+              <th data-type="num" class="num">Promoter holding</th>
+              <th data-type="num" class="num">FII holding</th>
+              <th data-type="num" class="num">DII holding</th>
+              <th data-type="num" class="num">Public holding</th>
+              <th data-type="num" class="num">Return over 1week</th>
+              <th data-type="num" class="num">Return over 1month</th>
+              <th data-type="num" class="num">Return over 3months</th>
+              <th data-type="num" class="num">Return over 6months</th>
+              <th data-type="date">Last result date</th>
+              <th data-type="text">screener</th>
+              <th data-type="num" class="num">mc essentials</th>
               <th data-type="text">mc technicals</th>
-              <th data-type="num"  class="num">margin</th>
-              <th data-type="num"  class="num">Total Score</th>
-              <th data-type="num" class="num">Delivery % </th>
-            <th data-type="text">Series</th>
-            <th data-type="num" class="num">52 WK High </th>
-            <th data-type="num" class="num">52 WK Low </th>
-
+              <th data-type="num" class="num">Margin</th>
+              <th data-type="num" class="num">Total Score</th>
+              <th data-type="num" class="num">Delivery %</th>
+              <th data-type="text">Series</th>
+              <th data-type="num" class="num">52 WK High</th>
+              <th data-type="num" class="num">52 WK Low</th>
             </tr>
           </thead>
           <tbody>
@@ -145,80 +148,67 @@
               <td>{{ r['NSE Code'] }}</td>
               <td>{{ r['Industry'] }}</td>
               <td class="num">
-  <div class="price-val">{{ r['Current Price'] }}</div>
-  <div class="dist-container"
-       data-price="{{ r['Current Price'] }}"
-       data-high="{{ r['52_Week_High'] }}"
-       data-low="{{ r['52_Week_Low'] }}">
-    <span class="dist-high"></span>
-    <span class="dist-low"></span>
-  </div>
-</td>
+                <div class="price-val">{{ r['Current Price'] }}</div>
+                <div class="dist-container" data-price="{{ r['Current Price'] }}" data-high="{{ r['52_Week_High'] }}" data-low="{{ r['52_Week_Low'] }}">
+                  <span class="dist-high"></span>
+                  <span class="dist-low"></span>
+                </div>
+              </td>
               <td class="num">{{ r['Market Capitalization'] }}</td>
               <td>{{ r['Market Cap'] }}</td>
-
               <td class="num">{{ r['EPS latest quarter'] }}</td>
               <td class="num">{{ r['EPS preceding quarter'] }}</td>
               <td class="num">{{ r['EPS preceding year quarter'] }}</td>
-
               <td class="num">{{ r['Return on equity'] }}</td>
               <td class="num">{{ r['Return on capital employed'] }}</td>
-
               <td class="num">{{ r['Price to Earning'] }}</td>
               <td class="num">{{ r['Industry PE'] }}</td>
               <td class="num">{{ r['PEG Ratio'] }}</td>
-
               <td class="num">{{ r['Debt'] }}</td>
               <td class="num">{{ r['Debt to equity'] }}</td>
-
               <td class="num">{{ r['Promoter holding'] }}</td>
               <td class="num">{{ r['FII holding'] }}</td>
               <td class="num">{{ r['DII holding'] }}</td>
               <td class="num">{{ r['Public holding'] }}</td>
-
               <td class="num">{{ r['Return over 1week'] }}</td>
               <td class="num">{{ r['Return over 1month'] }}</td>
               <td class="num">{{ r['Return over 3months'] }}</td>
               <td class="num">{{ r['Return over 6months'] }}</td>
-
+              <td>{{ r['Last result date'] }}</td>
               <td>{{ r['screener'] }}</td>
               <td class="num">{{ r['mc essentials'] }}</td>
               <td>{{ r['mc technicals'] }}</td>
-              <td class="num">{{ r['margin'] }}</td>
+              <td class="num">{{ r['Margin'] }}</td>
               <td class="num">{{ r['Total Score'] }}</td>
               <td class="num">{{ r['DELIV_PER'] }}</td>
-              <td class="num">{{ r['SERIES'] }}</td>
+              <td>{{ r['SERIES'] }}</td>
               <td class="num">{{ r['52_Week_High'] }}</td>
               <td class="num">{{ r['52_Week_Low'] }}</td>
-
             </tr>
           {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
-
   </div>
 </div>
 
-<!-- Industry Pie Modal -->
 <div class="modal-backdrop" id="modal_backdrop">
   <div class="modal">
     <button class="close" id="modal_close">Close</button>
-    <h3>Industry Distribution (Current View)</h3>
+    <h3>Industry Distribution</h3>
     <canvas id="industry_pie" width="640" height="360"></canvas>
     <div class="legend" id="industry_legend"></div>
   </div>
 </div>
 
-<!-- Row Details Modal -->
 <div class="modal-backdrop" id="row_modal_backdrop">
   <div class="modal">
     <button class="close" id="row_modal_close">Close</button>
     <h3 id="row_modal_title">Record Details</h3>
     <div id="row_modal_body" class="modal-body"></div>
     <div class="modal-actions">
-      <button type="button" id="btn_copy_json" title="Copy this record as JSON">Copy JSON</button>
+      <button type="button" id="btn_copy_json">Copy JSON</button>
     </div>
   </div>
 </div>
