@@ -148,8 +148,8 @@
       c[idxMap.tech].classList.add(isGood ? "bg-good" : "bg-bad");
     }
 
-    // 11. Total Score > 70
-    check(c[idxMap.score]?.textContent || "", (n) => n > 70, idxMap.score);
+    // 11. Total Score >= 70
+    check(c[idxMap.score]?.textContent || "", (n) => n >= 70, idxMap.score);
 
     // 12. Series = EQ
     if (idxMap.series !== -1 && c[idxMap.series]) {
