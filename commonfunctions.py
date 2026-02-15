@@ -110,14 +110,14 @@ def move_files(file_list, target_dir=None, file_list_config=None):
 
 
 def load_files_to_mysql(
-        file_paths: list,  # Changed from directory: str
+        file_paths: list,
         table_name: str,
-        mode:str,
+        mode: str,
         connection_url=connection_url,
 ) -> dict:
     """
     Load a SPECIFIC list of CSV files into a MySQL table.
-    Deletes existing rows, then appends rows from each file path provided.
+    Fully compatible with Pandas 2.3.x and SQLAlchemy 2.0.
     """
     result = {
         "files_received": len(file_paths),
@@ -132,27 +132,28 @@ def load_files_to_mysql(
         raise ValueError("The list of file paths is empty.")
 
     engine = create_engine(connection_url, pool_pre_ping=True)
-    insp = inspect(engine)
-
-    if not insp.has_table(table_name):
-        raise RuntimeError(f'Table "{table_name}" does not exist. Create it first.')
-
-    # Reflect existing columns from the target table
-    existing_cols = {c["name"] for c in insp.get_columns(table_name)}
-    has_market_cap_col = "Market Cap" in existing_cols
-    has_screener_col = "screener" in existing_cols
 
     try:
-        with engine.begin() as conn:
-            # 1. Empty the table first (Truncate/Delete)
+        # Use inspect to check table and columns before opening a connection block
+        insp = inspect(engine)
+        if not insp.has_table(table_name):
+            raise RuntimeError(f'Table "{table_name}" does not exist. Create it first.')
+
+        existing_cols = {c["name"] for c in insp.get_columns(table_name)}
+        has_market_cap_col = "Market Cap" in existing_cols
+        has_screener_col = "screener" in existing_cols
+
+        # Open a single connection for the entire operation
+        with engine.connect() as conn:
+            # 1. Handle "replace" mode using text() for SQLAlchemy 2.0 compatibility
             if mode == "replace":
                 conn.execute(text(f"DELETE FROM {table_name}"))
+                conn.commit()  # Explicitly commit the deletion
                 logging.info(f"Table {table_name} cleared (mode='replace').")
             else:
-                logging.info(f"Table {table_name} kept; appending new data (mode='append').")
+                logging.info(f"Table {table_name} kept; appending new data.")
 
             for path in file_paths:
-                # Get just the filename for logging and screener naming
                 filename = os.path.basename(path)
 
                 if not os.path.exists(path):
@@ -171,18 +172,12 @@ def load_files_to_mysql(
                     result["skipped_files"].append(filename)
                     continue
 
-                # Conditionally add screener using the filename (minus extension)
+                # --- Data Processing Logic ---
                 if has_screener_col:
                     df["screener"] = os.path.splitext(filename)[0]
 
-                # Market Cap logic
                 if has_market_cap_col and ("Market Capitalization" in df.columns):
-                    cap_raw = (
-                        df["Market Capitalization"]
-                        .astype(str)
-                        .str.replace(",", "", regex=False)
-                        .str.strip()
-                    )
+                    cap_raw = df["Market Capitalization"].astype(str).str.replace(",", "", regex=False).str.strip()
                     cap_num = pd.to_numeric(cap_raw, errors="coerce")
 
                     def _cap_bucket(x):
@@ -198,12 +193,14 @@ def load_files_to_mysql(
 
                     df["Market Cap"] = [_cap_bucket(v) for v in cap_num]
 
-                # Align columns with database schema
+                # Align columns and handle NaNs for MySQL NULL compatibility
                 cols_to_use = [c for c in df.columns if c in existing_cols]
-                df = df[cols_to_use]
+                df = df[cols_to_use].copy()
                 df = df.where(pd.notnull(df), None)
 
+                # --- Database Insertion ---
                 try:
+                    # Pass the active connection 'conn' instead of 'engine'
                     df.to_sql(
                         name=table_name,
                         con=conn,
@@ -212,10 +209,14 @@ def load_files_to_mysql(
                         chunksize=1000,
                         method="multi",
                     )
+                    # Commit after each file to ensure data is saved
+                    conn.commit()
+
                     result["processed_files"] += 1
                     result["inserted_rows"] += len(df)
                 except Exception as e:
-                    msg = f"Insert failed: {filename}: {e}"
+                    conn.rollback()  # Rollback if this specific file fails
+                    msg = f"Insert failed: {filename}: {str(e)}"
                     logging.error(msg)
                     result["errors"].append(msg)
                     result["skipped_files"].append(filename)
