@@ -24,8 +24,8 @@ def yr_new_high_low():
         `Adjusted_52_Week_High`,
         `Adjusted_52_Week_Low`
     FROM `vw_bhav_copy` 
-    WHERE (52_week_high_date + INTERVAL 1 DAY = date1 
-       OR 52_week_low_dt + INTERVAL 1 DAY = date1)
+    WHERE (52_week_high_date = date1 
+       OR 52_week_low_dt = date1)
     ORDER BY DATE1 DESC;
     """
 
