@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v28.0 minor issues fixed like page title total score">
-      <change beforePath="$PROJECT_DIR$/commonfunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/commonfunctions.py" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v29.0 52 wee high low fixed">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_yr_new_high_low.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_yr_new_high_low.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/yr_new_high_low.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/yr_new_high_low.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -216,14 +218,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00013" summary="before to add market cap column">
-      <option name="closed" value="true" />
-      <created>1760452486757</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1760452486757</updated>
     </task>
     <task id="LOCAL-00014" summary="v1.0 first report">
       <option name="closed" value="true" />
@@ -609,11 +603,18 @@
       <option name="project" value="LOCAL" />
       <updated>1771121269919</updated>
     </task>
-    <option name="localTasksCounter" value="62" />
+    <task id="LOCAL-00062" summary="v29.0 52 wee high low fixed">
+      <option name="closed" value="true" />
+      <created>1771161379150</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1771161379150</updated>
+    </task>
+    <option name="localTasksCounter" value="63" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v12.0 Total score included in all reports" />
     <MESSAGE value="v13.0 Dashboard Enhancement" />
     <MESSAGE value="v14.0 Dashboard Enhancement" />
     <MESSAGE value="v15.0 score refactor duplicate issue fix/screeners auto upload" />
@@ -638,6 +639,7 @@
     <MESSAGE value="v26.0 added return over period filters" />
     <MESSAGE value="v27.0 All three dashboards modernized-stabled" />
     <MESSAGE value="v28.0 minor issues fixed like page title total score" />
-    <option name="LAST_COMMIT_MESSAGE" value="v28.0 minor issues fixed like page title total score" />
+    <MESSAGE value="v29.0 52 wee high low fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="v29.0 52 wee high low fixed" />
   </component>
 </project>
