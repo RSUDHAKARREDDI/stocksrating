@@ -15,7 +15,7 @@ delvr_pct_graph_bp = Blueprint("delvr_pct_graph_bp", __name__)
 def delvr_pct_graph():
     sql = """
     SELECT SYMBOL, SERIES, DATE1, CLOSE_PRICE, DELIV_PER,TTL_TRD_QNTY,TURNOVER_LACS,NO_OF_TRADES,DELIV_QTY 
-    FROM bhav_copy ;
+    FROM bhav_copy LIMIT 20;
     """
     with engine.connect() as conn:
         result = conn.execute(text(sql)).mappings().all()
@@ -32,7 +32,7 @@ def delvr_pct_graph_symbol(symbol):
     SELECT SYMBOL, SERIES, DATE1, CLOSE_PRICE, DELIV_PER,TTL_TRD_QNTY,TURNOVER_LACS,NO_OF_TRADES,DELIV_QTY 
     FROM bhav_copy 
     WHERE SYMBOL = :symbol 
-    ORDER BY DATE1 ASC;
+    ORDER BY DATE1 DESC LIMIT 20;
     """
     with engine.connect() as conn:
         # Use parameters to prevent SQL injection
