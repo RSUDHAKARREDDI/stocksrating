@@ -4,6 +4,15 @@ from sqlalchemy import create_engine, text
 from urllib.parse import quote_plus
 from api_ninja import build_ticker, get_stock_price
 from app_auth_utils import login_required
+import os, csv
+import sqlite3
+
+# -------- Paths (robust & absolute) --------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+DATAFILES_DIR = os.path.join(BASE_DIR, "datafiles")
+UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles","uploads")
+MARKET_DB_PATH=os.path.join(BASE_DIR, "../options_trading/","datafiles","market_data.db")
 
 try:
     from config_db import HOST, PORT, USER, PASSWORD, DB
@@ -51,57 +60,102 @@ def my_holdings_price(holding_id):
     payload = {"ticker": ticker, **(data if isinstance(data, dict) else {"raw": data})}
     return payload, (200 if "error" not in payload else 502)
 
+
+@my_holdings_bp.route("/my_holdings/live_feed")
+@login_required
+def live_feed():
+    # 1. Load the mapping from your CSV (Instrument Key -> NSE Code)
+    mapping = {}
+    try:
+        # Update this path to your actual mapping CSV file
+        CSV_MAPPING_PATH = os.path.join(BASE_DIR, "../options_trading/","datafiles", "uploads", "matched_holdings.csv")
+        with open(CSV_MAPPING_PATH, mode='r') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                # Key: NSE_EQ|INE... -> Value: TARIL
+                mapping[row['instrument_key']] = row['nse_code']
+    except Exception as e:
+        print(f"Mapping Load Error: {e}")
+
+    try:
+        with sqlite3.connect(MARKET_DB_PATH, timeout=5) as conn:
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute("SELECT symbol, price FROM stocks")
+            rows = cursor.fetchall()
+
+            # 2. Translate keys: instead of "NSE_EQ|...", we send "TARIL"
+            translated_data = {}
+            for row in rows:
+                instrument_key = row['symbol']
+                # If the key exists in our mapping, use the short nse_code (TARIL)
+                # Otherwise, fallback to the instrument key
+                clean_key = mapping.get(instrument_key, instrument_key)
+                translated_data[clean_key] = row['price']
+
+            return translated_data
+    except Exception as e:
+        return {"error": str(e)}, 500
+
 @my_holdings_bp.route("/my_holdings/")
 @login_required
 def my_holdings_list():
     sql = text("""
-SELECT
-    m.holding_id,
-    m.Company_Name,
-    m.Buy_Qty,
-    m.Buy_Price,
-
-    CASE 
-        WHEN m.Sell_Qty > 0 
-            THEN m.Buy_Price   -- use original Buy Price for sold rows
-        ELSE 
-            COALESCE(
-                ROUND(a.total_invested / NULLIF(a.total_buy_qty, 0), 2),
-                m.Buy_Price
-            )                  
-    END AS buy_avg_price,
-
-    m.Buy_Date,
-    m.Sell_Qty,
-    m.Sell_Price,
-    m.Sell_Date,
-    m.Basket_ID,
-    m.`Total Score`,
-    m.`DELIV_PER`,
-    m.`SERIES` ,
-    m.`52_Week_High`,
-    m.`52_Week_Low`
-
-FROM vw_my_holdings AS m
-
-LEFT JOIN (
-      SELECT
-        Company_Name,
-        SUM(Buy_Qty) AS total_buy_qty,
-        SUM(Buy_Qty * Buy_Price) AS total_invested
-      FROM
-        vw_my_holdings
-      WHERE
-        Sell_Qty IS NULL   -- only open buys counted for avg1
-      GROUP BY
-        Company_Name
-) AS a
-ON a.Company_Name = m.Company_Name
-
-ORDER BY m.holding_id DESC
+        SELECT
+            m.holding_id,
+            m.Company_Name,
+            m.Buy_Qty,
+            m.Buy_Price,
+            CASE 
+                WHEN m.Sell_Qty > 0 THEN m.Buy_Price
+                ELSE COALESCE(ROUND(a.total_invested / NULLIF(a.total_buy_qty, 0), 2), m.Buy_Price)                  
+            END AS buy_avg_price,
+            m.Buy_Date,
+            m.Sell_Qty,
+            m.Sell_Price,
+            m.Sell_Date,
+            m.Basket_ID,
+            m.NSE_Code,
+            m.`Total Score`,
+            m.`DELIV_PER`,
+            m.`SERIES`,
+            m.`52_Week_High`,
+            m.`52_Week_Low`
+        FROM vw_my_holdings AS m
+        LEFT JOIN (
+              SELECT
+                Company_Name,
+                SUM(Buy_Qty) AS total_buy_qty,
+                SUM(Buy_Qty * Buy_Price) AS total_invested
+              FROM vw_my_holdings
+              WHERE Sell_Qty IS NULL
+              GROUP BY Company_Name
+        ) AS a ON a.Company_Name = m.Company_Name
+        ORDER BY m.holding_id DESC
     """)
+
     with engine.begin() as conn:
         rows = conn.execute(sql).mappings().all()
+
+    # --- CSV Generation Logic ---
+    try:
+        # Ensure the directory exists
+        os.makedirs(DATAFILES_DIR, exist_ok=True)
+        csv_path = os.path.join(DATAFILES_DIR, "my_holdings.csv")
+
+        with open(csv_path, mode='w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            # Writing Header
+            writer.writerow(["Company_Name", "NSE_Code"])
+
+            # Writing Data Rows
+            for row in rows:
+                writer.writerow([row["Company_Name"], row["NSE_Code"]])
+
+    except Exception as e:
+        # It's usually good to log this rather than crashing the page
+        print(f"Error writing CSV: {e}")
+
     return render_template("my_holdings/my_holdings_list.html", rows=rows)
 
 @my_holdings_bp.route("/my_holdings/create", methods=["GET", "POST"])

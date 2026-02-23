@@ -6,8 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v29.0 52 wee high low fixed">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_yr_new_high_low.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_yr_new_high_low.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/yr_new_high_low.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/yr_new_high_low.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app_my_holdings_bp.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_my_holdings_bp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/my_holdings.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/my_holdings.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

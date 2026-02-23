@@ -392,6 +392,75 @@
     });
   }
 
+function hydrateLivePrices() {
+    fetch('/my_holdings/live_feed')
+      .then(r => r.json())
+      .then(liveData => {
+        if (liveData.error) throw new Error(liveData.error);
+
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.forEach(tr => {
+            const id = tr.dataset.holding_id;
+            const instrumentKey = tr.dataset.company;
+            const livePrice = liveData[instrumentKey];
+
+            if (livePrice !== undefined) {
+                const live = parseFloat(livePrice);
+
+                // 1. Update Live Price Cell
+                const elLP = document.getElementById(`lp-${id}`);
+                if (elLP) {
+                    elLP.innerHTML = `<span style="color: #28a745; font-weight: bold;">₹${live.toFixed(2)}</span>`;
+                }
+
+                // 2. NEW: Update 52 Week Distance Calculations
+                const elDist = document.getElementById(`dist-${id}`);
+                if (elDist) {
+                    const high = parseFloat(elDist.dataset.high);
+                    const low = parseFloat(elDist.dataset.low);
+                    const elHigh = elDist.querySelector('.dist-high');
+                    const elLow = elDist.querySelector('.dist-low');
+
+                    if (!isNaN(high) && high > 0) {
+                        const diffHigh = ((live - high) / high * 100).toFixed(1);
+                        elHigh.textContent = `${diffHigh}% from High`;
+                    }
+                    if (!isNaN(low) && low > 0) {
+                        const diffLow = ((live - low) / low * 100).toFixed(1);
+                        elLow.textContent = `+${((live - low) / low * 100).toFixed(1)}% from Low`;
+                    }
+                }
+
+                // 3. Update Table Values (P/L and Current Value)
+                const buyQty = toNum(tr.dataset.buy_qty);
+                const sellQty = toNum(tr.dataset.sell_qty);
+                const buyPrice = toNum(tr.dataset.buy_price);
+                const remainingQty = Math.max(buyQty - sellQty, 0);
+
+                const investedRemaining = toNum(tr.dataset.invested_remaining, remainingQty * buyPrice);
+                const currentValue = remainingQty * live;
+                const unrealised = currentValue - investedRemaining;
+
+                tr.dataset.current_value = currentValue.toFixed(6);
+                tr.dataset.unrealised = unrealised.toFixed(6);
+
+                const elCV = document.getElementById(`cv-${id}`);
+                const elUG = document.getElementById(`ug-${id}`);
+                if (elCV) elCV.textContent = currentValue.toFixed(2);
+                if (elUG) {
+                    elUG.textContent = unrealised.toFixed(2);
+                    setPLClass(elUG, unrealised);
+                }
+            }
+        });
+        refreshSummaryFromVisible();
+    })
+    .catch(err => console.error('Live Feed Error:', err));
+}
+
+// Automatically refresh prices every 5 seconds
+setInterval(hydrateLivePrices, 5000);
+
   // initial
   computeCompanyAverages();
   applyFilters();
