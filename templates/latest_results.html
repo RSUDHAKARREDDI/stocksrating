@@ -18,9 +18,12 @@
         <label>Name (contains)</label>
         <input type="text" id="f_name" placeholder="e.g., TCS">
 
+        <label>Industry Group (multi)</label>
+        <select id="f_industry_group_multi" multiple></select>
+
         <label class="label-split">
           <span>Industry (multi)</span>
-          <button type="button" id="btn_industry_pie">📊 Pie</button>
+          <button type="button" id="btn_industry_pie">Pie</button>
         </label>
         <select id="f_industry_multi" multiple></select>
 
@@ -90,12 +93,12 @@
 
         <div class="btn-row">
           <button type="button" id="btn_reset">Reset</button>
-          <button type="button" id="btn_download_csv" style="background: #e8f5e9; border: 1px solid #2e7d32; color: #2e7d32; font-weight: bold;">📥 Download CSV</button>
+          <button type="button" id="btn_download_csv" style="background: #e8f5e9; border: 1px solid #2e7d32; color: #2e7d32; font-weight: bold;">Download CSV</button>
         </div>
       </div>
     </div>
 
-    <button type="button" id="btn_filters_handle" class="filters-handle">👉 Filters</button>
+    <button type="button" id="btn_filters_handle" class="filters-handle">Filters</button>
 
     <div class="results">
       <h2>Latest Results</h2>
@@ -106,6 +109,7 @@
               <th data-type="text">Name</th>
               <th data-type="text">BSE Code</th>
               <th data-type="text">NSE Code</th>
+              <th style="display:none;">Industry Group</th>
               <th data-type="text">Industry</th>
               <th data-type="num" class="num">Current Price</th>
               <th data-type="num" class="num">Market Capitalization</th>
@@ -146,6 +150,7 @@
               <td>{{ r['Name'] }}</td>
               <td>{{ r['BSE Code'] }}</td>
               <td>{{ r['NSE Code'] }}</td>
+              <td style="display:none;">{{ r['Industry Group'] }}</td>
               <td>{{ r['Industry'] }}</td>
               <td class="num">
                 <div class="price-val">{{ r['Current Price'] }}</div>
@@ -189,26 +194,6 @@
           </tbody>
         </table>
       </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="modal_backdrop">
-  <div class="modal">
-    <button class="close" id="modal_close">Close</button>
-    <h3>Industry Distribution</h3>
-    <canvas id="industry_pie" width="640" height="360"></canvas>
-    <div class="legend" id="industry_legend"></div>
-  </div>
-</div>
-
-<div class="modal-backdrop" id="row_modal_backdrop">
-  <div class="modal">
-    <button class="close" id="row_modal_close">Close</button>
-    <h3 id="row_modal_title">Record Details</h3>
-    <div id="row_modal_body" class="modal-body"></div>
-    <div class="modal-actions">
-      <button type="button" id="btn_copy_json">Copy JSON</button>
     </div>
   </div>
 </div>

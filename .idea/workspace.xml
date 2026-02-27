@@ -4,9 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="v1.0 investment and trade linked">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="graph limited to last 20 days correct fix">
+      <change afterPath="$PROJECT_DIR$/app_screeners.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_delvr_pct_graph.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_delvr_pct_graph.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/latest_results.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/latest_results.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/quality_stocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/quality_stocks.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/screeners.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/screeners.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/latest_results.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/latest_results.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/quality_stocks.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/quality_stocks.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/screeners.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/screeners.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -81,7 +88,7 @@
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.mc_trend_score_extract">
+  <component name="RunManager" selected="Python.mc_final_score_refactor">
     <configuration name="mc_download_essential_pages" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
@@ -126,7 +133,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="mc_qualified_companies_filter" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="mc_final_score_refactor" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="stocksrating" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -139,7 +146,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mc_qualified_companies_filter.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/mc_final_score_refactor.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -194,11 +201,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.mc_final_score_refactor" />
         <item itemvalue="Python.mc_trend_score_extract" />
         <item itemvalue="Python.mc_download_technical_pages" />
         <item itemvalue="Python.mc_download_essential_pages" />
         <item itemvalue="Python.mc_url_genarate" />
-        <item itemvalue="Python.mc_qualified_companies_filter" />
       </list>
     </recent_temporary>
   </component>
@@ -217,30 +224,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00015" summary="PORT parametrise">
-      <option name="closed" value="true" />
-      <created>1760463826372</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1760463826372</updated>
-    </task>
-    <task id="LOCAL-00016" summary="v2.0 fixes all issue">
-      <option name="closed" value="true" />
-      <created>1760503061983</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1760503061983</updated>
-    </task>
-    <task id="LOCAL-00017" summary="v3.0 fixes all issue">
-      <option name="closed" value="true" />
-      <created>1760504085553</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1760504085553</updated>
     </task>
     <task id="LOCAL-00018" summary="v4.0 Database pointing issue fixes">
       <option name="closed" value="true" />
@@ -610,13 +593,34 @@
       <option name="project" value="LOCAL" />
       <updated>1771854259576</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="graph limited to last 20 days">
+      <option name="closed" value="true" />
+      <created>1771871346364</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1771871346364</updated>
+    </task>
+    <task id="LOCAL-00065" summary="graph limited to last 20 days fix">
+      <option name="closed" value="true" />
+      <created>1771871604890</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1771871604890</updated>
+    </task>
+    <task id="LOCAL-00066" summary="graph limited to last 20 days correct fix">
+      <option name="closed" value="true" />
+      <created>1771871960905</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1771871960905</updated>
+    </task>
+    <option name="localTasksCounter" value="67" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v14.0 Dashboard Enhancement" />
-    <MESSAGE value="v15.0 score refactor duplicate issue fix/screeners auto upload" />
-    <MESSAGE value="v16.0 open / closed positions filter added" />
     <MESSAGE value="v17.0 buying avg price is added" />
     <MESSAGE value="v17.0 scroll bars removed" />
     <MESSAGE value="v17.0 scroll bars removed reverted" />
@@ -639,6 +643,9 @@
     <MESSAGE value="v28.0 minor issues fixed like page title total score" />
     <MESSAGE value="v29.0 52 wee high low fixed" />
     <MESSAGE value="v1.0 investment and trade linked" />
-    <option name="LAST_COMMIT_MESSAGE" value="v1.0 investment and trade linked" />
+    <MESSAGE value="graph limited to last 20 days" />
+    <MESSAGE value="graph limited to last 20 days fix" />
+    <MESSAGE value="graph limited to last 20 days correct fix" />
+    <option name="LAST_COMMIT_MESSAGE" value="graph limited to last 20 days correct fix" />
   </component>
 </project>

@@ -3,7 +3,7 @@ from datetime import datetime
 from flask import Flask, request, redirect, url_for, flash, render_template,jsonify,session
 from werkzeug.utils import secure_filename
 from app_latest_results import latest_results_bp
-from sravani_bp import sravani_bp
+from app_screeners import screeners_bp
 from baskets_bp import baskets_bp
 from app_quality_stocks import quality_stocks_bp
 from app_delvr_pct_graph import delvr_pct_graph_bp
@@ -33,7 +33,7 @@ app.secret_key = "dev"  # for flashing messages
 
 # Register Blueprint
 app.register_blueprint(latest_results_bp)
-app.register_blueprint(sravani_bp)
+app.register_blueprint(screeners_bp)
 app.register_blueprint(baskets_bp)
 app.register_blueprint(my_holdings_bp)
 app.register_blueprint(file_upload_bp)
