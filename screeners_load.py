@@ -107,7 +107,7 @@ def good_roe_roce_more_pe() -> pd.DataFrame:
     cond = (
             (df["EPS latest quarter"] > df["EPS preceding quarter"]) &
             (df["EPS latest quarter"] > df["EPS preceding year quarter"]) &
-            (df["Price to Earning"] < df["Industry PE"]) &
+            (df["Price to Earning"] > df["Industry PE"]) &
             (df["Promoter holding"] > 50) &
             (df["EPS latest quarter"] > 2) &
             (df["Market Capitalization"] > 1000) &

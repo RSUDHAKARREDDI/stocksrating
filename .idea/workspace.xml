@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="graph limited to last 20 days correct fix">
-      <change afterPath="$PROJECT_DIR$/app_screeners.py" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="all dashboards enhanced with industry group added">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/screeners_load.py" beforeDir="false" afterPath="$PROJECT_DIR$/screeners_load.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/latest_results.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/latest_results.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/quality_stocks.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/quality_stocks.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/screeners.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/screeners.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/js/latest_results.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/latest_results.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/js/quality_stocks.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/quality_stocks.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/js/screeners.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/screeners.js" afterDir="false" />
@@ -224,14 +226,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00018" summary="v4.0 Database pointing issue fixes">
-      <option name="closed" value="true" />
-      <created>1760586242626</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1760586242626</updated>
     </task>
     <task id="LOCAL-00019" summary="screener population issue fix">
       <option name="closed" value="true" />
@@ -617,11 +611,18 @@
       <option name="project" value="LOCAL" />
       <updated>1771871960905</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="all dashboards enhanced with industry group added">
+      <option name="closed" value="true" />
+      <created>1772190671906</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1772190671906</updated>
+    </task>
+    <option name="localTasksCounter" value="68" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v17.0 buying avg price is added" />
     <MESSAGE value="v17.0 scroll bars removed" />
     <MESSAGE value="v17.0 scroll bars removed reverted" />
     <MESSAGE value="v18.0 dev pct is added to my holdings" />
@@ -646,6 +647,7 @@
     <MESSAGE value="graph limited to last 20 days" />
     <MESSAGE value="graph limited to last 20 days fix" />
     <MESSAGE value="graph limited to last 20 days correct fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="graph limited to last 20 days correct fix" />
+    <MESSAGE value="all dashboards enhanced with industry group added" />
+    <option name="LAST_COMMIT_MESSAGE" value="all dashboards enhanced with industry group added" />
   </component>
 </project>

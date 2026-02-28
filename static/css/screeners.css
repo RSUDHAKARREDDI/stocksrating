@@ -162,8 +162,52 @@ thead th {
   border-bottom: 2px solid #dee2e6;
 }
 
-/* Accent line on hover */
-tbody tr:hover {
-  background-color: #f8f9fa !important;
-  box-shadow: inset 4px 0 0 #007bff;
+//* Unified Modal Styles */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.modal-content-wrapper {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 95%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+/* Single Line Detail Row */
+.detail-row {
+    display: flex;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-label {
+    color: #666;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.detail-filler {
+    flex-grow: 1;
+    border-bottom: 1px dotted #ccc;
+    margin: 0 8px;
+}
+
+.detail-value {
+    color: #222;
+    font-weight: 500;
+    text-align: right;
 }

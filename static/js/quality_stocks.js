@@ -238,4 +238,62 @@
   fillMulti("#f_mcap_multi", idx.mcap_text);
   fillMulti("#f_scr_multi", idx.scr);
   applyFilters();
+
+  // ----- 7. Unified Record Details Popup -----
+// ----- Unified Single-Line Record Details -----
+  const rowModal = $("#row_modal_backdrop");
+  const rowBody = $("#row_modal_body");
+  const rowTitle = $("#row_modal_title");
+  const rowClose = $("#row_modal_close");
+
+  if (rowModal && tbody) {
+    tbody.addEventListener("click", (e) => {
+      const tr = e.target.closest("tr");
+      // Don't trigger if clicking a button or link inside the row
+      if (!tr || e.target.closest('button, a')) return;
+
+      const headers = $$("#resultsTable thead th");
+      const cells = tr.children;
+      const rowData = {};
+
+      rowTitle.textContent = cells[idx.name].innerText.split('\n')[0].trim();
+      rowBody.innerHTML = "";
+
+      headers.forEach((th, i) => {
+        const label = th.textContent.trim();
+        // Skip hidden columns or empty headers
+        if (!label || window.getComputedStyle(th).display === 'none') return;
+
+        const value = cells[i].innerText.split('\n')[0].trim();
+        rowData[label] = value;
+
+        const item = document.createElement("div");
+        item.className = "detail-row";
+        item.innerHTML = `
+          <span class="detail-label">${label}</span>
+          <span class="detail-filler"></span>
+          <span class="detail-value">${value || '-'}</span>
+        `;
+        rowBody.appendChild(item);
+      });
+
+      $("#btn_copy_json").onclick = () => {
+        navigator.clipboard.writeText(JSON.stringify(rowData, null, 2));
+        alert("Details copied to clipboard!");
+      };
+
+      rowModal.style.display = "flex";
+      document.body.style.overflow = "hidden";
+    });
+
+    const closeRowModal = () => {
+      rowModal.style.display = "none";
+      document.body.style.overflow = "auto";
+    };
+
+    rowClose.onclick = closeRowModal;
+    window.addEventListener("click", (e) => { if (e.target === rowModal) closeRowModal(); });
+  }
+
 })();
+
