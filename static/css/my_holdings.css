@@ -47,18 +47,82 @@
 th[data-key="avg_buy_price"], td #avg- { min-width:110px; }
 
 /* Increased from 5 -> 7 cards */
-.summary-cards{
-  display:grid; grid-template-columns:repeat(7,minmax(120px,1fr));
-  gap:8px; margin:6px 0 10px;
+/* Enhanced & Colorized Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin: 12px 0 18px;
 }
-.summary-card{
-  background:#fff; border:1px solid var(--bd); border-radius:10px;
-  padding:8px 10px; box-shadow:0 1px 6px rgba(0,0,0,.03);
+
+.summary-card {
+  background: #ffffff;
+  border: 1px solid var(--bd);
+  border-left: 4px solid var(--muted); /* Default accent */
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+  transition: all 0.2s ease;
 }
-.summary-card .label{ font-size:11px; color:var(--muted); margin-bottom:4px; }
-.summary-card .value{ font-size:13px; font-weight:700; }
-.pos{ color:var(--pos); font-weight:600; }
-.neg{ color:var(--neg); font-weight:600; }
+
+/* Individual Card Styling by ID */
+
+/* Stats & Totals (Blue Theme) */
+#card_total, #card_companies { color: #2563eb; }
+.summary-card:has(#card_total),
+.summary-card:has(#card_companies) {
+  border-left-color: #2563eb;
+  background: #f8faff;
+}
+
+/* Investment (Indigo Theme) */
+#card_invested { color: #4f46e5; }
+.summary-card:has(#card_invested) {
+  border-left-color: #4f46e5;
+  background: #f5f3ff;
+}
+
+/* Current Value (Violet Theme) */
+#card_current { color: #7c3aed; }
+.summary-card:has(#card_current) {
+  border-left-color: #7c3aed;
+  background: #f5f3ff;
+}
+
+/* Sales (Amber Theme) */
+#card_sell { color: #d97706; }
+.summary-card:has(#card_sell) {
+  border-left-color: #d97706;
+  background: #fffbeb;
+}
+
+/* Unrealized & Realized P/L (Dynamic Green/Red) */
+/* These will use your existing .pos and .neg classes */
+.summary-card:has(.pos) {
+  border-left-color: var(--pos);
+  background: #f0fdf4;
+}
+
+.summary-card:has(.neg) {
+  border-left-color: var(--neg);
+  background: #fef2f2;
+}
+
+/* Typography inside cards */
+.summary-card .label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.summary-card .value {
+  font-size: 20px;
+  font-weight: 800;
+  display: block;
+}
 .muted{ color:var(--muted); }
 
 .table-wrap{ max-height:70vh; overflow:auto; border:1px solid var(--bd); border-radius:10px; }
