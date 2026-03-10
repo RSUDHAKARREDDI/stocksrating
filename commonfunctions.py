@@ -1,7 +1,8 @@
 import pandas as pd
 import glob
-import os, shutil, time
+import os, shutil, time,csv
 from sqlalchemy import create_engine, text,inspect
+import uuid # For unique temp files
 import logging
 import pandas as pd
 from config_db import HOST, PORT, USER, PASSWORD, DB
@@ -113,12 +114,8 @@ def load_files_to_mysql(
         file_paths: list,
         table_name: str,
         mode: str,
-        connection_url=connection_url,
+        connection_url: str = connection_url,
 ) -> dict:
-    """
-    Load a SPECIFIC list of CSV files into a MySQL table.
-    Fully compatible with Pandas 2.3.x and SQLAlchemy 2.0.
-    """
     result = {
         "files_received": len(file_paths),
         "table": table_name,
@@ -128,104 +125,99 @@ def load_files_to_mysql(
         "errors": [],
     }
 
-    if not file_paths:
-        raise ValueError("The list of file paths is empty.")
-
-    engine = create_engine(connection_url, pool_pre_ping=True)
+    # 1. REMOVE the SET SESSION command.
+    # Use allow_local_infile in connect_args instead.
+    engine = create_engine(
+        connection_url,
+        pool_pre_ping=True,
+        isolation_level="AUTOCOMMIT",
+        connect_args={
+            "allow_local_infile": True
+        }
+    )
 
     try:
-        # Use inspect to check table and columns before opening a connection block
         insp = inspect(engine)
         if not insp.has_table(table_name):
-            raise RuntimeError(f'Table "{table_name}" does not exist. Create it first.')
+            raise RuntimeError(f'Table "{table_name}" does not exist.')
 
-        existing_cols = {c["name"] for c in insp.get_columns(table_name)}
+        existing_cols = [c["name"] for c in insp.get_columns(table_name)]
         has_market_cap_col = "Market Cap" in existing_cols
         has_screener_col = "screener" in existing_cols
 
-        # Open a single connection for the entire operation
         with engine.connect() as conn:
-            # 1. Handle "replace" mode using text() for SQLAlchemy 2.0 compatibility
+            # --- REMOVED: conn.execute(text("SET SESSION local_infile = 1;")) ---
+            # This line was causing the 1229 error.
+
             if mode == "replace":
-                conn.execute(text(f"DELETE FROM {table_name}"))
-                conn.commit()  # Explicitly commit the deletion
-                logging.info(f"Table {table_name} cleared (mode='replace').")
-            else:
-                logging.info(f"Table {table_name} kept; appending new data.")
+                conn.execute(text(f"TRUNCATE TABLE `{table_name}`"))
 
             for path in file_paths:
                 filename = os.path.basename(path)
-
                 if not os.path.exists(path):
-                    msg = f"File not found: {path}"
-                    logging.error(msg)
-                    result["errors"].append(msg)
-                    result["skipped_files"].append(filename)
+                    result["errors"].append(f"Missing: {filename}")
                     continue
 
                 try:
                     df = pd.read_csv(path, encoding="utf-8")
-                except Exception as e:
-                    msg = f"Read failed: {filename}: {e}"
-                    logging.error(msg)
-                    result["errors"].append(msg)
-                    result["skipped_files"].append(filename)
-                    continue
 
-                # --- Data Processing Logic ---
-                if has_screener_col:
-                    df["screener"] = os.path.splitext(filename)[0]
+                    # Metadata processing
+                    if has_screener_col:
+                        df["screener"] = os.path.splitext(filename)[0]
 
-                if has_market_cap_col and ("Market Capitalization" in df.columns):
-                    cap_raw = df["Market Capitalization"].astype(str).str.replace(",", "", regex=False).str.strip()
-                    cap_num = pd.to_numeric(cap_raw, errors="coerce")
+                    if has_market_cap_col and ("Market Capitalization" in df.columns):
+                        cap_raw = pd.to_numeric(
+                            df["Market Capitalization"].astype(str).str.replace(",", ""),
+                            errors="coerce"
+                        )
+                        df["Market Cap"] = cap_raw.apply(
+                            lambda x: "MICRO CAP" if x < 1000 else
+                            "SMALL CAP" if x < 5000 else
+                            "MID CAP" if x < 20000 else "LARGE CAP" if pd.notna(x) else None
+                        )
 
-                    def _cap_bucket(x):
-                        if pd.isna(x): return None
-                        if x < 1000:
-                            return "MICRO CAP"
-                        elif x < 5000:
-                            return "SMALL CAP"
-                        elif x < 20000:
-                            return "MID CAP"
-                        else:
-                            return "LARGE CAP"
+                    cols_to_use = [c for c in existing_cols if c in df.columns]
+                    df = df[cols_to_use]
 
-                    df["Market Cap"] = [_cap_bucket(v) for v in cap_num]
-
-                # Align columns and handle NaNs for MySQL NULL compatibility
-                cols_to_use = [c for c in df.columns if c in existing_cols]
-                df = df[cols_to_use].copy()
-                df = df.where(pd.notnull(df), None)
-
-                # --- Database Insertion ---
-                try:
-                    # Pass the active connection 'conn' instead of 'engine'
-                    df.to_sql(
-                        name=table_name,
-                        con=conn,
-                        if_exists="append",
+                    # 2. Fix the "Half-Records" issue (4308 -> 2154)
+                    # We force Unix line endings (\n) to avoid CRLF confusion
+                    temp_csv_path = f"/tmp/bulk_upload_{uuid.uuid4().hex}_{filename}"
+                    df.to_csv(
+                        temp_csv_path,
                         index=False,
-                        chunksize=1000,
-                        method="multi",
+                        header=False,
+                        na_rep='\\N',
+                        sep=',',
+                        quoting=csv.QUOTE_MINIMAL,  # Minimal quoting is more stable
+                        lineterminator='\n'  # Explicitly set \n
                     )
-                    # Commit after each file to ensure data is saved
-                    conn.commit()
+
+                    # 3. Execute LOAD DATA with matching line endings
+                    columns_sql = ", ".join([f"`{c}`" for c in cols_to_use])
+                    load_query = text(f"""
+                        LOAD DATA LOCAL INFILE '{temp_csv_path}'
+                        INTO TABLE `{table_name}`
+                        FIELDS TERMINATED BY ','
+                        OPTIONALLY ENCLOSED BY '"'
+                        ESCAPED BY '\\\\'
+                        LINES TERMINATED BY '\\n'
+                        ({columns_sql})
+                    """)
+
+                    conn.execute(load_query)
+
+                    if os.path.exists(temp_csv_path):
+                        os.remove(temp_csv_path)
 
                     result["processed_files"] += 1
                     result["inserted_rows"] += len(df)
+
                 except Exception as e:
-                    conn.rollback()  # Rollback if this specific file fails
-                    msg = f"Insert failed: {filename}: {str(e)}"
-                    logging.error(msg)
-                    result["errors"].append(msg)
+                    logging.error(f"Failed {filename}: {str(e)}")
+                    result["errors"].append(f"{filename}: {str(e)}")
                     result["skipped_files"].append(filename)
 
-        if result["inserted_rows"] == 0 and result["processed_files"] > 0:
-            raise RuntimeError("Files were processed but no rows were inserted.")
-
         return result
-
     finally:
         engine.dispose()
 

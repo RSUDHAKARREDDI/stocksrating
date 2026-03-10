@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="all dashboards enhanced with consistency design">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="holding dashboard summary cards updated">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/my_holdings.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/my_holdings.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/commonfunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/commonfunctions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -217,14 +217,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00020" summary="screener population issue fix">
-      <option name="closed" value="true" />
-      <created>1760590978228</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1760590978228</updated>
     </task>
     <task id="LOCAL-00021" summary="v5.0 Popup added">
       <option name="closed" value="true" />
@@ -610,11 +602,18 @@
       <option name="project" value="LOCAL" />
       <updated>1772258159321</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="holding dashboard summary cards updated">
+      <option name="closed" value="true" />
+      <created>1772683030891</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1772683030891</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v17.0 scroll bars removed reverted" />
     <MESSAGE value="v18.0 dev pct is added to my holdings" />
     <MESSAGE value="v19.0 52wk high low added" />
     <MESSAGE value="v20.0 code update fixes" />
@@ -639,6 +638,7 @@
     <MESSAGE value="graph limited to last 20 days correct fix" />
     <MESSAGE value="all dashboards enhanced with industry group added" />
     <MESSAGE value="all dashboards enhanced with consistency design" />
-    <option name="LAST_COMMIT_MESSAGE" value="all dashboards enhanced with consistency design" />
+    <MESSAGE value="holding dashboard summary cards updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="holding dashboard summary cards updated" />
   </component>
 </project>
