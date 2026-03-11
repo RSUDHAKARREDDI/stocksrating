@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="data load performance issue fixed">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="latest price added in cards">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commonfunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/commonfunctions.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/yr_new_high_low.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/yr_new_high_low.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -217,22 +217,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00022" summary="Upload files page centered">
-      <option name="closed" value="true" />
-      <created>1760604661811</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1760604661813</updated>
-    </task>
-    <task id="LOCAL-00023" summary="PEG Ration and Debt to Equity added">
-      <option name="closed" value="true" />
-      <created>1760776835709</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1760776835709</updated>
     </task>
     <task id="LOCAL-00024" summary="v1.0 My holdings initial">
       <option name="closed" value="true" />
@@ -610,12 +594,26 @@
       <option name="project" value="LOCAL" />
       <updated>1773129875978</updated>
     </task>
-    <option name="localTasksCounter" value="71" />
+    <task id="LOCAL-00071" summary="data load performance issue fixed 1.0">
+      <option name="closed" value="true" />
+      <created>1773198196253</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1773198196253</updated>
+    </task>
+    <task id="LOCAL-00072" summary="latest price added in cards">
+      <option name="closed" value="true" />
+      <created>1773200708352</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1773200708352</updated>
+    </task>
+    <option name="localTasksCounter" value="73" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v19.0 52wk high low added" />
-    <MESSAGE value="v20.0 code update fixes" />
     <MESSAGE value="v21.0 round issue fix" />
     <MESSAGE value="v21.0 table load issue fix" />
     <MESSAGE value="v22.0 more functionality added with high/low % added" />
@@ -639,6 +637,8 @@
     <MESSAGE value="all dashboards enhanced with consistency design" />
     <MESSAGE value="holding dashboard summary cards updated" />
     <MESSAGE value="data load performance issue fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="data load performance issue fixed" />
+    <MESSAGE value="data load performance issue fixed 1.0" />
+    <MESSAGE value="latest price added in cards" />
+    <option name="LAST_COMMIT_MESSAGE" value="latest price added in cards" />
   </component>
 </project>

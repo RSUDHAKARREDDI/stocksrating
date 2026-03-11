@@ -44,7 +44,7 @@
 
             <div style="display: flex; justify-content: space-between; align-items: start;">
                 <div>
-                    <h3 style="margin: 0; color: #1a73e8; font-size: 0.8em;">{{ row.SYMBOL }}-{{ "{:,.2f}".format(row.LAST_PRICE) }}</h3>
+                    <h3 style="margin: 0; color: #1a73e8; font-size: 0.9em;">{{ row.SYMBOL }}<span style="color: red; font-weight: 600; font-size: 0.8em;">-{{ "{:,.2f}".format(row.LAST_PRICE) }}</span></h3>
                     <span style="font-size: 0.7em; background: #e8f0fe; color: #1967d2; padding: 2px 5px; border-radius: 4px; font-weight: bold;">{{ row.series_val }}</span>
                 </div>
                 <div style="text-align: right;">
