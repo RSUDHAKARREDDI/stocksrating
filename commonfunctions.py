@@ -8,7 +8,7 @@ import pandas as pd
 from config_db import HOST, PORT, USER, PASSWORD, DB
 
 
-connection_url = (f"mysql+mysqlconnector://{USER}:{PASSWORD}@"f"{HOST}:{PORT}/{DB}")
+connection_url = (f"mysql+mysqldb://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}")
 
 
 def _build_dest_map(file_list_config: dict) -> dict:
@@ -130,9 +130,9 @@ def load_files_to_mysql(
     engine = create_engine(
         connection_url,
         pool_pre_ping=True,
-        isolation_level="AUTOCOMMIT",
+        pool_recycle=280,  # CRITICAL: PythonAnywhere kills connections after 300s
         connect_args={
-            "allow_local_infile": True
+            "local_infile": 1  # Standard for mysqlclient/mysqldb
         }
     )
 
@@ -145,9 +145,8 @@ def load_files_to_mysql(
         has_market_cap_col = "Market Cap" in existing_cols
         has_screener_col = "screener" in existing_cols
 
-        with engine.connect() as conn:
-            # --- REMOVED: conn.execute(text("SET SESSION local_infile = 1;")) ---
-            # This line was causing the 1229 error.
+        with engine.connect().execution_options(isolation_level="READ COMMITTED") as conn:
+            conn.execute(text("SET autocommit=1"))
 
             if mode == "replace":
                 conn.execute(text(f"TRUNCATE TABLE `{table_name}`"))
@@ -177,6 +176,7 @@ def load_files_to_mysql(
                         )
 
                     cols_to_use = [c for c in existing_cols if c in df.columns]
+
                     df = df[cols_to_use]
 
                     # 2. Fix the "Half-Records" issue (4308 -> 2154)
@@ -195,14 +195,14 @@ def load_files_to_mysql(
                     # 3. Execute LOAD DATA with matching line endings
                     columns_sql = ", ".join([f"`{c}`" for c in cols_to_use])
                     load_query = text(f"""
-                        LOAD DATA LOCAL INFILE '{temp_csv_path}'
-                        INTO TABLE `{table_name}`
-                        FIELDS TERMINATED BY ','
-                        OPTIONALLY ENCLOSED BY '"'
-                        ESCAPED BY '\\\\'
-                        LINES TERMINATED BY '\\n'
-                        ({columns_sql})
-                    """)
+                                        LOAD DATA LOCAL INFILE '{temp_csv_path}'
+                                        INTO TABLE `{table_name}`
+                                        FIELDS TERMINATED BY ','
+                                        OPTIONALLY ENCLOSED BY '"'
+                                        ESCAPED BY '\\\\'
+                                        LINES TERMINATED BY '\\n'
+                                        ({columns_sql})
+                                    """)
 
                     conn.execute(load_query)
 
