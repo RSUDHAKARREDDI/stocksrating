@@ -158,3 +158,28 @@ th.sortable:hover { background:#f0f4ff; }
 
 /* Optional: prevent buttons from wrapping inside */
 .actions-cell .btn { white-space: nowrap; }
+
+
+/* Score Chip Styling */
+.score-chip {
+  font-weight: 600;
+  min-width: 30px;
+  text-align: center;
+}
+
+.score-chip.high-score {
+  background-color: #dcfce7; /* Light Green */
+  border-color: #86efac;
+  color: #166534;
+}
+
+.score-chip.low-score {
+  background-color: #fee2e2; /* Light Red */
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+
+/* Profit and P/L Colors */
+.pos { color: var(--pos) !important; font-weight: 600; }
+.neg { color: var(--neg) !important; font-weight: 600; }
+.muted { color: var(--muted); }

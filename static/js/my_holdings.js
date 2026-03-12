@@ -481,4 +481,15 @@ setInterval(hydrateLivePrices, 5000);
     })); }
   };
 
+function setPLClass(el, v){
+    el.classList.remove('pos','neg','muted');
+    if (v > 0) {
+        el.classList.add('pos');
+    } else if (v < 0) {
+        el.classList.add('neg');
+    } else {
+        el.classList.add('muted');
+    }
+}
+
 })();

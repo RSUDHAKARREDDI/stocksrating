@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="latest price added in cards">
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="latest price added in cards 1.0">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/yr_new_high_low.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/yr_new_high_low.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/my_holdings.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/my_holdings.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/my_holdings.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/my_holdings.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/my_holdings/my_holdings_list.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -217,14 +219,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00024" summary="v1.0 My holdings initial">
-      <option name="closed" value="true" />
-      <created>1760867389093</created>
-      <option name="number" value="00024" />
-      <option name="presentableId" value="LOCAL-00024" />
-      <option name="project" value="LOCAL" />
-      <updated>1760867389093</updated>
     </task>
     <task id="LOCAL-00025" summary="v2.0 My holdings enhancements with filters">
       <option name="closed" value="true" />
@@ -610,11 +604,18 @@
       <option name="project" value="LOCAL" />
       <updated>1773200708352</updated>
     </task>
-    <option name="localTasksCounter" value="73" />
+    <task id="LOCAL-00073" summary="latest price added in cards 1.0">
+      <option name="closed" value="true" />
+      <created>1773201640321</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1773201640321</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v21.0 round issue fix" />
     <MESSAGE value="v21.0 table load issue fix" />
     <MESSAGE value="v22.0 more functionality added with high/low % added" />
     <MESSAGE value="v23.0 screeners load isue fix due to file path" />
@@ -639,6 +640,7 @@
     <MESSAGE value="data load performance issue fixed" />
     <MESSAGE value="data load performance issue fixed 1.0" />
     <MESSAGE value="latest price added in cards" />
-    <option name="LAST_COMMIT_MESSAGE" value="latest price added in cards" />
+    <MESSAGE value="latest price added in cards 1.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="latest price added in cards 1.0" />
   </component>
 </project>

@@ -193,7 +193,11 @@
             <td class="num {{ profit_class }}">{{ '-' if not has_sell else (profit|round(2)) }}</td>
 
             <td><span class="chip">{{ r.Basket_ID or '-' }}</span></td>
-            <td><span class="num">{{ tscore }}</span></td>
+            <td>
+  <span class="chip score-chip {% if tscore != '-' and tscore|int >= 70 %}high-score{% else %}low-score{% endif %}">
+    {{ tscore }}
+  </span>
+</td>
             <td><span class="num">{{ delvrypct | float | round(2) if delvrypct not in ['-', '', None] else '-' }}</span></td>
             <td><span class="num">{{ series }}</span></td>
             <td><span class="num">{{ wk52_high | float | round(2) if wk52_high not in ['-', '', None] else '-' }}</span></td>
