@@ -1,0 +1,161 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --positive-deep: #157347;
+        --positive-light: #d1e7dd;
+        --negative-deep: #bb2d3b;
+        --negative-light: #f8d7da;
+    }
+
+    body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; }
+
+    .content-wrapper {
+        max-width: 90%;
+        margin: 2rem auto;
+    }
+
+    .main-card {
+        border-radius: 15px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    /* Column Sizing & Cell Format */
+    .table {
+        table-layout: fixed;
+        margin-bottom: 0;
+        font-size: 1.1rem;
+    }
+
+    .table th {
+        background-color: #212529 !important;
+        color: white !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 1.5rem 1rem !important;
+        border: none;
+    }
+
+    .table td {
+        padding: 1.8rem 1rem !important;
+        border: 1px solid #ececec;
+        transition: transform 0.2s;
+    }
+
+    /* Heatmap styling */
+    .cell-pos { background-color: var(--positive-light) !important; color: var(--positive-deep) !important; }
+    .cell-neg { background-color: var(--negative-light) !important; color: var(--negative-deep) !important; }
+    .cell-zero { background-color: #ffffff !important; color: #6c757d !important; }
+
+    .symbol-col {
+        background-color: #fff !important;
+        font-weight: 700;
+        color: #212529;
+        text-align: left !important;
+        padding-left: 2rem !important;
+        width: 25%;
+    }
+
+    /* Modern Search Bar */
+    .dataTables_filter { float: left !important; width: 100%; margin-bottom: 25px; }
+    .dataTables_filter input {
+        width: 400px !important;
+        height: 50px;
+        border-radius: 10px;
+        border: 2px solid #dee2e6;
+        padding-left: 20px;
+        font-size: 1.1rem;
+    }
+
+    /* Source Links Styling */
+    .source-links {
+        font-size: 0.85rem;
+        margin-top: 5px;
+    }
+    .source-links a {
+        color: #0d6efd;
+        text-decoration: none;
+        margin-right: 15px;
+    }
+    .source-links a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="content-wrapper">
+    <div class="main-card bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-0">Index Returns Matrix</h2>
+                <div class="source-links">
+                    <span class="text-muted">Sources:</span>
+                    <a href="https://www.nseindia.com/market-data/live-market-indices/heatmap" target="_blank">NSE Heatmap</a>
+                    <a href="https://www.niftyindices.com/market-data/return-profile" target="_blank">Nifty Return Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="returnsTable" class="table table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th class="symbol-col">Index Symbol</th>
+                        <th class="text-center">1 Month</th>
+                        <th class="text-center">3 Months</th>
+                        <th class="text-center">1 Year</th>
+                        <th class="text-center">3 Years</th>
+                        <th class="text-center">5 Years</th>
+                        <th class="text-center">10 Years</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td class="symbol-col">{{ row['Symbol'] }}</td>
+
+                        {% for col in ['1M', '3M', '1Yr', '3Yr', '5Yr', '10Yr'] %}
+                            {% set val = row[col]|float if row[col] else 0.0 %}
+                            <td class="text-center fw-bold {{ 'cell-neg' if val < 0 else 'cell-pos' if val > 0 else 'cell-zero' }}">
+                                {{ "%.2f"|format(val) }}%
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script>
+/* Independent Script Scope to Avoid Conflict */
+var $returnsTable = jQuery.noConflict(true);
+
+(function($) {
+    $(document).ready(function () {
+        if ($.fn.DataTable.isDataTable('#returnsTable')) {
+            $('#returnsTable').DataTable().destroy();
+        }
+
+        $('#returnsTable').DataTable({
+            "paging": false,
+            "info": false,
+            "order": [[0, "asc"]],
+            "language": {
+                "search": "",
+                "searchPlaceholder": "🔍 Search indices (e.g. Nifty, IT, Bank)..."
+            }
+        });
+    });
+})($returnsTable);
+</script>
+{% endblock %}

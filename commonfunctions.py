@@ -2,10 +2,13 @@ import pandas as pd
 import glob
 import os, shutil, time,csv
 from sqlalchemy import create_engine, text,inspect
+from sqlalchemy.dialects.mysql import insert
 import uuid # For unique temp files
 import logging
 import pandas as pd
 from config_db import HOST, PORT, USER, PASSWORD, DB
+from datetime import datetime
+import numpy as np
 
 
 connection_url = (f"mysql+mysqldb://{USER}:{PASSWORD}@{HOST}:{PORT}/{DB}")
@@ -189,6 +192,7 @@ def load_files_to_mysql(
                         na_rep='\\N',
                         sep=',',
                         quoting=csv.QUOTE_MINIMAL,  # Minimal quoting is more stable
+                        escapechar='\\',  # Add this to match MySQL ESCAPED BY
                         lineterminator='\n'  # Explicitly set \n
                     )
 
@@ -247,6 +251,84 @@ def merge_csv_files(directory="datafiles/temp", output_name="merged_output.csv")
     merged_df.to_csv(output_path, index=False)
 
     print(f"Success! Merged file saved at: {output_path}")
+
+
+def load_files_to_mysql_upsert(
+        file_paths,
+        table_name: str,
+        mode: str = "upsert",  # Changed default to upsert
+        connection_url: str = connection_url,
+) -> dict:
+    result = {
+        "files_received": 0,
+        "table": table_name,
+        "processed_files": 0,
+        "inserted_rows": 0,
+        "skipped_files": [],
+        "errors": []
+    }
+
+    if isinstance(file_paths, str):
+        file_paths = [file_paths]
+
+    result["files_received"] = len(file_paths)
+
+    engine = create_engine(connection_url, pool_pre_ping=True, pool_recycle=280)
+
+    try:
+        insp = inspect(engine)
+        if not insp.has_table(table_name):
+            raise RuntimeError(f'Table "{table_name}" does not exist.')
+
+        existing_cols = [c["name"] for c in insp.get_columns(table_name)]
+
+        for path in file_paths:
+            filename = os.path.basename(path)
+            try:
+                df = pd.read_csv(path, encoding="utf-8")
+                df.columns = [c.replace('.', '_') for c in df.columns]
+
+                cols_to_use = [c for c in existing_cols if c in df.columns]
+                df_to_load = df[cols_to_use].astype(object).replace({np.nan: None})  # Handle NaNs for SQL
+
+                # --- UPSERT LOGIC START ---
+                with engine.begin() as conn:
+                    # 1. Reflect the table structure
+                    from sqlalchemy import MetaData, Table
+                    meta = MetaData()
+                    table = Table(table_name, meta, autoload_with=engine)
+
+                    # 2. Convert DataFrame to list of dictionaries
+                    records = df_to_load.to_dict(orient='records')
+
+                    # 3. Build the Upsert Statement
+                    stmt = insert(table).values(records)
+
+                    # Define which columns to update if the key (name, Trend, date) exists
+                    # We update everything EXCEPT the primary key columns
+                    update_cols = {
+                        c.name: c for c in stmt.inserted
+                        if c.name not in ['name', 'Trend', 'date']
+                    }
+
+                    upsert_stmt = stmt.on_duplicate_key_update(**update_cols)
+
+                    # 4. Execute
+                    conn.execute(upsert_stmt)
+                # --- UPSERT LOGIC END ---
+
+                result["processed_files"] += 1
+                result["inserted_rows"] += len(df_to_load)
+                print(f"✅ Upserted {len(df_to_load)} rows from {filename}")
+
+            except Exception as e:
+                logging.error(f"Failed {filename}: {str(e)}")
+                result["errors"].append(f"{filename}: {str(e)}")
+                result["skipped_files"].append(filename)
+
+        return result
+    finally:
+        engine.dispose()
 
 
 # Run the function

@@ -10,6 +10,9 @@ from app_delvr_pct_graph import delvr_pct_graph_bp
 from app_my_holdings_bp import my_holdings_bp
 from app_file_upload import file_upload_bp
 from app_yr_new_high_low import yr_new_high_low_bp
+from app_index_returns import index_returns_bp
+from app_fii_sector_activity import fii_sector_activity_bp
+from app_daily_trade_stats import daily_trade_stats_bp
 import commonfunctions as cf
 from file_list_config import file_list_config
 import logging
@@ -40,6 +43,10 @@ app.register_blueprint(file_upload_bp)
 app.register_blueprint(delvr_pct_graph_bp)
 app.register_blueprint(yr_new_high_low_bp)
 app.register_blueprint(quality_stocks_bp)
+app.register_blueprint(index_returns_bp)
+app.register_blueprint(fii_sector_activity_bp)
+app.register_blueprint(daily_trade_stats_bp)
+
 
 # ------------------------
 # Home, Dashboard, Index

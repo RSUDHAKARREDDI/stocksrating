@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+from datetime import datetime
 
 # -------- Paths (robust & absolute) --------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -99,6 +100,63 @@ def clean_and_filter_52wk(file_path):
     print(f"✅ Success: {file_path} cleaned and saved.")
     return df
 
-clean_and_filter_bhavcopy(bhav_copy_file)
+def denormalize_sector_activity(input_path, output_path=None):
+    # 1. Load Data
+    df = pd.read_csv(input_path)
+
+    # 2. Identify ID and Date columns
+    id_vars = ['Sectors', 'Trend']
+    date_columns = [col for col in df.columns if col not in id_vars]
+
+    # 3. Melt the data
+    df_melted = df.melt(
+        id_vars=id_vars,
+        value_vars=date_columns,
+        var_name='RAW_DATE',
+        value_name='TRANS_VAL'
+    )
+
+    # 4. Clean TRANS_VAL
+    df_melted['TRANS_VAL'] = (
+        df_melted['TRANS_VAL']
+        .astype(str)
+        .str.replace(',', '')
+        .replace(['nan', 'None', ''], '0')
+    )
+    df_melted['TRANS_VAL'] = pd.to_numeric(df_melted['TRANS_VAL'], errors='coerce').fillna(0)
+
+    # 5. Dynamic Date Derivation
+    current_now = datetime.now()
+    current_month = current_now.month
+    current_year = current_now.year
+
+    def format_mysql_date(date_str):
+        try:
+            temp_date = datetime.strptime(date_str, "%d-%b")
+            column_month = temp_date.month
+            target_year = current_year if column_month <= current_month else current_year - 1
+            return f"{target_year}-{column_month:02d}-{temp_date.day:02d}"
+        except Exception:
+            return None
+
+    df_melted['DATE'] = df_melted['RAW_DATE'].apply(format_mysql_date)
+
+    # 6. Reorder and FORCE 'Trend' to be MySQL-safe
+    df_final = df_melted[['Sectors', 'Trend', 'DATE', 'TRANS_VAL']].copy()
+
+    # CRITICAL: Convert Trend to string and fill NaNs with 'N/A'
+    # This prevents Pandas from sneaking a float 'nan' back in
+    df_final['Trend'] = df_final['Trend'].astype(str).replace('nan', 'NA')
+
+    # 7. Final Sanity Check for the whole DataFrame
+    # We replace any remaining actual NaN objects with None (SQL NULL)
+    df_final = df_final.replace({np.nan: None})
+
+    # 8. Save or Return
+    if output_path:
+        df_final.to_csv(output_path, index=False)
+        print(f"Success: Processed data saved to {output_path}")
+
+    return df_final
 
 

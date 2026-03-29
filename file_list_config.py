@@ -67,5 +67,13 @@ file_list_config = {
         'mode':'replace',
         'file_pattern': 'CM_52_wk_High_low_',
         'rename_to': '52_wk_High_low.csv' # Added .csv
+    },
+    'index_returns': {
+        'file_list': ['Returnprofile_Data.csv'],
+        'target_directory': 'datafiles/uploads',
+        'table_name': 'index_returns',
+        'mode':'replace',
+        'file_pattern': 'Returnprofile_Data',
+        'rename_to': 'Returnprofile_Data.csv' # Added .csv
     }
 }
