@@ -4,20 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="latest price added in cards 1.0">
-      <change afterPath="$PROJECT_DIR$/app_daily_trade_stats.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app_fii_sector_activity.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app_index_returns.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/daily_trade_stats.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/fii_sector_activity.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/index_returns.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_script.py" afterDir="false" />
+    <list default="true" id="d9a20dc4-649a-4f24-a779-e4070e7b95d5" name="Changes" comment="ADDED STATS IT IS MAJOR ENHANCEMENT">
+      <change afterPath="$PROJECT_DIR$/app_daily_trade_stock_stats.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/daily_trade_stock_stats.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commonfunctions.py" beforeDir="false" afterPath="$PROJECT_DIR$/commonfunctions.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/file_list_config.py" beforeDir="false" afterPath="$PROJECT_DIR$/file_list_config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/files_data_cleanup.py" beforeDir="false" afterPath="$PROJECT_DIR$/files_data_cleanup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mc_download_all_pages.py" beforeDir="false" afterPath="$PROJECT_DIR$/mc_download_all_pages.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/layout.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/layout.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -28,8 +19,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -84,14 +75,14 @@
     "Python.test_script.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "C:/Users/T490/PycharmProjects/stocksrating"
+    "last_opened_file_path": "C:/Users/T490/PycharmProjects/stocksrating/templates"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
       <recent name="C:\Users\T490\PycharmProjects\stocksrating" />
       <recent name="C:\Users\T490\PycharmProjects\stocksrating\static" />
-      <recent name="C:\Users\T490\PycharmProjects\stocksrating\templates" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\T490\PycharmProjects\stocksrating" />
@@ -234,14 +225,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1758458218641</updated>
-    </task>
-    <task id="LOCAL-00025" summary="v2.0 My holdings enhancements with filters">
-      <option name="closed" value="true" />
-      <created>1760872788369</created>
-      <option name="number" value="00025" />
-      <option name="presentableId" value="LOCAL-00025" />
-      <option name="project" value="LOCAL" />
-      <updated>1760872788369</updated>
     </task>
     <task id="LOCAL-00026" summary="v3.0 My holdings holding view page enhanced">
       <option name="closed" value="true" />
@@ -627,11 +610,18 @@
       <option name="project" value="LOCAL" />
       <updated>1773201640321</updated>
     </task>
-    <option name="localTasksCounter" value="74" />
+    <task id="LOCAL-00074" summary="ADDED STATS IT IS MAJOR ENHANCEMENT">
+      <option name="closed" value="true" />
+      <created>1774743800810</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1774743800812</updated>
+    </task>
+    <option name="localTasksCounter" value="75" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="v21.0 table load issue fix" />
     <MESSAGE value="v22.0 more functionality added with high/low % added" />
     <MESSAGE value="v23.0 screeners load isue fix due to file path" />
     <MESSAGE value="v24.0 graph enhanced" />
@@ -656,6 +646,7 @@
     <MESSAGE value="data load performance issue fixed 1.0" />
     <MESSAGE value="latest price added in cards" />
     <MESSAGE value="latest price added in cards 1.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="latest price added in cards 1.0" />
+    <MESSAGE value="ADDED STATS IT IS MAJOR ENHANCEMENT" />
+    <option name="LAST_COMMIT_MESSAGE" value="ADDED STATS IT IS MAJOR ENHANCEMENT" />
   </component>
 </project>

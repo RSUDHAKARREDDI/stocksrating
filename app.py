@@ -13,6 +13,7 @@ from app_yr_new_high_low import yr_new_high_low_bp
 from app_index_returns import index_returns_bp
 from app_fii_sector_activity import fii_sector_activity_bp
 from app_daily_trade_stats import daily_trade_stats_bp
+from app_daily_trade_stock_stats import daily_trade_stock_stats_bp
 import commonfunctions as cf
 from file_list_config import file_list_config
 import logging
@@ -46,6 +47,7 @@ app.register_blueprint(quality_stocks_bp)
 app.register_blueprint(index_returns_bp)
 app.register_blueprint(fii_sector_activity_bp)
 app.register_blueprint(daily_trade_stats_bp)
+app.register_blueprint(daily_trade_stock_stats_bp)
 
 
 # ------------------------

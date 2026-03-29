@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<style>
+    /* ... existing styles remain the same ... */
+    .dashboard-container { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 1.5rem; }
+    .table-pivot { font-size: 0.85rem; border-collapse: separate; border-spacing: 0; }
+    .table-pivot thead th { background: #f8fafc; color: #475569; font-weight: 700; text-align: center; border: 1px solid #e2e8f0; padding: 12px; min-width: 120px; }
+    .sticky-col { position: sticky; left: 0; background: white; z-index: 5; border-right: 2px solid #cbd5e1 !important; min-width: 250px; padding-left: 15px !important; }
+    .table-pivot tbody tr:hover td { background-color: #f1f5f9 !important; transition: background 0.1s ease; }
+    .num { font-family: 'JetBrains Mono', monospace; text-align: center; padding: 6px 12px !important; border: 1px solid #f1f5f9; }
+    .row-trades { color: #1e293b; }
+    .row-turnover { color: #64748b; font-size: 0.8rem; }
+    .row-delivery { font-weight: 600; }
+    .hp-high { background-color: rgba(34, 197, 94, 0.12) !important; color: #14532d; }
+    .hp-mid { background-color: rgba(234, 179, 8, 0.1) !important; color: #713f12; }
+    .hp-low { background-color: rgba(239, 68, 68, 0.08) !important; color: #7f1d1d; }
+    .stock-row-start { border-top: 3px solid #cbd5e1 !important; }
+    .stock-name { font-size: 0.95rem; color: #2563eb; letter-spacing: -0.01em; }
+</style>
+
+<div class="container-fluid">
+    <div class="dashboard-container shadow-sm overflow-hidden">
+        <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold">Stock Activity <span class="text-muted fw-normal fs-6">| 15-Day Performance Matrix</span></h5>
+            <div class="small text-muted">Order: Trades → Turnover → Delivery %</div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered table-pivot m-0">
+                <thead>
+                    <tr>
+                        <th class="sticky-col">Stock Name</th>
+                        {% for date in all_dates %}
+                        <th>{{ date }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                {# Loop through each stock in the pivoted data #}
+                {% for stock_name, dates in pivot_data.items() %}
+                <tbody>
+                    {# Row 1: Trades #}
+                    <tr class="stock-row-start row-trades">
+                        <td class="sticky-col stock-name fw-bold">
+                            {{ stock_name }}
+                        </td>
+                        {% for date in all_dates %}
+                            {% set stats = dates.get(date) %}
+                            <td class="num">{{ "{:,.0f}".format(stats.trades) if stats else '-' }}</td>
+                        {% endfor %}
+                    </tr>
+                    {# Row 2: Turnover #}
+                    <tr class="row-turnover">
+                        <td class="sticky-col"></td>
+                        {% for date in all_dates %}
+                            {% set stats = dates.get(date) %}
+                            <td class="num">₹{{ "{:,.1f}".format(stats.turnover) if stats else '-' }}</td>
+                        {% endfor %}
+                    </tr>
+                    {# Row 3: Delivery % with Heatmap #}
+                    <tr class="row-delivery">
+                        <td class="sticky-col"></td>
+                        {% for date in all_dates %}
+                            {% set stats = dates.get(date) %}
+                            <td class="num {% if stats %}{% if stats.delivery >= 60 %}hp-high{% elif stats.delivery >= 40 %}hp-mid{% else %}hp-low{% endif %}{% endif %}">
+                                {{ "%.1f"|format(stats.delivery) if stats else '-' }}%
+                            </td>
+                        {% endfor %}
+                    </tr>
+                </tbody>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
