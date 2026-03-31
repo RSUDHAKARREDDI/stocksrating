@@ -78,6 +78,31 @@
         text-decoration: none;
     }
     .source-link:hover { text-decoration: underline; }
+
+    .cell-total {
+    background-color: #e9ecef !important; /* Light grey */
+    border-left: 2px solid #adb5bd !important;
+    border-right: 2px solid #adb5bd !important;
+    font-weight: 800 !important;
+}
+
+/* New: Distinct Header for Totals */
+    .header-total {
+        background-color: #343a40 !important; /* Darker charcoal */
+        color: #ffc107 !important; /* Amber/Gold text */
+        border-left: 3px solid #495057 !important;
+        text-transform: uppercase;
+    }
+
+    /* New: Distinct Data Cells for Totals */
+    .cell-total {
+        background-color: #F5B027 !important; /* Light gray background */
+        border-left: 2px solid #ced4da !important;
+        border-right: 2px solid #ced4da !important;
+        font-weight: 800 !important; /* Extra bold for the sum */
+    }
+
+
 </style>
 
 <div class="content-wrapper">
@@ -98,26 +123,31 @@
         <div class="table-responsive">
             <table id="fiiTable" class="table table-hover align-middle">
                 <thead>
-                    <tr>
-                        <th class="symbol-col">Sectors</th>
-                        {% for date in unique_dates %}
-                        <th>{{ date }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
+    <tr>
+        <th class="symbol-col">Sectors</th>
+        {% for date in unique_dates %}
+            <th class="{{ 'header-total' if 'TOTAL' in date }}">
+                {{ date }}
+            </th>
+        {% endfor %}
+    </tr>
+</thead>
                 <tbody>
-                    {% for sector, date_values in pivoted_data.items() %}
-                    <tr>
-                        <td class="symbol-col">{{ sector }}</td>
-                        {% for date in unique_dates %}
-                            {% set val = date_values.get(date, 0)|float %}
-                            <td class="{{ 'cell-neg' if val < 0 else 'cell-pos' if val > 0 else 'cell-zero' }}">
-                                {{ "{:,.2f}".format(val) }}
-                            </td>
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
+    {% for sector, date_values in pivoted_data.items() %}
+    <tr>
+        <td class="symbol-col">{{ sector }}</td>
+        {% for date in unique_dates %}
+            {% set val = date_values.get(date, 0)|float %}
+            {# Check if this is a total column to apply special styling #}
+            {% set is_total = 'TOTAL' in date %}
+
+            <td class="{{ 'cell-neg' if val < 0 else 'cell-pos' if val > 0 else 'cell-zero' }} {{ 'cell-total' if is_total }}">
+                {{ "{:,.2f}".format(val) }}
+            </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</tbody>
             </table>
         </div>
     </div>
