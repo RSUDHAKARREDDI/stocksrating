@@ -9,10 +9,11 @@ import sqlite3
 
 # -------- Paths (robust & absolute) --------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TRADE_PATH=os.path.join(BASE_DIR, "../trade/")
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 DATAFILES_DIR = os.path.join(BASE_DIR, "datafiles")
 UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles","uploads")
-MARKET_DB_PATH=os.path.join(BASE_DIR, "../options_trading/","datafiles","market_data.db")
+MARKET_DB_PATH=os.path.join(TRADE_PATH,"datafiles","market_data.db")
 
 try:
     from config_db import HOST, PORT, USER, PASSWORD, DB
@@ -68,7 +69,7 @@ def live_feed():
     mapping = {}
     try:
         # Update this path to your actual mapping CSV file
-        CSV_MAPPING_PATH = os.path.join(BASE_DIR, "../options_trading/","datafiles", "uploads", "matched_holdings.csv")
+        CSV_MAPPING_PATH = os.path.join(TRADE_PATH,"datafiles", "uploads", "matched_holdings.csv")
         with open(CSV_MAPPING_PATH, mode='r') as f:
             reader = csv.DictReader(f)
             for row in reader:
