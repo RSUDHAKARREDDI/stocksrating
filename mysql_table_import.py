@@ -40,5 +40,5 @@ def import_csv_to_table(table_name, if_exists='append'):
 if __name__ == "__main__":
 
     print("Import Started...........")
-    #import_csv_to_table("basket", if_exists="append")
+    import_csv_to_table("basket", if_exists="append")
     import_csv_to_table("my_holdings", if_exists="append")

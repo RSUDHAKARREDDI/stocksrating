@@ -37,5 +37,5 @@ def export_table_to_csv(table_name):
 # -------- Examples of Usage --------
 if __name__ == "__main__":
     print("Export Started...........")
-    #export_table_to_csv("basket")
+    export_table_to_csv("datafiles/basket")
     export_table_to_csv("datafiles/my_holdings")
