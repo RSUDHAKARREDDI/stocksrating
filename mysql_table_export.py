@@ -38,4 +38,4 @@ def export_table_to_csv(table_name):
 if __name__ == "__main__":
     print("Export Started...........")
     #export_table_to_csv("basket")
-    #export_table_to_csv("my_holdings")
+    export_table_to_csv("datafiles/my_holdings")
