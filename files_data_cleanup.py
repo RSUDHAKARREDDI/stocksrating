@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 from datetime import datetime
+import json
 
 # -------- Paths (robust & absolute) --------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -10,6 +11,9 @@ UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles","uploads")
 
 bhav_copy_file = os.path.join(BASE_DIR, "datafiles","uploads","bhav_copy.csv")
 wk_high_low=os.path.join(BASE_DIR, "datafiles","uploads","52_wk_High_low.csv")
+
+COMPANY_LIST=os.path.join(BASE_DIR, "datafiles","uploads","company_list.csv")
+DERIVATIVE_LIST=os.path.join(BASE_DIR, "datafiles","uploads","derivative_stock_list.json")
 
 
 def clean_and_filter_bhavcopy(file_path):
@@ -160,3 +164,37 @@ def denormalize_sector_activity(input_path, output_path=None):
     return df_final
 
 
+def add_derivative_stock_status(company_list_path=COMPANY_LIST, derivative_list_path=DERIVATIVE_LIST, output_csv_path=COMPANY_LIST):
+    """
+    Adds a 'derivative_stock' column to a company CSV list based on matching
+    NSE_Code with asset_symbol from a derivative JSON list.
+    """
+    # 1. Load the company list
+    company_df = pd.read_csv(company_list_path)
+
+    # 2. Load the derivative list and extract all unique asset_symbols
+    with open(derivative_list_path, 'r') as f:
+        derivative_data = json.load(f)
+
+    # We use a set for faster lookup and normalize to uppercase
+    derivative_symbols = {
+        str(item.get('asset_symbol')).strip().upper()
+        for item in derivative_data
+        if item.get('asset_symbol')
+    }
+
+    # 3. Helper function to check for a match
+    def check_match(nse_code):
+        if pd.isna(nse_code):
+            return "no"
+        # Convert to string, strip whitespace, and normalize to uppercase
+        code = str(nse_code).strip().upper()
+        return "yes" if code in derivative_symbols else "no"
+
+    # 4. Apply the matching logic to create the new column
+    company_df['derivative_stock'] = company_df['NSE_Code'].apply(check_match)
+
+    # 5. Save the updated DataFrame to a new CSV
+    company_df.to_csv(output_csv_path, index=False)
+
+    return company_df

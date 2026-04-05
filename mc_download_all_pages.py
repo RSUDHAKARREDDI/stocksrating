@@ -75,7 +75,7 @@ def download_authenticated_data():
 
     options = uc.ChromeOptions()
     # options.add_argument('--headless')
-    driver = uc.Chrome(options=options)
+    driver = uc.Chrome(options=options, version_main=146)
 
     try:
         if not load_cookies_from_file(driver):
@@ -135,4 +135,5 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"🔥 Critical Driver Failure: {e}")
             print("🔁 Restarting entire browser session in 20 seconds...")
+
             time.sleep(20)

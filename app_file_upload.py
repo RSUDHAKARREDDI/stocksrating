@@ -92,6 +92,8 @@ def upload_file():
                 fclean.clean_and_filter_52wk(wk_high_low)
             elif target_name =="bhav_copy.csv":
                 fclean.clean_and_filter_bhavcopy(bhav_copy_file)
+            elif target_name == "company_list.csv":
+                fclean.add_derivative_stock_status()
             else:
                 pass
 
