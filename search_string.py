@@ -37,7 +37,7 @@ def search_word_in_path(search_path, target_word):
 
 
 # Example Usage:
-found_items = search_word_in_path(BASE_DIR, "matched_holdings")
+found_items = search_word_in_path(BASE_DIR, "my_holding_instruments")
 
 print("\n--- Search Results ---")
 print(found_items)

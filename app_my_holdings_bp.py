@@ -9,7 +9,7 @@ import sqlite3
 
 # -------- Paths (robust & absolute) --------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-TRADE_PATH=os.path.join(BASE_DIR, "../trade/")
+TRADE_PATH = os.path.normpath(os.path.join(BASE_DIR, "..", "trade"))
 LOG_DIR = os.path.join(BASE_DIR, "logs")
 DATAFILES_DIR = os.path.join(BASE_DIR, "datafiles")
 UPLOAD_DIR = os.path.join(BASE_DIR, "datafiles","uploads")
@@ -152,6 +152,7 @@ def my_holdings_list():
             # Writing Data Rows
             for row in rows:
                 writer.writerow([row["Company_Name"], row["NSE_Code"]])
+
 
     except Exception as e:
         # It's usually good to log this rather than crashing the page
