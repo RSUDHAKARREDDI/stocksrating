@@ -52,12 +52,14 @@
     }
 
     /* Menu Bar */
-    .menu-bar {
-      width: 100%;
-      background: #555;
-      display: flex;
-      justify-content: center;
-    }
+.menu-bar {
+  width: 100%;
+  background: #555;
+  display: flex;
+  justify-content: center;
+  position: relative; /* Adds a stacking context */
+  z-index: 1000;      /* Keeps the whole bar above the container */
+}
 
     .menu-bar a {
       color: white;
@@ -108,6 +110,62 @@
       background: #f8d7da;
       color: #721c24;
     }
+
+    /* Dropdown Container */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* The actual button/link that triggers the dropdown */
+.dropbtn {
+  color: white;
+  padding: 12px 20px;
+  text-decoration: none;
+  display: block;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #555;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.3); /* Slightly deeper shadow */
+
+  /* THIS IS THE KEY FIX */
+  z-index: 9999;      /* Extremely high number to stay in front of everything */
+  top: 100%;          /* Ensures it starts exactly at the bottom of the bar */
+  left: 0;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: white;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  border-bottom: 1px solid #666;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {
+  background-color: #777;
+}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Change the background color of the dropdown button when active */
+.dropdown:hover .dropbtn {
+  background-color: #777;
+}
   </style>
 </head>
 <body>
@@ -120,25 +178,40 @@
     </div>
   </div>
 
-  <!-- Menu Bar -->
-  <div class="menu-bar">
-    <a href="/my_holdings">Dashboard</a>
-    <a href="/upload-files">Upload</a>
-    <a href="/data-load">Data Load</a>
-    <a href="/latest-results">Latest Results</a>
-    <a href="/screeners">Screeners</a>
-    <a href="/quality-stocks">Quality Stocks</a>
-    <a href="/delvr-pct-graph">Delivery %</a>
-    <a href="/yr-new-high-low">52 Week H/L</a>
-    <a href="/daily-trade-stock-stats">Stock Delv Stats</a>
-    <a href="/daily-trade-stats">Industry Delv Stats</a>
+<div class="menu-bar">
+  <a href="/my_holdings">Dashboard</a>
 
+  <div class="dropdown">
+    <button class="dropbtn">📁 Data & Uploads ▾</button>
+    <div class="dropdown-content">
+      <a href="/upload-files">Upload</a>
+      <a href="/data-load">Data Load</a>
+    </div>
+  </div>
 
-    <a href="/index-returns">Index Returns</a>
-    <a href="/fii-sector-activity">FII Sector Activity</a>
+  <div class="dropdown">
+    <button class="dropbtn">📈 Market Analysis ▾</button>
+    <div class="dropdown-content">
+      <a href="/latest-results">Latest Results</a>
+      <a href="/screeners">Screeners</a>
+      <a href="/quality-stocks">Quality Stocks</a>
+      <a href="/delvr-pct-graph">Delivery %</a>
+      <a href="/yr-new-high-low">52 Week H/L</a>
+    </div>
+  </div>
 
+  <div class="dropdown">
+    <button class="dropbtn">📊 Statistics ▾</button>
+    <div class="dropdown-content">
+      <a href="/daily-trade-stock-stats">Stock Delv Stats</a>
+      <a href="/daily-trade-stats">Industry Delv Stats</a>
+      <a href="/index-returns">Index Returns</a>
+      <a href="/fii-sector-activity">FII Sector Activity</a>
+    </div>
+  </div>
 
-      <a href="{{ url_for('logout') }}">🚪 Logout</a>
+  <a href="{{ url_for('logout') }}">🚪 Logout</a>
+</div>
 
   </div>
   <div class="layout-wrapper">
