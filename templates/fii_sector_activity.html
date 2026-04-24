@@ -101,7 +101,18 @@
         border-right: 2px solid #ced4da !important;
         font-weight: 800 !important; /* Extra bold for the sum */
     }
+/* Styling for the final Grand Total Column */
+.header-overall {
+    background-color: #000000 !important; /* Pure black */
+    color: #00d4ff !important; /* Cyan or high-contrast color */
+    border-left: 4px solid #fff !important;
+}
 
+.cell-overall {
+    background-color: #e2e3e5 !important; /* Distinct gray */
+    border-left: 2px solid #000 !important;
+    font-size: 0.9rem; /* Slightly larger */
+}
 
 </style>
 
@@ -122,26 +133,26 @@
 
         <div class="table-responsive">
             <table id="fiiTable" class="table table-hover align-middle">
-                <thead>
+<thead>
     <tr>
         <th class="symbol-col">Sectors</th>
         {% for date in unique_dates %}
-            <th class="{{ 'header-total' if 'TOTAL' in date }}">
+            <th class="{{ 'header-total' if 'TOTAL' in date }} {{ 'header-overall' if 'OVERALL' in date }}">
                 {{ date }}
             </th>
         {% endfor %}
     </tr>
 </thead>
-                <tbody>
+<tbody>
     {% for sector, date_values in pivoted_data.items() %}
     <tr>
         <td class="symbol-col">{{ sector }}</td>
         {% for date in unique_dates %}
             {% set val = date_values.get(date, 0)|float %}
-            {# Check if this is a total column to apply special styling #}
             {% set is_total = 'TOTAL' in date %}
+            {% set is_overall = 'OVERALL' in date %}
 
-            <td class="{{ 'cell-neg' if val < 0 else 'cell-pos' if val > 0 else 'cell-zero' }} {{ 'cell-total' if is_total }}">
+            <td class="{{ 'cell-neg' if val < 0 else 'cell-pos' if val > 0 else 'cell-zero' }} {{ 'cell-total' if is_total }} {{ 'cell-overall' if is_overall }}">
                 {{ "{:,.2f}".format(val) }}
             </td>
         {% endfor %}
