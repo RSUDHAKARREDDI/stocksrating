@@ -1,0 +1,119 @@
+{% extends "layout.html" %}
+
+{% block title %}Stock Reaction Tracker{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Market Reaction Update</h5>
+            <span id="status-toast" class="badge bg-light text-dark" style="display:none;"></span>
+        </div>
+        <div class="card-body">
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="text" id="searchInput" class="form-control" placeholder="Search by Company Name..." onkeyup="filterTable()">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="stockTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Company Name</th>
+                            <th>NSE Code</th>
+                            <th>Industry</th>
+                            <th>Reaction</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in rows %}
+                        <tr>
+                            <td class="company-name"><strong>{{ row.Name }}</strong></td>
+                            <td><span class="badge border text-dark">{{ row.NSE_Code }}</span></td>
+                            <td><small class="text-muted">{{ row.Industry }}</small></td>
+                            <td>
+                                <select class="form-select form-select-sm" id="select-{{ row.Company_ID }}">
+                                    <option value="" {% if not row.stock_reaction %}selected{% endif %}>Select...</option>
+                                    <option value="Positive" {% if row.stock_reaction == 'Positive' %}selected{% endif %}>🚀 Positive</option>
+                                    <option value="Neutral" {% if row.stock_reaction == 'Neutral' %}selected{% endif %}>⚖️ Neutral</option>
+                                    <option value="Negative" {% if row.stock_reaction == 'Negative' %}selected{% endif %}>🔻 Negative</option>
+                                </select>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" onclick="saveData('{{ row.Company_ID }}', this)">
+                                    Update
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Search Functionality
+function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("stockTable");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+        const td = tr[i].getElementsByClassName("company-name")[0];
+        if (td) {
+            const txtValue = td.textContent || td.innerText;
+            tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+        }
+    }
+}
+
+// Update Functionality
+function saveData(companyId, btnElement) {
+    const selectElement = document.getElementById(`select-${companyId}`);
+    const reactionValue = selectElement.value;
+    const toast = document.getElementById('status-toast');
+
+    // Visual feedback on button
+    const originalText = btnElement.innerText;
+    btnElement.innerText = "Saving...";
+    btnElement.disabled = true;
+
+    fetch('/update-reaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            company_id: companyId,
+            reaction: reactionValue
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === "success") {
+            toast.innerText = "Update Successful!";
+            toast.style.display = 'inline';
+            btnElement.className = "btn btn-sm btn-success";
+            btnElement.innerText = "Saved";
+
+            setTimeout(() => {
+                toast.style.display = 'none';
+                btnElement.className = "btn btn-sm btn-outline-primary";
+                btnElement.innerText = "Update";
+                btnElement.disabled = false;
+            }, 1500);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating data');
+        btnElement.innerText = "Retry";
+        btnElement.disabled = false;
+    });
+}
+</script>
+{% endblock %}

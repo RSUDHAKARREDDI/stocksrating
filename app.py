@@ -4,6 +4,7 @@ from flask import Flask, request, redirect, url_for, flash, render_template,json
 from werkzeug.utils import secure_filename
 from app_latest_results import latest_results_bp
 from app_screeners import screeners_bp
+from app_stock_reaction import stock_reaction
 from baskets_bp import baskets_bp
 from app_quality_stocks import quality_stocks_bp
 from app_delvr_pct_graph import delvr_pct_graph_bp
@@ -14,6 +15,7 @@ from app_index_returns import index_returns_bp
 from app_fii_sector_activity import fii_sector_activity_bp
 from app_daily_trade_stats import daily_trade_stats_bp
 from app_daily_trade_stock_stats import daily_trade_stock_stats_bp
+from app_stock_reaction import stock_reaction_bp
 import commonfunctions as cf
 from file_list_config import file_list_config
 import logging
@@ -48,6 +50,7 @@ app.register_blueprint(index_returns_bp)
 app.register_blueprint(fii_sector_activity_bp)
 app.register_blueprint(daily_trade_stats_bp)
 app.register_blueprint(daily_trade_stock_stats_bp)
+app.register_blueprint(stock_reaction_bp)
 
 
 # ------------------------
